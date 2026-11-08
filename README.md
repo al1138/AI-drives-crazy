@@ -38,3 +38,4 @@ npx wrangler pages deploy lab --project-name=ai-drives-crazy
 3. Push sur `main` (fichiers sous `lab/**`) → le workflow `.github/workflows/deploy-pages.yml` publie tout seul
 
 Alternative sans secrets GitHub : dashboard Cloudflare → **Workers & Pages** → Create → **Connect to Git** → repo `AI-drives-crazy` → Root directory `lab` → Build command vide → Deploy. Chaque push sur `main` redéploie.
+

@@ -247,10 +247,33 @@
     }
   }
 
-  /* ——— Halo (Nisbett & Wilson 1977) ——— */
+  /* ——— Halo : protocole 1977 (conditions) ou casting (candidates) ——— */
+
+  function haloCandidates() {
+    return exp()?.candidates || [];
+  }
+
+  function isCastingHalo() {
+    return haloCandidates().length > 0 && !(exp()?.conditions || []).length;
+  }
 
   function startHalo() {
     resetState();
+    H.setMode("play");
+    hideAllPlays();
+    if (el().hint) el().hint.hidden = true;
+    if (el().startRow) el().startRow.hidden = true;
+    showBias();
+
+    if (isCastingHalo()) {
+      state.phase = "form";
+      state.candIndex = 0;
+      state.charisma = {};
+      state.trustPick = null;
+      showHaloForm();
+      return;
+    }
+
     const conditions = exp()?.conditions || [];
     state.condition = conditions.length
       ? conditions[Math.floor(Math.random() * conditions.length)]
@@ -260,12 +283,60 @@
     state.globalKey = null;
     state.globalValence = 0;
     state.ratings = {};
-    H.setMode("play");
-    hideAllPlays();
-    if (el().hint) el().hint.hidden = true;
-    if (el().startRow) el().startRow.hidden = true;
-    showBias();
     showHaloGlobal();
+  }
+
+  function showHaloForm() {
+    const list = haloCandidates();
+    if (state.candIndex >= list.length) {
+      state.phase = "trust";
+      showHaloTrust();
+      return;
+    }
+    const c = list[state.candIndex];
+    setProgress(`Profil ${state.candIndex + 1} / ${list.length}`);
+    setKicker("casting · première impression");
+    setQuestion(exp()?.formQuestion || "Quelle présence / aura dégage cette personne ?");
+    setBody(`
+      <article class="halo-card">
+        <p class="halo-role">${esc(c.role || "")}</p>
+        <p class="halo-name">${esc(c.name)}</p>
+        <p class="halo-form">${esc(c.form)}</p>
+      </article>`);
+    setChoices([
+      { k: "1", label: "forte aura" },
+      { k: "2", label: "correcte" },
+      { k: "3", label: "faible" },
+    ]);
+  }
+
+  function showHaloTrust() {
+    const list = haloCandidates();
+    const note =
+      exp()?.trustNote ||
+      "Lis vite. Les expertises affichées sont du même calibre — seule l’aura change vraiment.";
+    setProgress("Décision finale");
+    setKicker("casting · tape 1 · 2 · 3 (ou le profil)");
+    setQuestion(
+      exp()?.trustQuestion ||
+        "Pour un achat important, qui suivrais-tu au feeling ?",
+    );
+    // Les profils SONT les réponses (cliquables) — plus besoin de scroller pour trouver 1/2/3.
+    setBody(`
+      <p class="bias-note">${esc(note)}</p>
+      <div class="halo-programs">
+        ${list
+          .map(
+            (c, i) => `
+          <button type="button" class="halo-pick" data-key="${i + 1}" aria-label="${i + 1} : ${esc(c.name)}">
+            <p class="halo-role">${esc(c.role || "")}</p>
+            <p class="halo-name"><span class="halo-key">${i + 1}</span> ${esc(c.name)}</p>
+            <p class="halo-form">${esc(c.talent || c.program || "")}</p>
+          </button>`,
+          )
+          .join("")}
+      </div>`);
+    setChoices(list.map((c, i) => ({ k: String(i + 1), label: c.name })));
   }
 
   function showHaloGlobal() {
@@ -321,6 +392,26 @@
 
   function answerHalo(key) {
     if (!/^[1-3]$/.test(key)) return;
+
+    if (state.phase === "form") {
+      const list = haloCandidates();
+      const c = list[state.candIndex];
+      if (!c) return;
+      state.charisma[c.id] = key === "1" ? 3 : key === "2" ? 2 : 1;
+      H.pushAnswer(key);
+      state.candIndex += 1;
+      showHaloForm();
+      return;
+    }
+    if (state.phase === "trust") {
+      const list = haloCandidates();
+      const c = list[Number(key) - 1];
+      if (!c) return;
+      state.trustPick = c.id;
+      H.pushAnswer(key);
+      H.showEnd();
+      return;
+    }
     if (state.phase === "global") {
       state.globalKey = key;
       state.globalValence = choiceValence(exp()?.globalChoices, key);
@@ -348,6 +439,33 @@
   }
 
   function haloStats() {
+    if (state.trustPick || state.phase === "trust" || (state.charisma && Object.keys(state.charisma).length && !(state.ratings && Object.keys(state.ratings).length))) {
+      const list = haloCandidates();
+      if (list.length) {
+        const scores = state.charisma || {};
+        let topId = list[0]?.id;
+        let topScore = -1;
+        for (const c of list) {
+          const sc = scores[c.id] || 0;
+          if (sc > topScore) {
+            topScore = sc;
+            topId = c.id;
+          }
+        }
+        const matched = state.trustPick === topId;
+        return {
+          mode: "casting",
+          scores,
+          topId,
+          topScore,
+          matched,
+          trustPick: state.trustPick,
+          list,
+          showedHalo: matched,
+        };
+      }
+    }
+
     const cond = state.condition;
     const condVal = typeof cond?.valence === "number" ? cond.valence : 0;
     const entries = Object.values(state.ratings || {});
@@ -362,6 +480,7 @@
     const rated = entries.filter((e) => e.valence !== 0).length;
     const showedHalo = rated > 0 && aligned >= Math.ceil(rated * 0.66);
     return {
+      mode: "experiment",
       conditionId: cond?.id || "",
       conditionValence: condVal,
       globalKey: state.globalKey,
@@ -377,6 +496,50 @@
 
   function renderHaloEnd() {
     const s = haloStats();
+    if (s.mode === "casting") {
+      const top = (s.list || []).find((c) => c.id === s.topId);
+      const trust = (s.list || []).find((c) => c.id === s.trustPick);
+      if (el().fakeRead) {
+        el().fakeRead.innerHTML = `
+          <header class="end-hero">
+            <p class="end-kicker">casting · bilan</p>
+            <h1 class="end-title">${s.matched ? "Aura → confiance" : "Aura ≠ confiance"}</h1>
+            <p class="end-lead">Aura max : <strong>${esc(top?.name || "—")}</strong>${top?.role ? ` <em>(${esc(top.role)})</em>` : ""}. Suivi pour l’achat : <strong>${esc(trust?.name || "—")}</strong>.</p>
+            <p class="end-humor">${s.matched ? "Tu as suivi pour le shopping la même personne qui t’a le plus impressionné·e." : "Tu as séparé un peu l’aura et la compétence — rare, mais possible."}</p>
+          </header>
+          <section class="real-stats">
+            <ul class="stat-list">
+              ${(s.list || [])
+                .map(
+                  (c) =>
+                    `<li>${esc(c.name)}${c.role ? ` · ${esc(c.role)}` : ""} — aura ${s.scores[c.id] || 0}/3</li>`,
+                )
+                .join("")}
+            </ul>
+          </section>`;
+      }
+      H.setReveal(
+        "Tu viens de subir l’effet de halo",
+        "Une qualité saillante (sport, scène, métier qui « inspire confiance ») colore le reste : on croit juger une autre compétence (ici : conseils d’achat), on a souvent jugé l’aura. Les expertises affichées étaient volontairement équivalentes — seuls les portraits changeaient vraiment.",
+        [
+          "Réussir dans un domaine ≠ exceller dans un autre",
+          "Aura, célébrité, « sérieux » du métier = raccourcis",
+          "Le cerveau généralise une impression positive",
+          "Pub, influenceurs, labels « expert » jouent sur le même levier",
+        ],
+      );
+      if (el().revealExtra) {
+        el().revealExtra.innerHTML = `
+          <h3 class="reveal-sub">Le même piège au quotidien</h3>
+          <ul class="reveal-biases">
+            <li><strong>Champion·ne sportif·ve → coach budget / nutrition</strong> — la performance se vend comme preuve universelle.</li>
+            <li><strong>Star / influenceur → shopping, mutuelle, appli</strong> — le liking remplace l’expertise produit.</li>
+            <li><strong>Métiers « qui rassurent »</strong> — blouse, tablier, badge : l’uniforme fait halo, même hors du vrai sujet.</li>
+          </ul>`;
+      }
+      return;
+    }
+
     const condLabel =
       s.conditionValence > 0
         ? "version chaleureuse"
@@ -384,7 +547,7 @@
           ? "version froide"
           : "version";
     const rows = Object.entries(s.ratings || {})
-      .map(([id, r]) => {
+      .map(([, r]) => {
         const follow =
           r.valence !== 0 && r.valence === s.conditionValence
             ? "suit l’impression"
@@ -570,14 +733,28 @@
       helpers.setMeta(`${(e.slogans || []).length} slogans · ~2 min`);
       helpers.setFinishLabel("voir le bilan");
     } else if (effectName === "halo") {
-      const n = 1 + (e.ratings || []).length;
-      helpers.setIntroSteps([
-        { k: "espace", t: "voir l’extrait" },
-        { k: "1 · 2 · 3", t: "juger" },
-        { k: "terminer", t: "voir l’expérience" },
-      ]);
-      helpers.setMeta(`${n} jugements · expérience 1977 · ~2 min`);
-      helpers.setFinishLabel("voir l’expérience");
+      const casting = (e.candidates || []).length > 0 && !(e.conditions || []).length;
+      helpers.setIntroSteps(
+        casting
+          ? [
+              { k: "espace", t: "voir les profils" },
+              { k: "1 · 2 · 3", t: "juger / choisir" },
+              { k: "terminer", t: "bilan" },
+            ]
+          : [
+              { k: "espace", t: "voir l’extrait" },
+              { k: "1 · 2 · 3", t: "juger" },
+              { k: "terminer", t: "voir l’expérience" },
+            ],
+      );
+      if (casting) {
+        helpers.setMeta(`${(e.candidates || []).length} profils · ~2 min`);
+        helpers.setFinishLabel("voir le bilan");
+      } else {
+        const n = 1 + (e.ratings || []).length;
+        helpers.setMeta(`${n} jugements · expérience 1977 · ~2 min`);
+        helpers.setFinishLabel("voir l’expérience");
+      }
     } else if (effectName === "anchor") {
       helpers.setIntroSteps([
         { k: "espace", t: "entrer dans la salle" },
@@ -648,6 +825,15 @@
     }
     if (eff === "halo") {
       const s = haloStats();
+      if (s.mode === "casting") {
+        return {
+          effect: "halo",
+          matched: !!s.matched,
+          showedHalo: !!s.matched,
+          trustPick: s.trustPick,
+          topId: s.topId,
+        };
+      }
       return {
         effect: "halo",
         matched: s.showedHalo,

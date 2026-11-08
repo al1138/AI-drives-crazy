@@ -1461,6 +1461,23 @@ function renderCorrSources(sources) {
     .join("")}</ul>`;
 }
 
+function renderQuizReviewRows() {
+  return corrLog
+    .map((row, i) => {
+      const mark = row.correct ? "ok" : "ko";
+      return `
+        <article class="corr-review ${mark}">
+          <p class="corr-review-n">Q${i + 1}</p>
+          <p class="corr-review-q">${escapeHtml(row.q)}</p>
+          <p class="corr-review-ans"><span>Toi :</span> ${escapeHtml(row.label || "")}</p>
+          <p class="corr-review-ans"><span>Bonne lecture :</span> ${escapeHtml(row.correctLabel)}</p>
+          ${row.explain ? `<p class="corr-review-explain">${escapeHtml(row.explain)}</p>` : ""}
+          ${renderCorrSources(row.sources)}
+        </article>`;
+    })
+    .join("");
+}
+
 function renderScienceEnd() {
   const s = corrScore();
   if (el.fakeRead) {
@@ -1494,21 +1511,6 @@ function renderScienceEnd() {
   );
 
   if (el.revealExtra) {
-    const rows = corrLog
-      .map((row, i) => {
-        const mark = row.correct ? "ok" : "ko";
-        return `
-          <article class="corr-review ${mark}">
-            <p class="corr-review-n">Q${i + 1}</p>
-            <p class="corr-review-q">${escapeHtml(row.q)}</p>
-            <p class="corr-review-ans"><span>Toi :</span> ${escapeHtml(row.label || "")}</p>
-            <p class="corr-review-ans"><span>Bonne lecture :</span> ${escapeHtml(row.correctLabel)}</p>
-            ${row.explain ? `<p class="corr-review-explain">${escapeHtml(row.explain)}</p>` : ""}
-            ${renderCorrSources(row.sources)}
-          </article>`;
-      })
-      .join("");
-
     el.revealExtra.innerHTML = `
       <h3 class="reveal-sub">La force de l’apparente contradiction</h3>
       <p class="reveal-explain">
@@ -1517,7 +1519,51 @@ function renderScienceEnd() {
         C’est plus solide qu’une vérité qui refuse d’être testée.
       </p>
       <h3 class="reveal-sub">Correction</h3>
-      <div class="corr-review-list">${rows}</div>`;
+      <div class="corr-review-list">${renderQuizReviewRows()}</div>`;
+  }
+}
+
+function renderChoiceEnd() {
+  const s = corrScore();
+  if (el.fakeRead) {
+    el.fakeRead.innerHTML = `
+      <header class="end-hero">
+        <p class="end-kicker">choix · score</p>
+        <h1 class="end-title">${s.ok} / ${s.n}</h1>
+        <p class="end-lead">${s.pct}% — majoritaire, proportionnel, tirage au sort, jugement majoritaire : chaque règle peut changer qui gagne.</p>
+        <p class="end-humor">${s.miss ? `${s.miss} piège${s.miss > 1 ? "s" : ""} « la règle est neutre »` : "Sans faute — tu as bien vu que la méthode de choix n’est jamais anodine."}</p>
+      </header>
+      <section class="real-stats">
+        <div class="stat-grid">
+          <div class="stat-card"><p class="stat-card-value">${s.ok}</p><p class="stat-card-label">Bonnes</p></div>
+          <div class="stat-card"><p class="stat-card-value">${s.miss}</p><p class="stat-card-label">Pièges</p></div>
+          <div class="stat-card"><p class="stat-card-value">${s.pct}%</p><p class="stat-card-label">Réussite</p></div>
+          <div class="stat-card"><p class="stat-card-value">${s.n}</p><p class="stat-card-label">Questions</p></div>
+        </div>
+      </section>`;
+  }
+
+  setReveal(
+    "Choisir comment on décide, c’est déjà décider",
+    "Il n’existe pas de mode de scrutin « neutre ». Majorité, proportionnelle, second tour, tirage au sort ou mentions : chaque outil favorise certaines issues et certains profils d’élu·e·s.",
+    [
+      "Majoritaire : vainqueur clair, parfois sans 50 %",
+      "Proportionnel : sièges plus fidèles aux voix",
+      "Tirage au sort : égalité de chance d’être choisi·e pour délibérer",
+      "Jugement majoritaire : on note toutes les options",
+      "Comparer les règles, c’est comparer des effets — pas seulement des « opinions »",
+    ],
+  );
+
+  if (el.revealExtra) {
+    el.revealExtra.innerHTML = `
+      <h3 class="reveal-sub">Pourquoi ça compte</h3>
+      <p class="reveal-explain">
+        Avec les mêmes voix, A peut gagner au majoritaire à un tour et perdre si on change de règle.
+        Le tirage au sort ne « remplace » pas toute élection : il sert surtout à tirer des citoyen·nes au hasard pour délibérer.
+      </p>
+      <h3 class="reveal-sub">Correction</h3>
+      <div class="corr-review-list">${renderQuizReviewRows()}</div>`;
   }
 }
 
@@ -1790,7 +1836,7 @@ function refreshActiveContent() {
     barnumSession = buildBarnumSession();
   } else if (effect() === "confirmation") {
     confirmDeck = buildConfirmDeck();
-  } else if (effect() === "correlation" || effect() === "science") {
+  } else if (isDeckQuiz()) {
     corrDeck = buildCorrDeck();
   }
   applyHomeCopy();
@@ -1852,7 +1898,7 @@ function startPlay() {
       return;
     }
     showConfirmStep();
-  } else if (effect() === "correlation" || effect() === "science") {
+  } else if (isDeckQuiz()) {
     corrDeck = buildCorrDeck();
     if (!corrDeck.length) {
       mode = "idle";
@@ -1888,6 +1934,8 @@ function showEnd() {
     renderCorrEnd();
   } else if (effect() === "science") {
     renderScienceEnd();
+  } else if (effect() === "choice") {
+    renderChoiceEnd();
   } else if (isPolitics()) {
     PoliticsLab.renderEnd(politicsHelpers());
   }
@@ -1937,7 +1985,7 @@ function handleKey(raw) {
   if (mode !== "play" || !/^[1-3]$/.test(k)) return;
   if (effect() === "barnum") answerBarnum(k);
   else if (effect() === "confirmation") answerConfirm(k);
-  else if (effect() === "correlation" || effect() === "science") answerCorr(k);
+  else if (isDeckQuiz()) answerCorr(k);
   else if (isPolitics()) PoliticsLab.answer(k, politicsHelpers());
 }
 

@@ -2104,8 +2104,70 @@ body {
 
 /* ——— Exp politiques (exposition / halo / ancrage) ——— */
 
+#playBias {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+}
+
+#playBias .bias-body {
+  margin: 0;
+  min-height: 0;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+#playBias .key-row {
+  margin-top: 0;
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  padding: 8px 0 2px;
+  background: linear-gradient(180deg, transparent 0%, var(--bg, #faf9f6) 28%);
+}
+
 .bias-body {
   margin: 8px 0 14px;
+}
+
+.halo-pick {
+  appearance: none;
+  -webkit-appearance: none;
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--line);
+  border-bottom-width: 3px;
+  border-radius: 8px;
+  background: var(--soft);
+  padding: 12px 14px;
+  margin: 0;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  touch-action: manipulation;
+}
+
+.halo-pick:active,
+.halo-pick.is-pressed {
+  border-bottom-width: 1px;
+  margin-top: 2px;
+  background: #eee;
+}
+
+.halo-pick .halo-name {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.halo-pick .halo-key {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 14px;
+  font-weight: 500;
+  color: #111;
 }
 
 .bias-slogan {

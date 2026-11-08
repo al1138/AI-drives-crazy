@@ -633,6 +633,7 @@ body {
 }
 
 .end-rail[data-zone="surprise"],
+.end-rail[data-zone="preuve"],
 .end-rail[data-zone="partage"],
 .end-rail[data-zone="suite"],
 .end-rail[data-zone="fin"] {
@@ -656,6 +657,7 @@ body {
 }
 
 .end-rail[data-zone="surprise"] .end-rail-track,
+.end-rail[data-zone="preuve"] .end-rail-track,
 .end-rail[data-zone="partage"] .end-rail-track,
 .end-rail[data-zone="suite"] .end-rail-track,
 .end-rail[data-zone="fin"] .end-rail-track {
@@ -670,6 +672,7 @@ body {
 }
 
 .end-rail[data-zone="surprise"] .end-rail-fill,
+.end-rail[data-zone="preuve"] .end-rail-fill,
 .end-rail[data-zone="partage"] .end-rail-fill,
 .end-rail[data-zone="suite"] .end-rail-fill,
 .end-rail[data-zone="fin"] .end-rail-fill {
@@ -687,6 +690,7 @@ body {
 }
 
 .end-rail[data-zone="surprise"] .end-rail-pct,
+.end-rail[data-zone="preuve"] .end-rail-pct,
 .end-rail[data-zone="partage"] .end-rail-pct,
 .end-rail[data-zone="suite"] .end-rail-pct,
 .end-rail[data-zone="fin"] .end-rail-pct {
@@ -707,6 +711,7 @@ body {
 }
 
 .end-rail[data-zone="surprise"] .end-rail-stage,
+.end-rail[data-zone="preuve"] .end-rail-stage,
 .end-rail[data-zone="partage"] .end-rail-stage,
 .end-rail[data-zone="suite"] .end-rail-stage,
 .end-rail[data-zone="fin"] .end-rail-stage {
@@ -721,6 +726,7 @@ body {
 }
 
 .end-rail[data-zone="surprise"] .end-rail-nudge,
+.end-rail[data-zone="preuve"] .end-rail-nudge,
 .end-rail[data-zone="partage"] .end-rail-nudge,
 .end-rail[data-zone="suite"] .end-rail-nudge,
 .end-rail[data-zone="fin"] .end-rail-nudge {
@@ -742,6 +748,7 @@ body {
 }
 
 .end-rail[data-zone="surprise"] .end-rail-go,
+.end-rail[data-zone="preuve"] .end-rail-go,
 .end-rail[data-zone="partage"] .end-rail-go,
 .end-rail[data-zone="suite"] .end-rail-go,
 .end-rail[data-zone="fin"] .end-rail-go {
@@ -1537,6 +1544,84 @@ body {
 
 .end-actions {
   padding-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.proof-history {
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.proof-title {
+  margin: 0;
+  font-size: clamp(20px, 3vw, 26px);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+.proof-lead {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #444;
+  max-width: 40em;
+}
+
+.proof-card {
+  padding: 14px 12px;
+  border: 1px solid var(--line);
+  background: var(--soft);
+}
+
+.proof-hint {
+  margin: 0;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.proof-actions {
+  margin-top: 4px;
+}
+
+.proof-diff {
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #333;
+}
+
+.proof-diff li::before {
+  content: "→ ";
+  color: var(--muted);
+}
+
+.proof-list {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #333;
+}
+
+.proof-list-n {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  color: var(--muted);
+  margin-right: 6px;
 }
 
 @media (min-width: 640px) {

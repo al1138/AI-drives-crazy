@@ -9,6 +9,8 @@ const NEWS_KEY = "ontelit.newsletter.v1";
 const SESSION_KEY = "ontelit.session.v1";
 const SEEN_Q_KEY = "ontelit.seen.v1";
 const SEEN_EXP_KEY = "ontelit.exp.seen.v1";
+const RUNS_KEY = "ontelit.runs.v1";
+const MAX_RUNS_PER_EFFECT = 20;
 
 /** @typedef {{ k: string, label: string }} Choice */
 /** @typedef {{ id: string, q: string, choices: Choice[], packId?: string, packLabel?: string }} Question */
@@ -54,6 +56,10 @@ const el = {
   revealLevers: document.getElementById("revealLevers"),
   revealExtra: document.getElementById("revealExtra"),
   revealSection: document.getElementById("revealSection"),
+  proofHistory: document.getElementById("proofHistory"),
+  proofTitle: document.getElementById("proofTitle"),
+  proofLead: document.getElementById("proofLead"),
+  proofBody: document.getElementById("proofBody"),
   scrollBridge: document.getElementById("scrollBridge"),
   bridgeTitle: document.getElementById("bridgeTitle"),
   bridgeCopy: document.getElementById("bridgeCopy"),
@@ -518,7 +524,12 @@ const SCROLL_NUDGES = {
   },
   surprise: {
     stage: "surprise",
-    text: "Tu y es. Lis jusqu’au bout — puis partage.",
+    text: "Tu y es. Lis jusqu’au bout — puis rejoue pour comparer.",
+    cta: "Preuve ↓",
+  },
+  preuve: {
+    stage: "preuve",
+    text: "Tes passages sont mémorisés. Rejoue pour renforcer la démo.",
     cta: "Partager ↓",
   },
   partage: {
@@ -533,7 +544,7 @@ const SCROLL_NUDGES = {
   },
   fin: {
     stage: "terminé",
-    text: "Bilan complet. Tu peux partager ou recommencer.",
+    text: "Bilan complet. Tu peux rejouer, partager ou changer.",
     cta: "Haut ↑",
   },
 };
@@ -696,13 +707,237 @@ function scrollToChapter(name) {
 }
 
 function scrollNextChapter() {
-  const order = ["profil", "bridge", "surprise", "partage", "suite", "fin"];
+  const order = ["profil", "bridge", "surprise", "preuve", "partage", "suite", "fin"];
   const i = order.indexOf(scrollZone);
   if (scrollZone === "fin" || i >= order.length - 1) {
     window.scrollTo({ top: 0, behavior: "smooth" });
     return;
   }
   scrollToChapter(order[i + 1]);
+}
+
+/* ——— Historique des passages (preuve) ——— */
+
+function loadRunsStore() {
+  try {
+    const raw = localStorage.getItem(RUNS_KEY);
+    const data = raw ? JSON.parse(raw) : {};
+    return data && typeof data === "object" ? data : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveRunsStore(store) {
+  localStorage.setItem(RUNS_KEY, JSON.stringify(store));
+}
+
+/** @returns {any[]} */
+function getRuns(effectId) {
+  const store = loadRunsStore();
+  const list = store[effectId];
+  return Array.isArray(list) ? list : [];
+}
+
+/** Garde toujours le 1er passage + les plus récents. */
+function appendRunKeepFirst(effectId, snap) {
+  const store = loadRunsStore();
+  const prev = Array.isArray(store[effectId]) ? store[effectId] : [];
+  const first = prev[0];
+  const rest = prev.slice(1);
+  const next = { ...snap, at: Date.now() };
+  let list;
+  if (!first) {
+    list = [next];
+  } else {
+    list = [first, ...rest, next];
+    while (list.length > MAX_RUNS_PER_EFFECT) {
+      if (list.length > 2) list.splice(1, 1);
+      else break;
+    }
+  }
+  list = list.map((r, i) => ({ ...r, n: i + 1 }));
+  store[effectId] = list;
+  saveRunsStore(store);
+  return list;
+}
+
+function buildCurrentSnapshot() {
+  const eff = effect();
+  if (eff === "barnum") {
+    const reading = buildBarnumReading(answers);
+    const keys = answerOrder.length ? answerOrder.slice() : Object.values(answers);
+    const real = computeRealStats(answers, answerOrder, barnumSession, quizStartedAt, quizEndedAt);
+    return {
+      effect: "barnum",
+      keys,
+      title: reading.title,
+      body: reading.body,
+      seed: reading.seed,
+      pcts: reading.metrics.map((m) => m.pct),
+      realDominant: real.dominant,
+      realSeq: real.sequence,
+      duration: real.sec,
+    };
+  }
+  if (eff === "confirmation") {
+    const s = confirmBiasedScore(confirmMarks);
+    return {
+      effect: "confirmation",
+      marks: { ...confirmMarks },
+      keys: answerOrder.slice(),
+      biased: s.biased,
+      honest: s.honest,
+      hits: s.hits,
+      soft: s.soft,
+      miss: s.miss,
+      hitTexts: confirmDeck.filter((p) => confirmMarks[p.id] === "1").map((p) => p.text),
+      missTexts: confirmDeck.filter((p) => confirmMarks[p.id] === "2").map((p) => p.text),
+    };
+  }
+  const s = corrBiasedScore();
+  return {
+    effect: "correlation",
+    pairs: corrLog.map((r) => ({
+      drink: r.drinkLabel,
+      sign: r.sign,
+      rate: r.rate,
+    })),
+    biased: s.biased,
+    honestConv: s.honestConv,
+    conv: s.conv,
+  };
+}
+
+function formatRunTime(at) {
+  try {
+    return new Date(at).toLocaleString("fr-FR", {
+      day: "2-digit",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch {
+    return "";
+  }
+}
+
+function renderProofPanel(runs) {
+  if (!el.proofBody || !el.proofLead || !el.proofTitle) return;
+  const eff = effect();
+  const count = runs.length;
+  const first = runs[0];
+  const last = runs[runs.length - 1];
+
+  if (count <= 1) {
+    el.proofTitle.textContent = "Rejoue pour voir la différence";
+    el.proofLead.textContent =
+      "Passage n°1 enregistré sur cet appareil. Rejoue avec d’autres choix : on gardera ce premier passage pour prouver que le « diagnostic » marche pareil.";
+    el.proofBody.innerHTML = `
+      <div class="proof-card">
+        <p class="algo-card-kicker">passage #1 · ${escapeHtml(formatRunTime(first?.at))}</p>
+        ${proofSummaryHtml(eff, first)}
+      </div>
+      <p class="proof-hint">Astuce : réponds volontairement à l’opposé la prochaine fois.</p>`;
+    return;
+  }
+
+  el.proofTitle.textContent = `${count} passages mémorisés`;
+  el.proofLead.textContent =
+    eff === "barnum"
+      ? "Premier vs dernier : les réponses changent, le ton « ultra personnel » reste interchangeable."
+      : eff === "confirmation"
+        ? "Quel que soit ce que tu coches, le bilan met en avant les « ça colle » et gonfle le %."
+        : "Boissons différentes, signes toujours tirés à part — les histoires restent aussi « évidentes ».";
+
+  el.proofBody.innerHTML = `
+    <div class="algo-compare">
+      <article class="algo-card">
+        <p class="algo-card-kicker">1er passage · ${escapeHtml(formatRunTime(first.at))}</p>
+        ${proofSummaryHtml(eff, first)}
+      </article>
+      <article class="algo-card algo-card-alt">
+        <p class="algo-card-kicker">dernier · ${escapeHtml(formatRunTime(last.at))}</p>
+        ${proofSummaryHtml(eff, last)}
+      </article>
+    </div>
+    ${proofDiffHtml(eff, first, last)}
+    <h3 class="reveal-sub" style="margin-top:22px">Tous les passages</h3>
+    <ol class="proof-list">
+      ${runs
+        .map(
+          (r, i) =>
+            `<li><span class="proof-list-n">#${i + 1}</span> ${escapeHtml(formatRunTime(r.at))} — ${escapeHtml(proofOneLiner(eff, r))}</li>`,
+        )
+        .join("")}
+    </ol>`;
+}
+
+function proofSummaryHtml(eff, run) {
+  if (!run) return "<p class='algo-card-body'>—</p>";
+  if (eff === "barnum") {
+    return `
+      <p class="algo-card-keys">${escapeHtml((run.keys || []).join(" · ") || "—")}</p>
+      <p class="algo-card-title">${escapeHtml(run.title || "")}</p>
+      <p class="algo-card-body">${escapeHtml(run.body || "")}</p>
+      <p class="algo-card-pcts">% inventés : ${(run.pcts || []).join(" · ") || "—"}</p>`;
+  }
+  if (eff === "confirmation") {
+    return `
+      <p class="algo-card-title">Affiché ${run.biased}% · honnête ${run.honest}%</p>
+      <p class="algo-card-body">Ça colle : ${run.hits} · vague : ${run.soft} · non : ${run.miss}</p>
+      <p class="algo-card-keys">Touches : ${escapeHtml((run.keys || []).join(" · ") || "—")}</p>`;
+  }
+  const pairs = (run.pairs || [])
+    .map((p) => `${p.drink} × ${p.sign}`)
+    .join(" · ");
+  return `
+    <p class="algo-card-title">Score ${run.biased}% · convaincant ${run.conv}/${(run.pairs || []).length}</p>
+    <p class="algo-card-body">${escapeHtml(pairs)}</p>`;
+}
+
+function proofOneLiner(eff, run) {
+  if (eff === "barnum") return `${(run.keys || []).join("")} → « ${run.title || "profil"} »`;
+  if (eff === "confirmation") return `affiché ${run.biased}% / honnête ${run.honest}%`;
+  return `corrélation ${run.biased}% · ${(run.pairs || []).map((p) => p.drink).join(", ")}`;
+}
+
+function proofDiffHtml(eff, a, b) {
+  if (eff === "barnum") {
+    const sameKeys = JSON.stringify(a.keys) === JSON.stringify(b.keys);
+    const sameTitle = a.title === b.title;
+    const sameBody = a.body === b.body;
+    return `<ul class="proof-diff">
+      <li>Réponses : ${sameKeys ? "identiques (rejoue autrement pour tranché)" : "différentes"}</li>
+      <li>Titre du profil : ${sameTitle ? "même tirage" : "changé — toujours flatteur"}</li>
+      <li>Texte : ${sameBody ? "identique" : "autre phrase générique, même style"}</li>
+      <li>Les % « indices » restent dans la zone marketing (61–89), pas des mesures.</li>
+    </ul>`;
+  }
+  if (eff === "confirmation") {
+    return `<ul class="proof-diff">
+      <li>Score affiché : ${a.biased}% → ${b.biased}% (toujours ≥ score honnête)</li>
+      <li>Score honnête : ${a.honest}% → ${b.honest}%</li>
+      <li>Écart affiché−honnête : ${a.biased - a.honest} pts → ${b.biased - b.honest} pts</li>
+      <li>Même manœuvre : mettre en lumière les « ça colle », enterrer les « non ».</li>
+    </ul>`;
+  }
+  return `<ul class="proof-diff">
+    <li>Boissons 1er : ${(a.pairs || []).map((p) => p.drink).join(", ") || "—"}</li>
+    <li>Boissons dernier : ${(b.pairs || []).map((p) => p.drink).join(", ") || "—"}</li>
+    <li>Signes : toujours re-tirés indépendamment — aucune causalité café → ciel.</li>
+    <li>Scores marketing : ${a.biased}% → ${b.biased}%</li>
+  </ul>`;
+}
+
+function replaySameCompare() {
+  disableEndScrollCoach();
+  el.endView.hidden = true;
+  el.labView.hidden = false;
+  // Garde la même expérience ; nouveau tirage de contenu.
+  refreshActiveContent();
+  startPlay();
+  window.scrollTo(0, 0);
 }
 
 function prepareBridgeCopy() {
@@ -791,9 +1026,10 @@ function renderConfirmEnd() {
       <section class="confirm-hits">
         <p class="end-kicker">ce qui a collé</p>
         <ul class="sticky-board sticky-board-hits">
-          ${hitList
-            .map((p) => `<li class="sticky-mini sticky-hit">${escapeHtml(p.text)}</li>`)
-            .join("") || "<li class="sticky-mini">Rien coché « ça colle » — rare, mais possible.</li>"}
+          ${
+            hitList.map((p) => `<li class="sticky-mini sticky-hit">${escapeHtml(p.text)}</li>`).join("") ||
+            "<li class='sticky-mini'>Rien coché « ça colle » — rare, mais possible.</li>"
+          }
         </ul>
       </section>
       <section class="real-stats">
@@ -1297,6 +1533,9 @@ function showEnd() {
     renderCorrEnd();
   }
 
+  const runs = appendRunKeepFirst(effect(), buildCurrentSnapshot());
+  renderProofPanel(runs);
+
   prepareBridgeCopy();
   wireShareLinks();
   prepareNewsForm();
@@ -1400,6 +1639,7 @@ document.addEventListener("click", (e) => {
     const action = actionBtn.getAttribute("data-action");
     if (action === "finish") showEnd();
     if (action === "back") showLab();
+    if (action === "replay-compare") replaySameCompare();
     if (action === "reroll-barnum") rerollBarnumDemo();
     if (action === "reroll-corr") rerollCorrDemo();
     if (action === "scroll-next") scrollNextChapter();

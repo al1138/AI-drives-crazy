@@ -141,6 +141,19 @@
           </p>
         </section>
 
+        <section class="proof-history" aria-labelledby="proofTitle" data-chapter="preuve" id="proofHistory">
+          <p class="end-kicker">mémoire des passages</p>
+          <h2 class="proof-title" id="proofTitle">Rejoue pour voir la différence</h2>
+          <p class="proof-lead" id="proofLead"></p>
+          <div id="proofBody"></div>
+          <div class="proof-actions">
+            <button type="button" class="key key-wide" data-action="replay-compare">
+              <span class="key-glyph">rejouer</span>
+              <span class="key-label">même expérience · comparer</span>
+            </button>
+          </div>
+        </section>
+
         <section class="share-block" aria-labelledby="shareTitle" data-chapter="partage" id="shareSection">
           <p class="end-kicker">partager</p>
           <h2 class="share-title" id="shareTitle">Envoie ça avant d’oublier.</h2>
@@ -191,9 +204,13 @@
         </section>
 
         <div class="end-actions" data-chapter="fin">
-          <button type="button" class="key key-wide" data-action="back">
-            <span class="key-glyph">retour</span>
-            <span class="key-label">refaire</span>
+          <button type="button" class="key key-wide" data-action="replay-compare">
+            <span class="key-glyph">rejouer</span>
+            <span class="key-label">comparer les passages</span>
+          </button>
+          <button type="button" class="key key-wide key-finish" data-action="back">
+            <span class="key-glyph">autre</span>
+            <span class="key-label">changer d’expérience</span>
           </button>
         </div>
       </section>

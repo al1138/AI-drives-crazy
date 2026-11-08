@@ -10,8 +10,8 @@ INSERT OR IGNORE INTO tests (id, effect, title, blurb, sort_order, active) VALUE
   (
     'correlation-cafe-cosmic',
     'correlation',
-    'Café & Cosmic',
-    '5 jours : boisson × signe du ciel. On cherche le lien.',
+    'Observatoire des coïncidences',
+    '5 dossiers : légendes et fausses causes. Tu juges si le lien tient.',
     3,
     1
   );

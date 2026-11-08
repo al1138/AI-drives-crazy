@@ -41,41 +41,48 @@
     {
       "id": "correlation",
       "effect": "correlation",
-      "homeTitle": "Café & Cosmic",
-      "homeBlurb": "5 jours express. Chaque matin : tu choisis une boisson, le ciel tire un signe — on cherche le lien.",
+      "homeTitle": "Observatoire des coïncidences",
+      "homeBlurb": "5 dossiers tirés de légendes, de « on sait bien que… » et de fausses pistes scientifiques. Tu juges si le lien tient.",
       "clickbait": [
-        "Ton café explique-t-il ton destin ?",
-        "5 jours de synchronicités",
-        "Boisson du jour × signe du ciel"
+        "5 coïncidences qui ont l’air vraies",
+        "Légendes & fausses causes",
+        "Corrélation ≠ causalité — démo"
       ],
-      "drinks": [
-        { "k": "1", "label": "Café serré" },
-        { "k": "2", "label": "Thé / tisane" },
-        { "k": "3", "label": "Autre / rien" }
+      "seriesA": [
+        "Pleine lune cette nuit-là",
+        "Forte hausse des ventes de glaces",
+        "Plus de cigognes recensées dans la région",
+        "Vendredi 13",
+        "Vent du nord pendant trois jours",
+        "Année où les gens ont acheté plus de casques de vélo",
+        "Pays où l’on mange beaucoup de chocolat",
+        "Enfants qui portent des chaussures plus grandes",
+        "Hausse du nombre de piscines privées",
+        "Plus de films avec un certain acteur sortis cette année",
+        "Tempête solaire signalée par les médias",
+        "Classement PISA en maths en légère baisse"
       ],
-      "signs": [
-        "Mercure en mode chaotique",
-        "Lune un peu trop pleine",
-        "Venus en sourdine",
-        "Mars qui tape du pied",
-        "Saturne qui juge en silence",
-        "Nuages en forme de point d’interrogation",
-        "Vent d’ouest un brin ironique",
-        "Alignement « presque » parfait"
-      ],
-      "moodBits": [
-        "une pointe d’impatience",
-        "un besoin de contrôle",
-        "une envie de procrastiner avec panache",
-        "une lucidité passagère",
-        "une fatigue élégante",
-        "un élan soudain"
+      "seriesB": [
+        "Services d’urgences plus chargés",
+        "Plus de noyades déclarées",
+        "Plus de naissances enregistrées",
+        "Plus d’accidents de la route signalés",
+        "Notes scolaires moyennes en hausse",
+        "Plus de prix Nobel scientifiques",
+        "Température moyenne mondiale plus haute",
+        "Plus de plaintes pour maux de tête",
+        "Retards de trains plus fréquents",
+        "Hausse des abonnements streaming",
+        "Plus de tickets de police dressés",
+        "Taux de chômage un peu plus bas"
       ],
       "linkTemplates": [
-        "Évidemment : {sign} → {drink}. Ça explique {mood}.",
-        "Le ciel ne ment pas. {sign} et ton choix « {drink} » forment une boucle causale classique.",
-        "Corrélation détectée : {drink} apparaît souvent quand {sign}. Coincidence ? On ne croit pas.",
-        "{sign} pousse le système nerveux vers {drink}. D’où {mood}."
+        "C’est une « connaissance » classique : {a} entraîne {b}. Le lien paraît naturel.",
+        "Les anciens le disaient déjà — et les chiffres bruts vont dans le même sens : quand {a}, on voit {b}.",
+        "En apparence scientifique : une corrélation r ≈ 0,7 entre « {a} » et « {b} ». Donc {a} causerait {b}.",
+        "Mécanisme inventé mais crédible : {a} perturbe un facteur caché, qui pousse ensuite {b}.",
+        "Légende urbaine tenace : dès que {a}, attendez-vous à {b}. Beaucoup de gens « l’ont vécu ».",
+        "Lecture paresseuse des stats : les deux courbes montent ensemble ({a} et {b}), donc cause → effet."
       ]
     }
   ]

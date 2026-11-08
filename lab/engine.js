@@ -17,7 +17,7 @@ const MAX_RUNS_PER_EFFECT = 20;
 /** @typedef {{ id: string, label: string, questions: Question[] }} Pack */
 /** @typedef {{ id: string, effect: string, title: string, blurb: string, questions: Question[], packIds: string[] }} BarnumSession */
 /** @typedef {{ id: string, text: string, kind: string }} Prediction */
-/** @typedef {{ id: string, effect: string, homeTitle: string, homeBlurb: string, clickbait?: string[], predictions?: Prediction[], drinks?: Choice[], signs?: string[], moodBits?: string[], linkTemplates?: string[] }} ExpDef */
+/** @typedef {{ id: string, effect: string, homeTitle: string, homeBlurb: string, clickbait?: string[], predictions?: Prediction[], seriesA?: string[], seriesB?: string[], linkTemplates?: string[] }} ExpDef */
 
 const el = {
   labView: document.getElementById("labView"),
@@ -37,7 +37,6 @@ const el = {
   corrProgress: document.getElementById("corrProgress"),
   corrDay: document.getElementById("corrDay"),
   corrPrompt: document.getElementById("corrPrompt"),
-  corrDrinkChoices: document.getElementById("corrDrinkChoices"),
   corrPair: document.getElementById("corrPair"),
   corrDrink: document.getElementById("corrDrink"),
   corrSign: document.getElementById("corrSign"),
@@ -117,11 +116,11 @@ let confirmMarks = {};
 
 /** Correlation */
 const CORR_DAYS = 5;
-/** @type {{ drink: string, drinkLabel: string, sign: string, story: string, rate: string }[]} */
+/** @type {{ factA: string, factB: string, story: string, rate: string }[]} */
 let corrLog = [];
-/** @type {'pick'|'rate'} */
-let corrPhase = "pick";
-let corrPending = /** @type {{ drink: string, drinkLabel: string, sign: string, story: string } | null} */ (null);
+/** ids déjà tirés dans la session pour éviter les doublons immédiats */
+let corrUsedA = /** @type {Set<string>} */ (new Set());
+let corrUsedB = /** @type {Set<string>} */ (new Set());
 
 /** @type {string[]} */
 let clickbaitPool = [];
@@ -470,12 +469,12 @@ function applyHomeCopy() {
     if (el.finishLabel) el.finishLabel.textContent = "voir ma précision";
   } else {
     setIntroSteps([
-      { k: "espace", t: "lancer Café & Cosmic" },
-      { k: "1 · 2 · 3", t: "boisson, puis avis" },
-      { k: "terminer", t: "voir la corrélation" },
+      { k: "espace", t: "ouvrir l’observatoire" },
+      { k: "1 · 2 · 3", t: "plausible / douteux / sans lien" },
+      { k: "terminer", t: "voir le rapport" },
     ]);
-    if (el.meta) el.meta.textContent = `${CORR_DAYS} jours simulés · ~2 min`;
-    if (el.finishLabel) el.finishLabel.textContent = "voir la corrélation";
+    if (el.meta) el.meta.textContent = `${CORR_DAYS} dossiers · ~2 min`;
+    if (el.finishLabel) el.finishLabel.textContent = "voir le rapport";
   }
 }
 
@@ -800,8 +799,10 @@ function buildCurrentSnapshot() {
   return {
     effect: "correlation",
     pairs: corrLog.map((r) => ({
-      drink: r.drinkLabel,
-      sign: r.sign,
+      drink: r.factA,
+      sign: r.factB,
+      factA: r.factA,
+      factB: r.factB,
       rate: r.rate,
     })),
     biased: s.biased,
@@ -849,7 +850,7 @@ function renderProofPanel(runs) {
       ? "Premier vs dernier : les réponses changent, le ton « ultra personnel » reste interchangeable."
       : eff === "confirmation"
         ? "Quel que soit ce que tu coches, le bilan met en avant les « ça colle » et gonfle le %."
-        : "Boissons différentes, signes toujours tirés à part — les histoires restent aussi « évidentes ».";
+        : "Observations A et B toujours tirées à part — les « explications » restent aussi parlantes.";
 
   el.proofBody.innerHTML = `
     <div class="algo-compare">
@@ -890,17 +891,17 @@ function proofSummaryHtml(eff, run) {
       <p class="algo-card-keys">Touches : ${escapeHtml((run.keys || []).join(" · ") || "—")}</p>`;
   }
   const pairs = (run.pairs || [])
-    .map((p) => `${p.drink} × ${p.sign}`)
+    .map((p) => `${p.factA || p.drink} × ${p.factB || p.sign}`)
     .join(" · ");
   return `
-    <p class="algo-card-title">Score ${run.biased}% · convaincant ${run.conv}/${(run.pairs || []).length}</p>
+    <p class="algo-card-title">Score ${run.biased}% · « plausible » ${run.conv}/${(run.pairs || []).length}</p>
     <p class="algo-card-body">${escapeHtml(pairs)}</p>`;
 }
 
 function proofOneLiner(eff, run) {
   if (eff === "barnum") return `${(run.keys || []).join("")} → « ${run.title || "profil"} »`;
   if (eff === "confirmation") return `affiché ${run.biased}% / honnête ${run.honest}%`;
-  return `corrélation ${run.biased}% · ${(run.pairs || []).map((p) => p.drink).join(", ")}`;
+  return `score ${run.biased}% · ${run.conv} « plausible »`;
 }
 
 function proofDiffHtml(eff, a, b) {
@@ -924,9 +925,9 @@ function proofDiffHtml(eff, a, b) {
     </ul>`;
   }
   return `<ul class="proof-diff">
-    <li>Boissons 1er : ${(a.pairs || []).map((p) => p.drink).join(", ") || "—"}</li>
-    <li>Boissons dernier : ${(b.pairs || []).map((p) => p.drink).join(", ") || "—"}</li>
-    <li>Signes : toujours re-tirés indépendamment — aucune causalité café → ciel.</li>
+    <li>1er passage : ${(a.pairs || []).length} dossiers jugés</li>
+    <li>Dernier : ${(b.pairs || []).length} dossiers</li>
+    <li>À chaque fois, A et B étaient tirés séparément — le récit inventait la cause.</li>
     <li>Scores marketing : ${a.biased}% → ${b.biased}%</li>
   </ul>`;
 }
@@ -949,9 +950,9 @@ function prepareBridgeCopy() {
     el.bridgeCopy.textContent =
       "Tu as vu les réussites. Descends : on te montre ce que le bilan avait envie d’oublier.";
   } else if (effect() === "correlation") {
-    el.bridgeTitle.textContent = "La corrélation a l’air propre…";
+    el.bridgeTitle.textContent = "Les dossiers avaient l’air solides…";
     el.bridgeCopy.textContent =
-      "Encore un cran : on défait le lien café × ciel.";
+      "Encore un cran : on montre que A et B étaient tirés séparément.";
   } else {
     el.bridgeTitle.textContent = "La suite change la lecture.";
     el.bridgeCopy.textContent =
@@ -1084,29 +1085,22 @@ function renderConfirmEnd() {
   }
 }
 
-/* ——— Corrélation ——— */
+/* ——— Corrélation (légendes / fausses causes) ——— */
 
-function renderCorrDrinks() {
-  if (!el.corrDrinkChoices) return;
-  const drinks = activeExp?.drinks || [];
-  el.corrDrinkChoices.innerHTML = "";
-  for (const d of drinks) {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "key";
-    btn.dataset.key = d.k;
-    btn.setAttribute("aria-label", `${d.k} : ${d.label}`);
-    btn.innerHTML = `<span class="key-glyph">${d.k}</span><span class="key-label">${escapeHtml(d.label)}</span>`;
-    el.corrDrinkChoices.appendChild(btn);
-  }
+function pickUnused(pool, used) {
+  const fresh = pool.filter((x) => !used.has(x));
+  const source = fresh.length ? fresh : pool;
+  const choice = pick(shuffle(source));
+  used.add(choice);
+  return choice;
 }
 
-function inventCorrStory(drinkLabel, sign) {
-  const moods = activeExp?.moodBits || ["une drôle d’énergie"];
-  const templates = activeExp?.linkTemplates || ["{sign} explique {drink}."];
-  const mood = pick(moods);
+function inventCorrStory(factA, factB) {
+  const templates = activeExp?.linkTemplates || [
+    "Donc {a} provoquerait {b}.",
+  ];
   const tpl = pick(templates);
-  return tpl.replace(/\{drink\}/g, drinkLabel).replace(/\{sign\}/g, sign).replace(/\{mood\}/g, mood);
+  return tpl.replace(/\{a\}/g, factA).replace(/\{b\}/g, factB);
 }
 
 function showCorrDay() {
@@ -1115,41 +1109,34 @@ function showCorrDay() {
     return;
   }
   mode = "play";
-  corrPhase = "pick";
-  corrPending = null;
   hidePlays();
   if (el.hint) el.hint.hidden = true;
   if (el.startRow) el.startRow.hidden = true;
   if (el.playCorr) el.playCorr.hidden = false;
-  if (el.corrProgress) el.corrProgress.textContent = `Jour ${stepIndex + 1} / ${CORR_DAYS}`;
-  if (el.corrDay) el.corrDay.textContent = `Jour ${stepIndex + 1}`;
+
+  const seriesA = activeExp?.seriesA || ["Événement A"];
+  const seriesB = activeExp?.seriesB || ["Événement B"];
+  // Tirages indépendants — cœur de la démo.
+  const factA = pickUnused(seriesA, corrUsedA);
+  const factB = pickUnused(seriesB, corrUsedB);
+  const story = inventCorrStory(factA, factB);
+
+  // Stocker en attente via dataset sur la zone de jeu
+  if (el.playCorr) {
+    el.playCorr.dataset.factA = factA;
+    el.playCorr.dataset.factB = factB;
+    el.playCorr.dataset.story = story;
+  }
+
+  if (el.corrProgress) el.corrProgress.textContent = `Dossier ${stepIndex + 1} / ${CORR_DAYS}`;
+  if (el.corrDay) el.corrDay.textContent = `Dossier ${stepIndex + 1}`;
   if (el.corrPrompt) {
     el.corrPrompt.hidden = false;
-    el.corrPrompt.textContent = "Ta boisson du matin ?";
+    el.corrPrompt.textContent = "Ces deux observations sont-elles liées ?";
   }
-  if (el.corrDrinkChoices) el.corrDrinkChoices.hidden = false;
-  if (el.corrPair) el.corrPair.hidden = true;
-  if (el.corrStory) el.corrStory.hidden = true;
-  if (el.corrRateChoices) el.corrRateChoices.hidden = true;
-  renderCorrDrinks();
-}
-
-function pickCorrDrink(key) {
-  if (corrPhase !== "pick") return;
-  const drinks = activeExp?.drinks || [];
-  const drink = drinks.find((d) => d.k === key);
-  if (!drink) return;
-  const signs = activeExp?.signs || ["Signe mystérieux"];
-  // Indépendant du choix boisson — c’est le cœur de la démo.
-  const sign = pick(shuffle(signs));
-  const story = inventCorrStory(drink.label, sign);
-  corrPending = { drink: key, drinkLabel: drink.label, sign, story };
-  corrPhase = "rate";
-  if (el.corrPrompt) el.corrPrompt.hidden = true;
-  if (el.corrDrinkChoices) el.corrDrinkChoices.hidden = true;
   if (el.corrPair) el.corrPair.hidden = false;
-  if (el.corrDrink) el.corrDrink.textContent = drink.label;
-  if (el.corrSign) el.corrSign.textContent = sign;
+  if (el.corrDrink) el.corrDrink.textContent = factA;
+  if (el.corrSign) el.corrSign.textContent = factB;
   if (el.corrStory) {
     el.corrStory.hidden = false;
     el.corrStory.textContent = story;
@@ -1158,11 +1145,13 @@ function pickCorrDrink(key) {
 }
 
 function rateCorr(key) {
-  if (corrPhase !== "rate" || !corrPending) return;
   if (!/^[1-3]$/.test(key)) return;
-  corrLog.push({ ...corrPending, rate: key });
+  const factA = el.playCorr?.dataset.factA || "";
+  const factB = el.playCorr?.dataset.factB || "";
+  const story = el.playCorr?.dataset.story || "";
+  if (!factA || !factB) return;
+  corrLog.push({ factA, factB, story, rate: key });
   answerOrder.push(key);
-  corrPending = null;
   stepIndex += 1;
   if (stepIndex >= CORR_DAYS) showEnd();
   else showCorrDay();
@@ -1170,17 +1159,15 @@ function rateCorr(key) {
 
 function answerCorr(key) {
   if (mode !== "play" || effect() !== "correlation") return;
-  if (corrPhase === "pick") pickCorrDrink(key);
-  else rateCorr(key);
+  rateCorr(key);
 }
 
 function corrBiasedScore() {
   const n = corrLog.length || 1;
   const conv = corrLog.filter((x) => x.rate === "1").length;
   const mid = corrLog.filter((x) => x.rate === "2").length;
-  // Score marketing : convaincant compte double, moyen compte 1, rejet 0 — normalisé haut.
   const raw = (conv * 2 + mid) / (n * 2);
-  const biased = Math.round((0.55 + raw * 0.4) * 100); // plancher ~55%
+  const biased = Math.round((0.55 + raw * 0.4) * 100);
   const honestConv = Math.round((conv / n) * 100);
   return { conv, mid, rej: n - conv - mid, biased, honestConv, n };
 }
@@ -1190,23 +1177,23 @@ function renderCorrMatrix(log) {
     .map(
       (row, i) => `
       <div class="corr-row">
-        <span class="corr-row-n">J${i + 1}</span>
-        <span>${escapeHtml(row.drinkLabel)}</span>
+        <span class="corr-row-n">D${i + 1}</span>
+        <span>${escapeHtml(row.factA)}</span>
         <span class="corr-row-x">×</span>
-        <span>${escapeHtml(row.sign)}</span>
+        <span>${escapeHtml(row.factB)}</span>
       </div>`,
     )
     .join("");
 }
 
 function reshuffleCorrStories() {
-  const signs = shuffle([...(activeExp?.signs || [])]);
+  const poolB = shuffle([...(activeExp?.seriesB || [])]);
   return corrLog.map((row, i) => {
-    const sign = signs[i % signs.length] || row.sign;
+    const factB = poolB[i % poolB.length] || row.factB;
     return {
       ...row,
-      sign,
-      story: inventCorrStory(row.drinkLabel, sign),
+      factB,
+      story: inventCorrStory(row.factA, factB),
     };
   });
 }
@@ -1216,48 +1203,48 @@ function renderCorrEnd() {
   if (el.fakeRead) {
     el.fakeRead.innerHTML = `
       <header class="end-hero">
-        <p class="end-kicker">Café & Cosmic · rapport</p>
-        <h1 class="end-title">Corrélation ${s.biased}%</h1>
-        <p class="end-lead">Tes boissons et le ciel ne se croisent pas par hasard — enfin, c’est ce qu’on te vend.</p>
-        <p class="end-humor">${s.conv} jour${s.conv > 1 ? "s" : ""} jugé${s.conv > 1 ? "s" : ""} « convaincant${s.conv > 1 ? "s" : ""} ».</p>
+        <p class="end-kicker">observatoire · rapport</p>
+        <h1 class="end-title">Cohérence ${s.biased}%</h1>
+        <p class="end-lead">D’après tes jugements, plusieurs dossiers « tiennent » — comme dans les légendes qui circulent.</p>
+        <p class="end-humor">${s.conv} dossier${s.conv > 1 ? "s" : ""} jugé${s.conv > 1 ? "s" : ""} « lien plausible ».</p>
       </header>
       <section class="corr-report">
-        <p class="end-kicker">paires observées</p>
+        <p class="end-kicker">paires présentées</p>
         <div class="corr-matrix">${renderCorrMatrix(corrLog)}</div>
       </section>
       <section class="real-stats">
         <div class="stat-grid">
-          <div class="stat-card"><p class="stat-card-value">${s.biased}%</p><p class="stat-card-label">Score « synchronicité »</p></div>
-          <div class="stat-card"><p class="stat-card-value">${s.conv}</p><p class="stat-card-label">Convaincant</p></div>
-          <div class="stat-card"><p class="stat-card-value">${s.mid}</p><p class="stat-card-label">Moyen</p></div>
-          <div class="stat-card"><p class="stat-card-value">${s.rej}</p><p class="stat-card-label">N’importe quoi</p></div>
+          <div class="stat-card"><p class="stat-card-value">${s.biased}%</p><p class="stat-card-label">Score affiché</p></div>
+          <div class="stat-card"><p class="stat-card-value">${s.conv}</p><p class="stat-card-label">Lien plausible</p></div>
+          <div class="stat-card"><p class="stat-card-value">${s.mid}</p><p class="stat-card-label">Douteux</p></div>
+          <div class="stat-card"><p class="stat-card-value">${s.rej}</p><p class="stat-card-label">Sans lien</p></div>
         </div>
       </section>`;
   }
 
   setReveal(
     "Tu viens de subir l’illusion de corrélation",
-    "Deux colonnes indépendantes (ta boisson, un signe tiré au sort) ont été collées ensemble, puis habillées d’une histoire. Le cerveau adore les causes.",
+    "Chaque dossier collait deux observations tirées séparément, puis inventait une cause (légende, « on sait bien que… », fausse piste mathématique). Deux choses qui bougent ensemble — ou qu’on raconte ensemble — ne prouvent pas que l’une fait l’autre.",
     [
-      "Le signe du ciel était tiré au sort sans regarder ta boisson",
-      "Une phrase de liaison crée l’impression de cause → effet",
-      "Le % « corrélation » était du marketing, pas de la statistique",
-      "Re-mélanger les paires produit des histoires tout aussi « évidentes »",
+      "Observation A et observation B étaient indépendantes",
+      "Le texte ajoutait une cause pour que ça « fasse sens »",
+      "Corrélation (même inventée) ≠ causalité",
+      "Re-mélanger B avec les mêmes A produit d’autres « évidences »",
     ],
   );
 
   const reshuffled = reshuffleCorrStories();
   if (el.revealExtra) {
     el.revealExtra.innerHTML = `
-      <h3 class="reveal-sub">Preuve visuelle : même boissons, autres signes</h3>
+      <h3 class="reveal-sub">Preuve visuelle : mêmes A, autres B</h3>
       <p class="reveal-explain">
-        On garde tes choix de boisson. On re-tire les signes au hasard.
-        Les nouvelles histoires sonnent aussi juste — donc le lien n’existait pas.
-        (Taux « convaincant » réel : ${s.honestConv}% des jours.)
+        On garde les observations A. On re-tire les B au hasard et on réécrit la légende.
+        Ça sonne encore « logique » — donc le lien n’était pas dans les faits, il était dans le récit.
+        (Tu as marqué « plausible » pour ${s.honestConv}% des dossiers.)
       </p>
       <div class="algo-compare">
         <article class="algo-card">
-          <p class="algo-card-kicker">paires qu’on t’a vendues</p>
+          <p class="algo-card-kicker">dossiers qu’on t’a vendus</p>
           <div class="corr-matrix corr-matrix-dark">${renderCorrMatrix(corrLog)}</div>
         </article>
         <article class="algo-card algo-card-alt">
@@ -1267,8 +1254,9 @@ function renderCorrEnd() {
       </div>
       <button type="button" class="algo-reroll" data-action="reroll-corr">Re-mélanger encore</button>
       <p class="reveal-explain" style="margin-top:14px">
-        En vrai : planète ⊥ café. Comme lune ⊥ accidents, ou « numéro porte-bonheur » ⊥ résultats du loto —
-        sauf quand on raconte une histoire par-dessus.
+        Exemples classiques du même piège : pleine lune × urgences, glaces × noyades (l’été),
+        cigognes × naissances, courbes parallèles sans cause. En maths : une corrélation se calcule ;
+        une cause, ça se démontre autrement.
       </p>`;
   }
 }
@@ -1490,8 +1478,8 @@ function showIdle() {
   answerOrder = [];
   confirmMarks = {};
   corrLog = [];
-  corrPhase = "pick";
-  corrPending = null;
+  corrUsedA = new Set();
+  corrUsedB = new Set();
   quizStartedAt = 0;
   quizEndedAt = 0;
   hidePlays();
@@ -1513,6 +1501,8 @@ function startPlay() {
   answerOrder = [];
   confirmMarks = {};
   corrLog = [];
+  corrUsedA = new Set();
+  corrUsedB = new Set();
   setFinishVisible(true);
 
   if (effect() === "barnum") {

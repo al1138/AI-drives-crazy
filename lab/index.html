@@ -56,84 +56,87 @@
     <div class="content">
       <!-- LAB -->
       <main class="stage" id="labView">
-        <header class="brand">
-          <div class="brand-row">
-            <p class="logo">AI drives crazy</p>
-            <p class="badge-zero" title="Aucune intelligence artificielle">0 IA</p>
-          </div>
-          <div class="lang-mode" role="group" aria-label="Langue des citations">
-            <button type="button" class="lang-btn" id="langFr" data-lang="fr" aria-pressed="true">FR</button>
-            <button type="button" class="lang-btn" id="langEn" data-lang="en" aria-pressed="false">EN</button>
-          </div>
-          <p class="meta" id="meta">lab v1 · algorithmique · 0 € · 0 token</p>
-          <div class="gauge" id="gauge" role="meter" aria-label="Niveau d’humour" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-            <div class="gauge-top">
-              <span class="gauge-label">niveau d’humour</span>
-              <span class="gauge-value" id="gaugeValue">—</span>
-            </div>
-            <div class="gauge-track">
-              <div class="gauge-fill" id="gaugeFill" style="width: 0%"></div>
-            </div>
-            <p class="gauge-hint" id="gaugeHint">note des posts pour remplir la jauge</p>
-          </div>
-        </header>
-
-        <section class="card" id="card" aria-live="polite">
-          <div class="intro" id="hint">
-            <p class="intro-hook">Ça a l’air de te connaître. C’est faux — et c’est le sujet.</p>
-            <p class="intro-lead">
-              Ici on fabrique des réponses « comme une IA », sans IA.
-              Puis un bilan perso… qui marche sur tout le monde. Bienvenue dans la déconstruction.
-            </p>
-            <ol class="intro-steps">
-              <li><span>Espace</span> — une citation piège + fausse réponse algo</li>
-              <li><span>1 · 2 · 3</span> — bof / ok / mdr (ça entraîne les poids)</li>
-              <li><span>Terminer</span> — ton horoscope truqué + l’effet Barnum expliqué</li>
-            </ol>
-          </div>
-          <p class="lang" id="lang" hidden></p>
-          <p class="question" id="question" hidden></p>
-          <p class="answer" id="answer" hidden></p>
-          <p class="provenance" id="provenance" hidden></p>
-          <p class="tags" id="tags" hidden></p>
-        </section>
-
-        <section class="paths" id="paths" aria-label="Actions">
-          <div class="path path-learn" id="pathLearn" data-active="false">
-            <div class="path-head">
-              <span class="path-num">1</span>
-              <div>
-                <p class="path-title">Apprendre</p>
-                <p class="path-desc" id="learnDesc">Une note, puis citation suivante</p>
+        <div class="lab-screen">
+          <header class="brand">
+            <div class="brand-row">
+              <p class="logo">AI drives crazy</p>
+              <div class="brand-tools">
+                <div class="lang-mode" role="group" aria-label="Langue des citations">
+                  <button type="button" class="lang-btn" id="langFr" data-lang="fr" aria-pressed="true">FR</button>
+                  <button type="button" class="lang-btn" id="langEn" data-lang="en" aria-pressed="false">EN</button>
+                </div>
+                <p class="badge-zero" title="Aucune intelligence artificielle">0 IA</p>
               </div>
             </div>
-            <p class="path-prompt" id="learnPrompt">Génère d’abord un texte (chemin 2).</p>
-            <p class="learn-progress" id="learnProgress" hidden></p>
-            <div class="key-row" id="learnKeys" hidden></div>
-          </div>
+            <p class="meta" id="meta">lab v1 · algorithmique · 0 € · 0 token</p>
+            <div class="gauge" id="gauge" role="meter" aria-label="Niveau d’humour" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+              <div class="gauge-top">
+                <span class="gauge-label">niveau d’humour</span>
+                <span class="gauge-value" id="gaugeValue">—</span>
+              </div>
+              <div class="gauge-track">
+                <div class="gauge-fill" id="gaugeFill" style="width: 0%"></div>
+              </div>
+              <p class="gauge-hint" id="gaugeHint">note des posts pour remplir la jauge</p>
+            </div>
+          </header>
 
-          <div class="path path-gen" id="pathGen" data-active="true">
-            <div class="path-head">
-              <span class="path-num">2</span>
-              <div>
-                <p class="path-title">Citation suivante</p>
-                <p class="path-desc">Espace = post suivant</p>
+          <section class="card" id="card" aria-live="polite">
+            <div class="intro" id="hint">
+              <p class="intro-hook">Ça a l’air de te connaître. C’est faux — et c’est le sujet.</p>
+              <p class="intro-lead">
+                Réponses « comme une IA », sans IA. Puis un bilan perso… qui marche sur tout le monde.
+              </p>
+              <ol class="intro-steps">
+                <li><span>Espace</span> — citation + fausse réponse</li>
+                <li><span>1 · 2 · 3</span> — bof / ok / mdr</li>
+                <li><span>Terminer</span> — bilan Barnum</li>
+              </ol>
+            </div>
+            <p class="lang" id="lang" hidden></p>
+            <p class="question" id="question" hidden></p>
+            <p class="answer" id="answer" hidden></p>
+            <p class="provenance" id="provenance" hidden></p>
+            <p class="tags" id="tags" hidden></p>
+          </section>
+
+          <section class="paths" id="paths" aria-label="Actions">
+            <div class="path path-learn" id="pathLearn" data-active="false">
+              <div class="path-head">
+                <span class="path-num">1</span>
+                <div>
+                  <p class="path-title">Apprendre</p>
+                  <p class="path-desc" id="learnDesc">Une note, puis suite</p>
+                </div>
+              </div>
+              <p class="path-prompt" id="learnPrompt">Génère d’abord (chemin 2).</p>
+              <p class="learn-progress" id="learnProgress" hidden></p>
+              <div class="key-row" id="learnKeys" hidden></div>
+            </div>
+
+            <div class="path path-gen" id="pathGen" data-active="true">
+              <div class="path-head">
+                <span class="path-num">2</span>
+                <div>
+                  <p class="path-title">Citation suivante</p>
+                  <p class="path-desc">Espace = suivant</p>
+                </div>
+              </div>
+              <div class="key-row">
+                <button type="button" class="key key-wide" data-key="space" id="btnNext" aria-label="Espace : citation suivante">
+                  <span class="key-glyph">espace</span>
+                  <span class="key-label">suivant</span>
+                </button>
               </div>
             </div>
-            <div class="key-row">
-              <button type="button" class="key key-wide" data-key="space" id="btnNext" aria-label="Espace : citation suivante">
-                <span class="key-glyph">espace</span>
-                <span class="key-label">suivant</span>
-              </button>
-            </div>
-          </div>
-        </section>
+          </section>
 
-        <div class="finish-row">
-          <button type="button" class="key key-wide key-finish" data-action="finish" aria-label="Terminer : voir le bilan Barnum">
-            <span class="key-glyph">terminer</span>
-            <span class="key-label">bilan Barnum</span>
-          </button>
+          <div class="finish-row">
+            <button type="button" class="key key-wide key-finish" data-action="finish" aria-label="Terminer : voir le bilan Barnum">
+              <span class="key-glyph">terminer</span>
+              <span class="key-label">bilan Barnum</span>
+            </button>
+          </div>
         </div>
 
         <footer class="bar">

@@ -36,11 +36,30 @@ body {
   width: min(1040px, 100%);
   min-height: 100vh;
   min-height: 100dvh;
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-direction: column;
 }
 
 .content {
+  min-width: 0;
+  order: 1;
+}
+
+.algo {
+  order: 2;
+}
+
+.brand-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.lab-screen {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  gap: 22px;
   min-width: 0;
 }
 
@@ -58,7 +77,7 @@ body {
 
 .algo {
   background: var(--algo);
-  border-bottom: 1px solid var(--line);
+  border-top: 1px solid var(--line);
   padding: 20px 16px 18px;
 }
 
@@ -121,9 +140,9 @@ body {
 
 .stage {
   padding: 28px 20px 28px;
-  display: grid;
-  grid-template-rows: auto 1fr auto auto;
-  gap: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   min-width: 0;
 }
 
@@ -157,7 +176,6 @@ body {
 .lang-mode {
   display: inline-flex;
   gap: 0;
-  margin-top: 14px;
   border: 1px solid #111;
 }
 
@@ -930,14 +948,166 @@ body {
   }
 }
 
-/* Sidebar réelle à partir de ~900px */
+/* Mobile : lab jusqu’à « terminer » = 1 écran ; algo en dessous */
+@media (max-width: 899px) {
+  .lab-screen {
+    height: 100svh;
+    height: 100dvh;
+    max-height: 100svh;
+    max-height: 100dvh;
+    padding: max(10px, env(safe-area-inset-top)) 14px 10px;
+    gap: 8px;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  .stage {
+    padding: 0;
+    gap: 0;
+  }
+
+  .brand .logo {
+    font-size: 22px;
+  }
+
+  .badge-zero {
+    padding: 4px 7px;
+    font-size: 10px;
+  }
+
+  .lang-btn {
+    min-width: 40px;
+    min-height: 30px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+
+  .brand .meta {
+    margin-top: 4px;
+    font-size: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .gauge {
+    margin-top: 8px;
+    padding-top: 8px;
+  }
+
+  .gauge-value {
+    font-size: 14px;
+  }
+
+  .gauge-track {
+    height: 6px;
+  }
+
+  .gauge-hint {
+    display: none;
+  }
+
+  .card {
+    padding: 10px 0;
+    gap: 8px;
+    min-height: 0;
+    overflow: auto;
+  }
+
+  .intro-hook {
+    font-size: 18px;
+  }
+
+  .intro-lead {
+    margin-top: 6px;
+    font-size: 13px;
+  }
+
+  .intro-steps {
+    margin-top: 8px;
+    gap: 5px;
+    font-size: 12px;
+  }
+
+  .intro-steps li span {
+    font-size: 10px;
+    padding: 1px 5px;
+  }
+
+  .question {
+    font-size: 20px;
+  }
+
+  .answer {
+    font-size: 15px;
+  }
+
+  .provenance,
+  .tags {
+    font-size: 11px;
+  }
+
+  .paths {
+    gap: 6px;
+  }
+
+  .path {
+    padding: 8px 10px;
+  }
+
+  .path-head {
+    margin-bottom: 6px;
+    gap: 8px;
+  }
+
+  .path-num {
+    width: 22px;
+    height: 22px;
+    font-size: 11px;
+  }
+
+  .path-title {
+    font-size: 13px;
+  }
+
+  .path-desc,
+  .path-prompt {
+    font-size: 11px;
+  }
+
+  .key {
+    min-width: 48px;
+    min-height: 44px;
+  }
+
+  .key-wide {
+    min-height: 48px;
+  }
+
+  .finish-row {
+    margin-top: 0;
+  }
+
+  .bar {
+    padding: 10px 14px 14px;
+    padding-bottom: max(14px, env(safe-area-inset-bottom));
+  }
+
+  .algo {
+    border-top: 1px solid var(--line);
+  }
+}
+
+/* Desktop : algo à gauche */
 @media (min-width: 900px) {
   .shell {
+    display: grid;
     grid-template-columns: 200px 1fr;
   }
 
   .algo {
-    border-bottom: 0;
+    order: 0;
+    border-top: 0;
     border-right: 1px solid var(--line);
     padding: 36px 16px 28px;
     position: sticky;
@@ -946,6 +1116,10 @@ body {
     height: 100vh;
     height: 100dvh;
     overflow: auto;
+  }
+
+  .content {
+    order: 0;
   }
 
   .algo-flow {
@@ -968,6 +1142,10 @@ body {
   .stage,
   .end {
     padding: 36px 28px 32px;
+  }
+
+  .lab-screen {
+    gap: 22px;
   }
 
   .news {

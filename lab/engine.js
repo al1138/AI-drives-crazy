@@ -53,6 +53,20 @@ const el = {
   revealLead: document.getElementById("revealLead"),
   revealLevers: document.getElementById("revealLevers"),
   revealExtra: document.getElementById("revealExtra"),
+  revealSection: document.getElementById("revealSection"),
+  scrollBridge: document.getElementById("scrollBridge"),
+  bridgeTitle: document.getElementById("bridgeTitle"),
+  bridgeCopy: document.getElementById("bridgeCopy"),
+  shareSection: document.getElementById("shareSection"),
+  shareCopy: document.getElementById("shareCopy"),
+  shareGrid: document.getElementById("shareGrid"),
+  shareToast: document.getElementById("shareToast"),
+  endRail: document.getElementById("endRail"),
+  endRailFill: document.getElementById("endRailFill"),
+  endRailPct: document.getElementById("endRailPct"),
+  endRailStage: document.getElementById("endRailStage"),
+  endRailNudge: document.getElementById("endRailNudge"),
+  endRailGo: document.getElementById("endRailGo"),
   newsForm: document.getElementById("newsForm"),
   newsEmail: document.getElementById("newsEmail"),
   newsConsent: document.getElementById("newsConsent"),
@@ -486,6 +500,225 @@ function prepareNewsForm() {
     }
   } else {
     el.newsOk.hidden = true;
+  }
+}
+
+/* ——— Scroll intention + partage ——— */
+
+const SCROLL_NUDGES = {
+  profil: {
+    stage: "profil",
+    text: "Profil OK — mais ce n’est que le début. Descends.",
+    cta: "Voir la suite ↓",
+  },
+  bridge: {
+    stage: "presque",
+    text: "Récompense juste en dessous. Encore un cran.",
+    cta: "Débloquer ↓",
+  },
+  surprise: {
+    stage: "surprise",
+    text: "Tu y es. Lis jusqu’au bout — puis partage.",
+    cta: "Partager ↓",
+  },
+  partage: {
+    stage: "partage",
+    text: "Envoie le lien à quelqu’un qui n’est pas prévenu.",
+    cta: "Newsletter ↓",
+  },
+  suite: {
+    stage: "suite",
+    text: "Dernière étape : la prochaine expérience par mail.",
+    cta: "Fin ↓",
+  },
+  fin: {
+    stage: "terminé",
+    text: "Bilan complet. Tu peux partager ou recommencer.",
+    cta: "Haut ↑",
+  },
+};
+
+let scrollZone = "profil";
+let scrollRaf = 0;
+
+function shareUrl() {
+  const u = new URL(location.href);
+  if (activeExp?.id) u.searchParams.set("e", activeExp.id);
+  u.hash = "";
+  return u.toString();
+}
+
+function shareMessage() {
+  const title = activeExp?.homeTitle || "On te lit";
+  return `J’ai fait « ${title} » sur On te lit — à toi de jouer (sans spoiler).`;
+}
+
+function showShareToast(msg) {
+  if (!el.shareToast) return;
+  el.shareToast.hidden = false;
+  el.shareToast.textContent = msg;
+  clearTimeout(showShareToast._t);
+  showShareToast._t = setTimeout(() => {
+    if (el.shareToast) el.shareToast.hidden = true;
+  }, 2200);
+}
+
+function wireShareLinks() {
+  const url = shareUrl();
+  const text = shareMessage();
+  const encU = encodeURIComponent(url);
+  const encT = encodeURIComponent(text);
+  const map = {
+    whatsapp: `https://wa.me/?text=${encT}%20${encU}`,
+    sms: `sms:?&body=${encT}%20${encU}`,
+    x: `https://twitter.com/intent/tweet?text=${encT}&url=${encU}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encU}`,
+    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encU}`,
+    telegram: `https://t.me/share/url?url=${encU}&text=${encT}`,
+    email: `mailto:?subject=${encodeURIComponent("On te lit — essaie ça")}&body=${encT}%0A%0A${encU}`,
+  };
+
+  if (!el.shareGrid) return;
+  const nativeBtn = el.shareGrid.querySelector('[data-share="native"]');
+  if (nativeBtn) {
+    nativeBtn.hidden = !(typeof navigator.share === "function");
+  }
+
+  for (const node of el.shareGrid.querySelectorAll("[data-share]")) {
+    const kind = node.getAttribute("data-share");
+    if (!kind || kind === "native" || kind === "copy" || kind === "instagram") continue;
+    if (node instanceof HTMLAnchorElement && map[kind]) {
+      node.href = map[kind];
+    }
+  }
+
+  if (el.shareCopy) {
+    el.shareCopy.textContent =
+      effect() === "barnum"
+        ? "Le twist marche mieux sur quelqu’un qui n’est pas prévenu."
+        : "Envoie le lien avant de raconter la fin — l’effet dépend de la surprise.";
+  }
+}
+
+async function doShare(kind) {
+  const url = shareUrl();
+  const text = shareMessage();
+  if (kind === "native" && typeof navigator.share === "function") {
+    try {
+      await navigator.share({ title: "On te lit", text, url });
+      showShareToast("Partagé.");
+    } catch {
+      /* annulé */
+    }
+    return;
+  }
+  if (kind === "messenger") {
+    // Pas d’URL web universelle fiable → deep link mobile + copie.
+    const deep = `fb-messenger://share/?link=${encodeURIComponent(url)}`;
+    try {
+      await navigator.clipboard.writeText(`${text}\n${url}`);
+    } catch {
+      /* ignore */
+    }
+    const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
+    if (isMobile) window.location.href = deep;
+    showShareToast("Lien copié — colle-le dans Messenger.");
+    return;
+  }
+  if (kind === "copy" || kind === "instagram") {
+    try {
+      await navigator.clipboard.writeText(`${text}\n${url}`);
+      showShareToast(
+        kind === "instagram"
+          ? "Lien copié — colle-le dans Instagram (DM / story)."
+          : "Lien copié.",
+      );
+    } catch {
+      showShareToast("Impossible de copier — sélectionne l’URL à la main.");
+    }
+  }
+}
+
+function updateScrollRail() {
+  if (!el.endView || el.endView.hidden || !el.endRail) return;
+  const doc = document.documentElement;
+  const max = Math.max(1, doc.scrollHeight - window.innerHeight);
+  const pct = Math.min(100, Math.round((window.scrollY / max) * 100));
+  if (el.endRailFill) el.endRailFill.style.width = `${pct}%`;
+  if (el.endRailPct) el.endRailPct.textContent = `${pct}%`;
+
+  const chapters = [...el.endView.querySelectorAll("[data-chapter]")];
+  let current = "profil";
+  const mid = window.scrollY + window.innerHeight * 0.42;
+  for (const node of chapters) {
+    const top = node.getBoundingClientRect().top + window.scrollY;
+    if (top <= mid) current = node.getAttribute("data-chapter") || current;
+  }
+  scrollZone = current;
+  const nudge = SCROLL_NUDGES[current] || SCROLL_NUDGES.profil;
+  if (el.endRail) el.endRail.dataset.zone = current;
+  if (el.endRailStage) el.endRailStage.textContent = nudge.stage;
+  if (el.endRailNudge) el.endRailNudge.textContent = nudge.text;
+  if (el.endRailGo) el.endRailGo.textContent = nudge.cta;
+  el.endRail.classList.toggle("is-complete", pct >= 96 || current === "fin");
+}
+
+function onEndScroll() {
+  if (scrollRaf) return;
+  scrollRaf = requestAnimationFrame(() => {
+    scrollRaf = 0;
+    updateScrollRail();
+  });
+}
+
+function enableEndScrollCoach() {
+  if (el.endRail) el.endRail.hidden = false;
+  updateScrollRail();
+  window.addEventListener("scroll", onEndScroll, { passive: true });
+  window.addEventListener("resize", onEndScroll);
+  // Micro-récompense d’entrée
+  if (el.endRailNudge) {
+    el.endRailNudge.textContent = "Profil débloqué — continue pour la suite.";
+  }
+}
+
+function disableEndScrollCoach() {
+  if (el.endRail) el.endRail.hidden = true;
+  window.removeEventListener("scroll", onEndScroll);
+  window.removeEventListener("resize", onEndScroll);
+}
+
+function scrollToChapter(name) {
+  const node = el.endView?.querySelector(`[data-chapter="${name}"]`);
+  if (!node) return;
+  const y = node.getBoundingClientRect().top + window.scrollY - 16;
+  window.scrollTo({ top: y, behavior: "smooth" });
+}
+
+function scrollNextChapter() {
+  const order = ["profil", "bridge", "surprise", "partage", "suite", "fin"];
+  const i = order.indexOf(scrollZone);
+  if (scrollZone === "fin" || i >= order.length - 1) {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return;
+  }
+  scrollToChapter(order[i + 1]);
+}
+
+function prepareBridgeCopy() {
+  if (!el.bridgeTitle || !el.bridgeCopy) return;
+  if (effect() === "confirmation") {
+    el.bridgeTitle.textContent = "Le % n’est pas toute l’histoire.";
+    el.bridgeCopy.textContent =
+      "Tu as vu les réussites. Descends : on te montre ce que le bilan avait envie d’oublier.";
+  } else if (effect() === "correlation") {
+    el.bridgeTitle.textContent = "La corrélation a l’air propre…";
+    el.bridgeCopy.textContent =
+      "Encore un cran : on défait le lien café × ciel.";
+  } else {
+    el.bridgeTitle.textContent = "La suite change la lecture.";
+    el.bridgeCopy.textContent =
+      "Le profil est séduisant. Ce n’est pas encore la fin — descends.";
   }
 }
 
@@ -1064,11 +1297,16 @@ function showEnd() {
     renderCorrEnd();
   }
 
+  prepareBridgeCopy();
+  wireShareLinks();
   prepareNewsForm();
   window.scrollTo(0, 0);
+  enableEndScrollCoach();
+  requestAnimationFrame(updateScrollRail);
 }
 
 function showLab() {
+  disableEndScrollCoach();
   el.endView.hidden = true;
   el.labView.hidden = false;
   // Nouvelle variante à chaque retour (sauf ?e= fixé)
@@ -1164,8 +1402,21 @@ document.addEventListener("click", (e) => {
     if (action === "back") showLab();
     if (action === "reroll-barnum") rerollBarnumDemo();
     if (action === "reroll-corr") rerollCorrDemo();
+    if (action === "scroll-next") scrollNextChapter();
+    if (action === "scroll-reveal") scrollToChapter("surprise");
     return;
   }
+
+  const shareBtn = e.target instanceof Element ? e.target.closest("[data-share]") : null;
+  if (shareBtn && mode === "end") {
+    const kind = shareBtn.getAttribute("data-share");
+    if (kind === "native" || kind === "copy" || kind === "instagram" || kind === "messenger") {
+      e.preventDefault();
+      doShare(kind);
+    }
+    return;
+  }
+
   if (mode === "end") return;
   const btn = e.target instanceof Element ? e.target.closest("[data-key]") : null;
   if (!btn) return;

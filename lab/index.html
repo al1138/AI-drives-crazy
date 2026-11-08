@@ -120,10 +120,16 @@
       </main>
 
       <section class="end" id="endView" hidden>
-        <!-- Rempli selon l’expérience -->
-        <div class="fake-read" id="fakeRead"></div>
+        <div class="fake-read" id="fakeRead" data-chapter="profil"></div>
 
-        <section class="reveal" aria-labelledby="revealTitle">
+        <div class="scroll-beacon" data-chapter="bridge" id="scrollBridge">
+          <p class="scroll-beacon-kicker">pas fini</p>
+          <p class="scroll-beacon-title" id="bridgeTitle">La suite change la lecture.</p>
+          <p class="scroll-beacon-copy" id="bridgeCopy">Encore un cran plus bas — ne pars pas sur le profil seul.</p>
+          <button type="button" class="scroll-beacon-btn" data-action="scroll-reveal">Continuer ↓</button>
+        </div>
+
+        <section class="reveal" aria-labelledby="revealTitle" data-chapter="surprise" id="revealSection">
           <p class="reveal-kicker">après la surprise</p>
           <h2 class="reveal-title" id="revealTitle"></h2>
           <p class="reveal-lead" id="revealLead"></p>
@@ -135,7 +141,29 @@
           </p>
         </section>
 
-        <section class="news" aria-labelledby="newsTitle">
+        <section class="share-block" aria-labelledby="shareTitle" data-chapter="partage" id="shareSection">
+          <p class="end-kicker">partager</p>
+          <h2 class="share-title" id="shareTitle">Envoie ça avant d’oublier.</h2>
+          <p class="share-copy" id="shareCopy">
+            Le twist marche mieux sur quelqu’un qui n’est pas prévenu.
+          </p>
+          <div class="share-grid" id="shareGrid">
+            <button type="button" class="share-btn" data-share="native" hidden>Partager…</button>
+            <a class="share-btn" data-share="whatsapp" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+            <button type="button" class="share-btn" data-share="messenger">Messenger</button>
+            <a class="share-btn" data-share="sms" rel="noopener noreferrer">SMS</a>
+            <a class="share-btn" data-share="x" target="_blank" rel="noopener noreferrer">X / Twitter</a>
+            <a class="share-btn" data-share="facebook" target="_blank" rel="noopener noreferrer">Facebook</a>
+            <a class="share-btn" data-share="linkedin" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            <a class="share-btn" data-share="telegram" target="_blank" rel="noopener noreferrer">Telegram</a>
+            <a class="share-btn" data-share="email" rel="noopener noreferrer">Email</a>
+            <button type="button" class="share-btn" data-share="copy">Copier le lien</button>
+            <button type="button" class="share-btn share-btn-soft" data-share="instagram">Instagram (copier)</button>
+          </div>
+          <p class="share-toast" id="shareToast" hidden role="status"></p>
+        </section>
+
+        <section class="news" aria-labelledby="newsTitle" data-chapter="suite">
           <p class="news-brand">On te lit</p>
           <h2 class="news-title" id="newsTitle">Une autre expérience, une autre semaine.</h2>
           <p class="news-copy">
@@ -162,7 +190,7 @@
           </form>
         </section>
 
-        <div class="end-actions">
+        <div class="end-actions" data-chapter="fin">
           <button type="button" class="key key-wide" data-action="back">
             <span class="key-glyph">retour</span>
             <span class="key-label">refaire</span>
@@ -171,6 +199,23 @@
       </section>
     </div>
   </div>
+
+  <aside class="end-rail" id="endRail" hidden aria-live="polite">
+    <div class="end-rail-top">
+      <div class="end-rail-track" aria-hidden="true">
+        <div class="end-rail-fill" id="endRailFill"></div>
+      </div>
+      <p class="end-rail-pct" id="endRailPct">0%</p>
+    </div>
+    <div class="end-rail-mid">
+      <p class="end-rail-stage" id="endRailStage">profil</p>
+      <p class="end-rail-nudge" id="endRailNudge">Descends — le bilan n’est pas fini.</p>
+    </div>
+    <button type="button" class="end-rail-go" data-action="scroll-next" id="endRailGo">
+      Continuer ↓
+    </button>
+  </aside>
+
   <script src="engine.js" defer></script>
 </body>
 </html>

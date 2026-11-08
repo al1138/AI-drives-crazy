@@ -1213,6 +1213,143 @@ body {
   }
 }
 
+.reveal-refs {
+  margin: 28px 0 0;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #888;
+}
+
+.reveal-refs a {
+  color: #eee;
+  text-underline-offset: 3px;
+}
+
+.reveal-refs span {
+  display: block;
+  margin-top: 4px;
+  color: #666;
+}
+
+/* ——— Page références ——— */
+
+.info-page {
+  padding: 28px 20px 48px;
+  max-width: 40em;
+}
+
+.info-disclaimer {
+  margin: 8px 0 0;
+  padding: 14px 16px;
+  background: var(--soft);
+  border-left: 3px solid var(--fg);
+  font-size: 15px;
+  line-height: 1.5;
+  color: #222;
+}
+
+.info-disclaimer strong {
+  font-weight: 500;
+}
+
+.info-block {
+  margin-top: 36px;
+}
+
+.info-title {
+  margin: 0;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.info-lead {
+  margin: 12px 0 0;
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.info-lead a {
+  color: var(--fg);
+  text-underline-offset: 3px;
+}
+
+.info-meta {
+  display: block;
+  margin-top: 6px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.info-copy {
+  margin: 12px 0 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: #333;
+}
+
+.info-links {
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 12px;
+}
+
+.info-links li {
+  display: grid;
+  grid-template-columns: 7.5em 1fr;
+  gap: 10px;
+  align-items: baseline;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.info-label {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.info-links a {
+  color: var(--fg);
+  text-underline-offset: 3px;
+  word-break: break-word;
+}
+
+.info-note {
+  margin: 36px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.info-back {
+  margin: 28px 0 0;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 13px;
+}
+
+.info-back a {
+  color: var(--fg);
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 520px) {
+  .info-links li {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+}
+
 [hidden] {
   display: none !important;
 }

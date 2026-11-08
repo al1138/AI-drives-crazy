@@ -1,6 +1,7 @@
 # AI drives crazy
 
-On dirait une IA. Ce n’est qu’un algo. **0 IA · 0 token.**
+On dirait une IA. Ce n’est qu’un algo. **0 IA · 0 token.**  
+Le bilan final démonte l’**effet Barnum** (horoscope qui marche sur tout le monde).
 
 ## Humor Lab (`lab/`)
 

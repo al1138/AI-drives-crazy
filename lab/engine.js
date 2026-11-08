@@ -9,13 +9,13 @@ const HUNT_KEY = "aidc.hunt.v1";
 const LANG_KEY = "aidc.lang.mode.v1";
 
 const HUNT_MISSIONS = [
-  "Jour 1 — Écris une contradiction en 8 mots max, sans ouvrir une IA.",
-  "Jour 2 — Pose la même question à un humain et à une IA. Garde la plus drôle.",
-  "Jour 3 — Une journée sans ChatGPT / Claude / Gemini. Note ce qui manque vraiment.",
-  "Jour 4 — Invente une règle # maison (si X alors répondre Y). Teste-la sur 3 questions.",
-  "Jour 5 — Quotidien : retard / notifs / gym. Vote 1–3 : drôle ou juste vrai ?",
-  "Jour 6 — Mode soft : une phrase un peu grave, écrite par toi. Pas de modèle.",
-  "Jour 7 — Publie (ou archive) ta meilleure paire Q/A 100 % humaine ou algo.",
+  "Jour 1 — Lis un horoscope du jour. Surligne ce qui « colle ». C’est du Barnum.",
+  "Jour 2 — Pose la même question à un humain et à une IA. Note le biais d’autorité.",
+  "Jour 3 — Une journée sans ChatGPT / Claude / Gemini. Qu’est-ce qui manque vraiment ?",
+  "Jour 4 — Invente une règle algo (si X → Y). Montre qu’aucune IA n’est nécessaire.",
+  "Jour 5 — Cherche une corrélation illusoire dans ton feed (2 coïncidences = « preuve »).",
+  "Jour 6 — Écris une phrase qui marche sur tout le monde, mais sonne personnelle.",
+  "Jour 7 — Explique l’effet Barnum à quelqu’un en 30 secondes. Sans jargon.",
 ];
 
 /** @typedef {{ id: string, tags: string[], lang: 'fr'|'en', q: string, a?: string, rule: number, grim?: boolean }} Pattern */
@@ -434,6 +434,16 @@ const el = {
   endTitle: document.getElementById("endTitle"),
   endLead: document.getElementById("endLead"),
   endHumor: document.getElementById("endHumor"),
+  barnumBody: document.getElementById("barnumBody"),
+  barnumLevers: document.getElementById("barnumLevers"),
+  axis1Title: document.getElementById("axis1Title"),
+  axis2Title: document.getElementById("axis2Title"),
+  axis3Title: document.getElementById("axis3Title"),
+  axis4Title: document.getElementById("axis4Title"),
+  axis1Desc: document.getElementById("axis1Desc"),
+  axis2Desc: document.getElementById("axis2Desc"),
+  axis3Desc: document.getElementById("axis3Desc"),
+  axis4Desc: document.getElementById("axis4Desc"),
   axisParadox: document.getElementById("axisParadox"),
   axisParadoxVal: document.getElementById("axisParadoxVal"),
   axisImpossible: document.getElementById("axisImpossible"),
@@ -586,36 +596,115 @@ function profileAxes(p) {
   return { paradox, impossible, daily, meta };
 }
 
-function verdictFromAxes(axes, humor) {
-  const ranked = [
-    { id: "paradoxe", v: axes.paradox, title: "Architecte du paradoxe",
-      lead: "Tu pousses les règles jusqu’à ce qu’elles s’annulent. C’est le cœur du format." },
-    { id: "impossible", v: axes.impossible, title: "Maître de l’impossible",
-      lead: "Tu aimes les consignes qui ne peuvent pas marcher — et les réponses qui le prouvent." },
-    { id: "quotidien", v: axes.daily, title: "Chasseur du quotidien",
-      lead: "Tes meilleures blagues partent du réel : retard, notifs, gym. Proche de ton public." },
-    { id: "meta", v: axes.meta, title: "Miroir méta",
-      lead: "Tu rigoles quand le système se regarde lui-même. Parfait pour un feed 0 IA." },
-  ].sort((a, b) => b.v - a.v);
-
-  const top = ranked[0];
-  if (pTestsLow()) {
-    return {
-      title: "Profil encore flou",
-      lead: "Fais encore quelques tours dans le lab : 8–10 notes suffisent pour un vrai portrait.",
-    };
+/** Pseudo-aléatoire stable à partir du profil (fausse précision « sur mesure »). */
+function barnumSeed(p) {
+  const raw = `${p.tests}|${(p.lastScores || []).join(",")}|${Object.values(p.tagWeight || {}).join(",")}`;
+  let h = 2166136261;
+  for (let i = 0; i < raw.length; i++) {
+    h ^= raw.charCodeAt(i);
+    h = Math.imul(h, 16777619);
   }
-  if (humor != null && humor < 35) {
-    return {
-      title: "Exigence haute",
-      lead: "Tes notes sont dures — parfait pour un feed sélectif. Garde seulement ce qui claque.",
-    };
-  }
-  return { title: top.title, lead: top.lead };
+  return Math.abs(h);
 }
 
-function pTestsLow() {
-  return profile.tests < 4;
+function barnumPick(seed, list, salt) {
+  return list[(seed + salt * 97) % list.length];
+}
+
+function barnumPct(seed, salt, min = 61, max = 89) {
+  return min + ((seed + salt * 13) % (max - min + 1));
+}
+
+/**
+ * Bilan façon horoscope : toujours positif, universel, faussement précis.
+ * Démonstration volontaire de l’effet Barnum / Forer.
+ */
+function buildBarnumReading(p, axes, humor) {
+  const seed = barnumSeed(p);
+  const titles = [
+    "Profil rare — comme tout le monde",
+    "Signature cognitive #unique*",
+    "Lecture calibrée sur tes choix*",
+    "Portrait haute résolution*",
+  ];
+  const duals = [
+    "Tu es souvent lucide et direct·e, mais une part de toi garde des zones volontairement floues.",
+    "Tu aimes les idées nettes, tout en tolérant mieux le doute que tu ne l’admets.",
+    "Tu avances avec méthode, sauf quand l’intuition te paraît plus honnête que le plan.",
+    "Tu cherches la vérité… et tu te méfies des vérités trop confortables.",
+  ];
+  const desires = [
+    "Tu as un besoin réel d’être compris·e sans avoir à tout expliquer.",
+    "Tu veux qu’on reconnaisse ton exigence, pas seulement ton résultat.",
+    "Tu as besoin d’admiration discrète plus que de validation bruyante.",
+    "Tu préfères être respecté·e pour ta lucidité plutôt que pour ton image.",
+  ];
+  const futures = [
+    "Une décision que tu reportes depuis peu va bientôt paraître évidente — rétrospectivement.",
+    "Quelqu’un sous-estimera ton flair cette semaine. Tu t’en souviendras.",
+    "Un détail « anodin » du quotidien va confirmer ce que tu pensais déjà.",
+    "Tu vas sentir, un instant, que le hasard te fait un clin d’œil. Il ne le fait pas.",
+  ];
+  const days = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
+  const day = barnumPick(seed, days, 3);
+
+  const a = barnumPct(seed, 1);
+  const b = barnumPct(seed, 2);
+  const c = barnumPct(seed, 3);
+  const d = barnumPct(seed, 4, 55, 78);
+
+  const body = [
+    barnumPick(seed, duals, 1),
+    barnumPick(seed, desires, 2),
+    `Tes notes (${p.tests || 0} tests${humor != null ? `, jauge ${humor}%` : ""}) dessinent une sensibilité à ${a}% « paradoxe » — chiffre précis, signification universelle.`,
+    barnumPick(seed, futures, 5),
+    `*Unique au sens marketing. Compatible avec 94% des lecteurs du même âge mental.`,
+  ].join(" ");
+
+  const metrics = [
+    {
+      title: `Lucidité (${day})`,
+      pct: a,
+      desc: `Pic de clarté le ${day} · valeur ${a}% — assez haute pour flatter, assez floue pour coller.`,
+    },
+    {
+      title: "Contrôle / lâcher-prise",
+      pct: b,
+      desc: `Tu veux maîtriser (${b}%)… et tu te libères quand ça bloque. Les deux à la fois.`,
+    },
+    {
+      title: "Besoin d’être vu·e",
+      pct: c,
+      desc: `${c}% d’appétit pour la reconnaissance — désir humain de base, emballé en score perso.`,
+    },
+    {
+      title: "Résistance au bullshit",
+      pct: d,
+      desc: `${d}% anti-baratin — ironique, puisque ce bloc est du baratin méthodique.`,
+    },
+  ];
+
+  // Légère teinte avec les vrais axes (illusion de calibration scientifique)
+  metrics[0].pct = clamp(Math.round((metrics[0].pct + axes.paradox) / 2), 55, 92);
+  metrics[1].pct = clamp(Math.round((metrics[1].pct + axes.impossible) / 2), 55, 92);
+  metrics[2].pct = clamp(Math.round((metrics[2].pct + axes.daily) / 2), 55, 92);
+  metrics[3].pct = clamp(Math.round((metrics[3].pct + axes.meta) / 2), 55, 92);
+
+  const levers = [
+    "Déclarations doubles (A et non-A) : impossible d’être « faux »",
+    "Tout est positif : le cerveau accepte plus facilement",
+    "Désirs universels présentés comme diagnostics",
+    "Chiffres précis (61–89%) → illusion de science",
+    "Autorité de l’outil : « bilans », jauges, pourcentages",
+  ];
+
+  return {
+    title: barnumPick(seed, titles, 0),
+    lead: "Si ça te parle fort : ce n’est pas que c’est vrai. C’est que c’est conçu pour coller.",
+    body,
+    metrics,
+    levers,
+  };
 }
 
 function setPathActive(learnOn, genOn) {
@@ -670,7 +759,7 @@ function renderStats() {
 }
 
 function showPostThinking(pattern) {
-  el.hint.hidden = true;
+  if (el.hint) el.hint.hidden = true;
   el.lang.hidden = false;
   el.question.hidden = false;
   el.answer.hidden = false;
@@ -727,8 +816,9 @@ function goIdle() {
   setAlgoSteps(["bank"]);
   el.learnDesc.textContent = "Une note, puis citation suivante";
   el.learnPrompt.hidden = false;
-  el.learnPrompt.textContent = "Espace = une citation, puis note 1·2·3.";
+  el.learnPrompt.textContent = "Espace pour commencer. Terminer = effet Barnum.";
   clearLearnKeys();
+  if (el.hint && el.question && el.question.hidden) el.hint.hidden = false;
 }
 
 function generate() {
@@ -779,8 +869,7 @@ function resetProfile() {
   profile = defaultProfile();
   saveProfile(profile);
   current = null;
-  el.hint.hidden = false;
-  el.hint.textContent = "Profil vidé. 0 IA. Deux chemins : apprendre, ou citation suivante.";
+  if (el.hint) el.hint.hidden = false;
   el.lang.hidden = true;
   el.question.hidden = true;
   el.answer.hidden = true;
@@ -824,19 +913,35 @@ function showEnd() {
 
   const axes = profileAxes(profile);
   const humor = humorLevel(profile);
-  const verdict = verdictFromAxes(axes, humor);
+  const reading = buildBarnumReading(profile, axes, humor);
 
-  el.endTitle.textContent = verdict.title;
-  el.endLead.textContent = verdict.lead;
+  el.endTitle.textContent = reading.title;
+  el.endLead.textContent = reading.lead;
   el.endHumor.textContent =
     humor == null
-      ? "Jauge humour : pas encore de notes · 0 IA · 0 token"
-      : `Jauge humour : ${humor}% · ${humorWord(humor)} · ${profile.tests} tests · 0 IA`;
+      ? "Matériau : 0 note · 0 IA · fausse précision quand même"
+      : `Matériau : ${profile.tests} notes · jauge ${humor}% · 0 IA · précision toujours fake`;
 
-  setAxis(el.axisParadox, el.axisParadoxVal, axes.paradox);
-  setAxis(el.axisImpossible, el.axisImpossibleVal, axes.impossible);
-  setAxis(el.axisDaily, el.axisDailyVal, axes.daily);
-  setAxis(el.axisMeta, el.axisMetaVal, axes.meta);
+  if (el.barnumBody) el.barnumBody.textContent = reading.body;
+
+  const titles = [el.axis1Title, el.axis2Title, el.axis3Title, el.axis4Title];
+  const descs = [el.axis1Desc, el.axis2Desc, el.axis3Desc, el.axis4Desc];
+  const fills = [el.axisParadox, el.axisImpossible, el.axisDaily, el.axisMeta];
+  const vals = [el.axisParadoxVal, el.axisImpossibleVal, el.axisDailyVal, el.axisMetaVal];
+  reading.metrics.forEach((m, i) => {
+    if (titles[i]) titles[i].textContent = m.title;
+    if (descs[i]) descs[i].textContent = m.desc;
+    setAxis(fills[i], vals[i], m.pct);
+  });
+
+  if (el.barnumLevers) {
+    el.barnumLevers.innerHTML = "";
+    for (const line of reading.levers) {
+      const li = document.createElement("li");
+      li.textContent = line;
+      el.barnumLevers.appendChild(li);
+    }
+  }
 
   // Newsletter state
   el.newsError.hidden = true;

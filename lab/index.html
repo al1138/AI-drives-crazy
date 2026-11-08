@@ -47,7 +47,7 @@
         </li>
         <li class="algo-arrow" aria-hidden="true">↓</li>
         <li data-step="finish">
-          <span class="algo-box">bilan<br />+ newsletter<br />+ piste J1</span>
+          <span class="algo-box">bilan Barnum<br />+ biais<br />+ newsletter</span>
         </li>
       </ol>
       <p class="algo-note">0 appel API · 0 token · tout dans le navigateur</p>
@@ -79,7 +79,18 @@
         </header>
 
         <section class="card" id="card" aria-live="polite">
-          <p class="hint" id="hint">Deux chemins : générer un texte, ou apprendre ton humour.</p>
+          <div class="intro" id="hint">
+            <p class="intro-hook">Ça a l’air de te connaître. C’est faux — et c’est le sujet.</p>
+            <p class="intro-lead">
+              Ici on fabrique des réponses « comme une IA », sans IA.
+              Puis un bilan perso… qui marche sur tout le monde. Bienvenue dans la déconstruction.
+            </p>
+            <ol class="intro-steps">
+              <li><span>Espace</span> — une citation piège + fausse réponse algo</li>
+              <li><span>1 · 2 · 3</span> — bof / ok / mdr (ça entraîne les poids)</li>
+              <li><span>Terminer</span> — ton horoscope truqué + l’effet Barnum expliqué</li>
+            </ol>
+          </div>
           <p class="lang" id="lang" hidden></p>
           <p class="question" id="question" hidden></p>
           <p class="answer" id="answer" hidden></p>
@@ -119,9 +130,9 @@
         </section>
 
         <div class="finish-row">
-          <button type="button" class="key key-wide key-finish" data-action="finish" aria-label="Terminer : voir le bilan">
+          <button type="button" class="key key-wide key-finish" data-action="finish" aria-label="Terminer : voir le bilan Barnum">
             <span class="key-glyph">terminer</span>
-            <span class="key-label">bilan + newsletter</span>
+            <span class="key-label">bilan Barnum</span>
           </button>
         </div>
 
@@ -131,56 +142,81 @@
         </footer>
       </main>
 
-      <!-- BILAN -->
+      <!-- BILAN BARNUM -->
       <section class="end" id="endView" hidden>
+        <aside class="barnum-banner" role="note">
+          <p class="barnum-banner-title">Effet Barnum (Forer) — démonstration</p>
+          <p class="barnum-banner-text">
+            Ce bilan a l’air écrit pour toi. Il s’applique à presque tout le monde.
+            Astrologie, voyance, tests douteux : même mécanisme. On le montre à découvert.
+          </p>
+        </aside>
+
         <header class="end-hero">
-          <p class="end-kicker">bilan humour</p>
+          <p class="end-kicker">lecture « personnalisée »</p>
           <h1 class="end-title" id="endTitle">Ton profil</h1>
           <p class="end-lead" id="endLead"></p>
           <p class="end-humor" id="endHumor"></p>
         </header>
 
-        <section class="axes" aria-label="Profil en 4 axes">
+        <section class="barnum-reading" aria-label="Texte Barnum">
+          <p class="barnum-body" id="barnumBody"></p>
+        </section>
+
+        <section class="axes" aria-label="Indices faussement précis" id="barnumAxes">
           <article class="axis">
             <div class="axis-top">
-              <h2>Paradoxe</h2>
+              <h2 id="axis1Title">Indice A</h2>
               <span id="axisParadoxVal">0%</span>
             </div>
-            <p class="axis-desc">Tu aimes les règles qui s’annulent toutes seules.</p>
+            <p class="axis-desc" id="axis1Desc"></p>
             <div class="axis-track"><div class="axis-fill" id="axisParadox" style="width:0%"></div></div>
           </article>
           <article class="axis">
             <div class="axis-top">
-              <h2>Impossible</h2>
+              <h2 id="axis2Title">Indice B</h2>
               <span id="axisImpossibleVal">0%</span>
             </div>
-            <p class="axis-desc">Consignes absurdes, réponses qui explosent.</p>
+            <p class="axis-desc" id="axis2Desc"></p>
             <div class="axis-track"><div class="axis-fill" id="axisImpossible" style="width:0%"></div></div>
           </article>
           <article class="axis">
             <div class="axis-top">
-              <h2>Quotidien</h2>
+              <h2 id="axis3Title">Indice C</h2>
               <span id="axisDailyVal">0%</span>
             </div>
-            <p class="axis-desc">Retard, notifs, gym — la vie qui se contredit.</p>
+            <p class="axis-desc" id="axis3Desc"></p>
             <div class="axis-track"><div class="axis-fill" id="axisDaily" style="width:0%"></div></div>
           </article>
           <article class="axis">
             <div class="axis-top">
-              <h2>Méta</h2>
+              <h2 id="axis4Title">Indice D</h2>
               <span id="axisMetaVal">0%</span>
             </div>
-            <p class="axis-desc">Blagues sur l’algo, le feed, le miroir.</p>
+            <p class="axis-desc" id="axis4Desc"></p>
             <div class="axis-track"><div class="axis-fill" id="axisMeta" style="width:0%"></div></div>
           </article>
         </section>
 
+        <section class="bias-box" aria-labelledby="biasTitle">
+          <h2 class="bias-title" id="biasTitle">Comment on t’a eu</h2>
+          <ul class="bias-list" id="barnumLevers"></ul>
+          <h2 class="bias-title">Autres biais qui trompent</h2>
+          <ul class="bias-list bias-list-secondary">
+            <li><strong>Confirmation</strong> — tu retiens ce qui colle, tu oublies le reste</li>
+            <li><strong>Corrélation illusoire</strong> — deux coïncidences deviennent une « preuve »</li>
+            <li><strong>Rétrospectif</strong> — « je le savais depuis le début »</li>
+            <li><strong>Dunning–Kruger</strong> — mal calibrer sa compétence</li>
+            <li><strong>Illusion de transparence</strong> — croire qu’on te lit comme un livre</li>
+          </ul>
+        </section>
+
         <section class="news" aria-labelledby="newsTitle">
           <p class="news-brand">AI drives crazy</p>
-          <h2 class="news-title" id="newsTitle">On dirait une IA. Ce n’est qu’un algo.</h2>
+          <h2 class="news-title" id="newsTitle">Moins se faire avoir. Une contradiction / semaine.</h2>
           <p class="news-copy">
-            Une contradiction courte, chaque semaine — écrite sans modèle.
-            Assez drôle pour screenshot. Assez nette pour moins dépendre des machines.
+            Pas d’horoscope. Pas de modèle. Juste des pièges cognitifs décortiqués —
+            pour moins croire les machines… et les faux experts.
           </p>
           <ul class="news-points">
             <li>1 email / semaine · 0 € · 0 IA</li>
@@ -216,7 +252,7 @@
           <p class="hunt-kicker">suite ludique</p>
           <h2 class="hunt-title" id="huntTitle">Jeu de piste · 7 jours</h2>
           <p class="hunt-copy">
-            Chaque jour, une micro-mission : piège une IA… ou constate que tu n’en as pas besoin.
+            Chaque jour, une micro-mission pour repérer un biais (Barnum, confirmation, corrélation…).
             Jour 1 débloqué. Reviens demain pour le suivant.
           </p>
           <ol class="hunt-days" id="huntDays"></ol>

@@ -258,11 +258,47 @@ body {
   justify-content: center;
 }
 
-.hint {
+.hint,
+.intro {
   margin: 0;
-  color: var(--muted);
-  font-size: 17px;
+}
+
+.intro-hook {
+  margin: 0;
+  font-size: clamp(22px, 4vw, 30px);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  color: var(--fg);
+}
+
+.intro-lead {
+  margin: 14px 0 0;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #333;
+  max-width: 36em;
+}
+
+.intro-steps {
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+  font-size: 15px;
   line-height: 1.4;
+  color: #333;
+}
+
+.intro-steps li span {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  border: 1px solid #111;
+  padding: 2px 7px;
+  margin-right: 8px;
+  white-space: nowrap;
 }
 
 .lang {
@@ -534,6 +570,29 @@ body {
   gap: 36px;
 }
 
+.barnum-banner {
+  border: 1px solid #111;
+  background: #111;
+  color: #fff;
+  padding: 16px 18px;
+}
+
+.barnum-banner-title {
+  margin: 0;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.barnum-banner-text {
+  margin: 10px 0 0;
+  font-size: 15px;
+  line-height: 1.45;
+  color: #ddd;
+  max-width: 38em;
+}
+
 .end-kicker,
 .hunt-kicker {
   margin: 0 0 8px;
@@ -542,6 +601,56 @@ body {
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--muted);
+}
+
+.barnum-reading {
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+}
+
+.barnum-body {
+  margin: 0;
+  font-size: clamp(17px, 2.8vw, 20px);
+  line-height: 1.55;
+  max-width: 36em;
+  color: #222;
+}
+
+.bias-box {
+  border-top: 1px solid var(--line);
+  padding-top: 24px;
+}
+
+.bias-title {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.bias-box .bias-title + .bias-title,
+.bias-list + .bias-title {
+  margin-top: 22px;
+}
+
+.bias-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: #333;
+}
+
+.bias-list li::before {
+  content: "— ";
+  font-family: "IBM Plex Mono", monospace;
+  color: var(--muted);
+}
+
+.bias-list-secondary {
+  color: #555;
 }
 
 .end-title {

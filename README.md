@@ -12,8 +12,7 @@ cd lab && python3 -m http.server 8787
 | Touche | Action |
 |--------|--------|
 | `espace` | citation suivante |
-| `1`–`3` | noter |
-| `o`/`n` | coach |
+| `1` / `2` / `3` | bof · ok · mdr |
 | `FR` / `EN` | mode langue |
 | `t` | terminer → bilan |
 | `r` | reset profil |

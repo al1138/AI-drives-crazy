@@ -406,7 +406,7 @@ function avg(arr) {
 
 // ——— UI ———
 
-const LEARN_MAX = 2;
+const LEARN_MAX = 1;
 
 const el = {
   labView: document.getElementById("labView"),
@@ -466,7 +466,7 @@ function humorWord(level) {
   if (level < 45) return "tiède";
   if (level < 65) return "correct";
   if (level < 85) return "drôle";
-  return "buzz";
+  return "mdr";
 }
 
 function renderGauge() {
@@ -652,8 +652,7 @@ function renderKeys(buttons) {
 }
 
 function showLearnProgress() {
-  el.learnProgress.hidden = false;
-  el.learnProgress.textContent = `apprentissage ${learnDone + 1}/${LEARN_MAX}`;
+  el.learnProgress.hidden = true;
 }
 
 function renderStats() {
@@ -699,42 +698,23 @@ function askRate() {
   coach = null;
   setPathActive(true, true);
   setAlgoSteps(["emit", "learn"]);
-  el.learnDesc.textContent = "Note ce post pour entraîner l’algo";
+  el.learnDesc.textContent = "C’était drôle ?";
   el.learnPrompt.hidden = false;
-  el.learnPrompt.textContent = "C’était drôle ? 1 = nul · 2 = ok · 3 = buzz";
+  el.learnPrompt.textContent = "Une touche, et on enchaîne.";
   showLearnProgress();
   renderKeys([
-    { key: "1", glyph: "1", label: "nul" },
+    { key: "1", glyph: "1", label: "bof" },
     { key: "2", glyph: "2", label: "ok" },
-    { key: "3", glyph: "3", label: "buzz" },
+    { key: "3", glyph: "3", label: "mdr" },
   ]);
 }
 
-function askCoach() {
-  mode = "coach";
-  coach = nextCoach(profile);
-  setPathActive(true, true);
-  setAlgoSteps(["learn", "update"]);
-  el.learnDesc.textContent = "Question pour affiner ton humour";
-  el.learnPrompt.hidden = false;
-  el.learnPrompt.textContent = coach.text;
-  showLearnProgress();
-  renderKeys(coach.buttons);
-}
-
-/** After a learning answer: next learn Q, or auto-generate next post. */
+/** Après la note → citation suivante. */
 function afterLearnAnswer() {
   learnDone += 1;
   saveProfile(profile);
   renderStats();
   setAlgoSteps(["update"]);
-
-  if (learnDone < LEARN_MAX) {
-    askCoach();
-    return;
-  }
-
-  // 2/2 → enchaîne sur la blague suivante
   generate();
 }
 
@@ -745,9 +725,9 @@ function goIdle() {
   clearThinkTimer();
   setPathActive(false, true);
   setAlgoSteps(["bank"]);
-  el.learnDesc.textContent = "2 questions max, puis post suivant";
+  el.learnDesc.textContent = "Une note, puis citation suivante";
   el.learnPrompt.hidden = false;
-  el.learnPrompt.textContent = "Génère un texte (chemin 2), puis réponds ici.";
+  el.learnPrompt.textContent = "Espace = une citation, puis note 1·2·3.";
   clearLearnKeys();
 }
 

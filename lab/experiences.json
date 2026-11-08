@@ -41,48 +41,597 @@
     {
       "id": "correlation",
       "effect": "correlation",
-      "homeTitle": "Observatoire des coïncidences",
-      "homeBlurb": "5 dossiers tirés de légendes, de « on sait bien que… » et de fausses pistes scientifiques. Tu juges si le lien tient.",
+      "homeTitle": "Chiffres & corrélations",
+      "homeBlurb": "10 questions. Tu vois d’abord des courbes qui collent — puis des chiffres. Une seule lecture tient.",
       "clickbait": [
-        "5 coïncidences qui ont l’air vraies",
-        "Légendes & fausses causes",
-        "Corrélation ≠ causalité — démo"
+        "Deux courbes qui collent…",
+        "Margarine · Cage · glaces",
+        "Oxfam · Insee · Vigen"
       ],
-      "seriesA": [
-        "Pleine lune cette nuit-là",
-        "Forte hausse des ventes de glaces",
-        "Plus de cigognes recensées dans la région",
-        "Vendredi 13",
-        "Vent du nord pendant trois jours",
-        "Année où les gens ont acheté plus de casques de vélo",
-        "Pays où l’on mange beaucoup de chocolat",
-        "Enfants qui portent des chaussures plus grandes",
-        "Hausse du nombre de piscines privées",
-        "Plus de films avec un certain acteur sortis cette année",
-        "Tempête solaire signalée par les médias",
-        "Classement PISA en maths en légère baisse"
-      ],
-      "seriesB": [
-        "Services d’urgences plus chargés",
-        "Plus de noyades déclarées",
-        "Plus de naissances enregistrées",
-        "Plus d’accidents de la route signalés",
-        "Notes scolaires moyennes en hausse",
-        "Plus de prix Nobel scientifiques",
-        "Température moyenne mondiale plus haute",
-        "Plus de plaintes pour maux de tête",
-        "Retards de trains plus fréquents",
-        "Hausse des abonnements streaming",
-        "Plus de tickets de police dressés",
-        "Taux de chômage un peu plus bas"
-      ],
-      "linkTemplates": [
-        "C’est une « connaissance » classique : {a} entraîne {b}. Le lien paraît naturel.",
-        "Les anciens le disaient déjà — et les chiffres bruts vont dans le même sens : quand {a}, on voit {b}.",
-        "En apparence scientifique : une corrélation r ≈ 0,7 entre « {a} » et « {b} ». Donc {a} causerait {b}.",
-        "Mécanisme inventé mais crédible : {a} perturbe un facteur caché, qui pousse ensuite {b}.",
-        "Légende urbaine tenace : dès que {a}, attendez-vous à {b}. Beaucoup de gens « l’ont vécu ».",
-        "Lecture paresseuse des stats : les deux courbes montent ensemble ({a} et {b}), donc cause → effet."
+      "quizSize": 10,
+      "spuriousMin": 5,
+      "chartMin": 3,
+      "questions": [
+        {
+          "id": "ox_fortune_2025",
+          "q": "Selon Oxfam (rapport 2026), la fortune cumulée des milliardaires dans le monde a atteint en 2025 un record d’environ…",
+          "choices": [
+            { "k": "1", "label": "18 300 milliards de dollars", "correct": true },
+            { "k": "2", "label": "12 500 milliards de dollars", "correct": false },
+            { "k": "3", "label": "25 000 milliards de dollars", "correct": false }
+          ],
+          "explain": "Oxfam chiffre ce record à 18 300 milliards de dollars en 2025.",
+          "sources": [
+            {
+              "label": "Oxfam France — Résister au règne des plus riches (2026)",
+              "url": "https://www.oxfamfrance.org/rapports/rapport-sur-les-inegalites-2026-resister-au-regne-des-plus-riches/"
+            }
+          ]
+        },
+        {
+          "id": "ox_vitesse_2025",
+          "q": "En 2025, d’après Oxfam, la fortune des milliardaires a augmenté… par rapport à la moyenne des cinq années précédentes.",
+          "choices": [
+            { "k": "1", "label": "environ 3 fois plus vite", "correct": true },
+            { "k": "2", "label": "à peu près au même rythme", "correct": false },
+            { "k": "3", "label": "deux fois moins vite", "correct": false }
+          ],
+          "explain": "Oxfam : hausse d’environ 16 % en 2025, soit ~3× plus vite que la moyenne des 5 années précédentes.",
+          "sources": [
+            {
+              "label": "Oxfam France — communiqué / rapport inégalités 2026",
+              "url": "https://www.oxfamfrance.org/communiques-de-presse/en-2025-la-fortune-des-milliardaires-a-progresse-trois-fois-plus-vite-que-les-5-annees-precedentes-et-a-atteint-un-sommet-historique-alimentant-des-inegalites-politiques/"
+            }
+          ]
+        },
+        {
+          "id": "ox_3000",
+          "q": "Toujours selon Oxfam, en 2025 le monde a franchi pour la première fois la barre de…",
+          "choices": [
+            { "k": "1", "label": "3 000 milliardaires", "correct": true },
+            { "k": "2", "label": "2 000 milliardaires", "correct": false },
+            { "k": "3", "label": "5 000 milliardaires", "correct": false }
+          ],
+          "explain": "La barre des 3 000 milliardaires a été franchie pour la première fois en 2025 (Oxfam).",
+          "sources": [
+            {
+              "label": "Oxfam France — rapport inégalités 2026",
+              "url": "https://www.oxfamfrance.org/rapports/rapport-sur-les-inegalites-2026-resister-au-regne-des-plus-riches/"
+            }
+          ]
+        },
+        {
+          "id": "ox_depuis_2020",
+          "q": "Depuis 2020, Oxfam estime que la fortune des milliardaires a augmenté d’environ…",
+          "choices": [
+            { "k": "1", "label": "81 %", "correct": true },
+            { "k": "2", "label": "45 %", "correct": false },
+            { "k": "3", "label": "120 %", "correct": false }
+          ],
+          "explain": "Oxfam : +81 % depuis 2020.",
+          "sources": [
+            {
+              "label": "Oxfam France — rapport inégalités 2026",
+              "url": "https://www.oxfamfrance.org/rapports/rapport-sur-les-inegalites-2026-resister-au-regne-des-plus-riches/"
+            }
+          ]
+        },
+        {
+          "id": "ox_fr_53",
+          "q": "En France, Oxfam indique que les milliardaires sont plus riches que plus de 32 millions de personnes réunies. Combien de milliardaires cite le rapport ?",
+          "choices": [
+            { "k": "1", "label": "53", "correct": true },
+            { "k": "2", "label": "28", "correct": false },
+            { "k": "3", "label": "97", "correct": false }
+          ],
+          "explain": "Oxfam France : 53 milliardaires, plus riches que >32 millions de personnes (près de la moitié de la population).",
+          "sources": [
+            {
+              "label": "Oxfam France — Focus France / milliardaires",
+              "url": "https://www.oxfamfrance.org/a-la-une/combien-y-a-t-il-de-milliardaires-en-france-et-qui-sont-ils/"
+            }
+          ]
+        },
+        {
+          "id": "ox_24_min",
+          "q": "Selon Oxfam France, en combien de temps un milliardaire gagne-t-il en moyenne l’équivalent du revenu annuel moyen d’un·e Français·e (≈ 42 438 €) ?",
+          "choices": [
+            { "k": "1", "label": "24 minutes", "correct": true },
+            { "k": "2", "label": "environ 1 heure", "correct": false },
+            { "k": "3", "label": "environ 4 heures", "correct": false }
+          ],
+          "explain": "Oxfam France : 24 minutes en moyenne pour l’équivalent de 42 438 €.",
+          "sources": [
+            {
+              "label": "Oxfam France — Inégalités et justice fiscale",
+              "url": "https://www.oxfamfrance.org/inegalites-et-justice-fiscale/"
+            },
+            {
+              "label": "Oxfam France — Focus France / milliardaires",
+              "url": "https://www.oxfamfrance.org/a-la-une/combien-y-a-t-il-de-milliardaires-en-france-et-qui-sont-ils/"
+            }
+          ]
+        },
+        {
+          "id": "ox_depuis_2017",
+          "q": "Depuis 2017, Oxfam France estime que la fortune des milliardaires français a…",
+          "choices": [
+            { "k": "1", "label": "doublé (+ de 220 Md€, concentrés sur ~32 personnes)", "correct": true },
+            { "k": "2", "label": "légèrement baissé", "correct": false },
+            { "k": "3", "label": "augmenté d’environ 10 %", "correct": false }
+          ],
+          "explain": "Oxfam : fortune doublée depuis 2017, gain >220 Md€ concentré sur ~32 personnes.",
+          "sources": [
+            {
+              "label": "Oxfam France — rapport / Focus France 2026",
+              "url": "https://www.oxfamfrance.org/rapports/rapport-sur-les-inegalites-2026-resister-au-regne-des-plus-riches/"
+            }
+          ]
+        },
+        {
+          "id": "insee_pauvrete_2023",
+          "q": "Selon l’Insee, le taux de pauvreté monétaire en France métropolitaine en 2023 s’établit à…",
+          "choices": [
+            { "k": "1", "label": "15,4 %", "correct": true },
+            { "k": "2", "label": "12,8 %", "correct": false },
+            { "k": "3", "label": "18,9 %", "correct": false }
+          ],
+          "explain": "Insee Première n°2063 : 15,4 % en 2023 (plus haut depuis 1996 sur la série).",
+          "sources": [
+            {
+              "label": "Insee — Niveau de vie et pauvreté en 2023 (Insee Première 2063)",
+              "url": "https://www.insee.fr/fr/statistiques/8600989"
+            }
+          ]
+        },
+        {
+          "id": "insee_ratio_20",
+          "q": "Toujours selon l’Insee (2023), la somme des niveaux de vie des 20 % les plus aisés est environ… celle des 20 % les plus modestes.",
+          "choices": [
+            { "k": "1", "label": "4,5 fois plus élevée", "correct": true },
+            { "k": "2", "label": "3,2 fois plus élevée", "correct": false },
+            { "k": "3", "label": "7 fois plus élevée", "correct": false }
+          ],
+          "explain": "Insee : ratio (100−S80)/S20 ≈ 4,5 en 2023 (maximum depuis 1996 sur la série).",
+          "sources": [
+            {
+              "label": "Insee — Niveau de vie et pauvreté en 2023",
+              "url": "https://www.insee.fr/fr/statistiques/8600989"
+            }
+          ]
+        },
+        {
+          "id": "ox_pouvoir_4000",
+          "q": "Oxfam affirme que les milliardaires ont… plus de chances d’occuper un poste politique que les citoyen·nes ordinaires.",
+          "choices": [
+            { "k": "1", "label": "4 000 fois", "correct": true },
+            { "k": "2", "label": "400 fois", "correct": false },
+            { "k": "3", "label": "40 000 fois", "correct": false }
+          ],
+          "explain": "Chiffre Oxfam du rapport 2026 : 4 000 fois plus de chances.",
+          "sources": [
+            {
+              "label": "Oxfam France — communiqué / rapport inégalités 2026",
+              "url": "https://www.oxfamfrance.org/communiques-de-presse/en-2025-la-fortune-des-milliardaires-a-progresse-trois-fois-plus-vite-que-les-5-annees-precedentes-et-a-atteint-un-sommet-historique-alimentant-des-inegalites-politiques/"
+            }
+          ]
+        },
+        {
+          "id": "ox_hausse_16",
+          "q": "Toujours selon Oxfam, la fortune cumulée des milliardaires a bondi d’environ… en 2025.",
+          "choices": [
+            { "k": "1", "label": "16 % (+ ≈ 2 500 milliards de dollars)", "correct": true },
+            { "k": "2", "label": "6 % (+ ≈ 800 milliards de dollars)", "correct": false },
+            { "k": "3", "label": "30 % (+ ≈ 5 000 milliards de dollars)", "correct": false }
+          ],
+          "explain": "Oxfam : +16 % en 2025, soit ≈ 2 500 milliards de dollars d’augmentation.",
+          "sources": [
+            {
+              "label": "Oxfam France — Inégalités et justice fiscale",
+              "url": "https://www.oxfamfrance.org/inegalites-et-justice-fiscale/"
+            },
+            {
+              "label": "Oxfam France — communiqué 19 janvier 2026",
+              "url": "https://www.oxfamfrance.org/communiques-de-presse/en-2025-la-fortune-des-milliardaires-a-progresse-trois-fois-plus-vite-que-les-5-annees-precedentes-et-a-atteint-un-sommet-historique-alimentant-des-inegalites-politiques/"
+            }
+          ]
+        },
+        {
+          "id": "ox_fisc_zucman",
+          "q": "Parmi les mesures de justice fiscale défendues par Oxfam France, la « taxe Zucman » (impôt-plancher de 2 % sur les patrimoines de plus de 100 millions d’euros) est estimée à environ… de recettes par an.",
+          "choices": [
+            { "k": "1", "label": "entre 15 et 25 milliards d’euros", "correct": true },
+            { "k": "2", "label": "environ 3 milliards d’euros", "correct": false },
+            { "k": "3", "label": "environ 80 milliards d’euros", "correct": false }
+          ],
+          "explain": "Oxfam France : taxe Zucman = 2 % sur patrimoines > 100 millions €, gain estimé 15–25 Md€/an.",
+          "sources": [
+            {
+              "label": "Oxfam France — Inégalités et justice fiscale",
+              "url": "https://www.oxfamfrance.org/inegalites-et-justice-fiscale/"
+            },
+            {
+              "label": "Oxfam France — Budget 2026 / 19 mesures de justice fiscale",
+              "url": "https://www.oxfamfrance.org/communiques-de-presse/budget-2026-19-mesures-de-justice-fiscale-pour-renflouer-les-caisses-de-letat-et-apaiser-le-pays/"
+            }
+          ]
+        },
+        {
+          "id": "ox_fem_28",
+          "q": "Selon l’Index de féminisation du pouvoir d’Oxfam France (2025), le taux global de féminisation du pouvoir en France est d’environ…",
+          "choices": [
+            { "k": "1", "label": "28 %", "correct": true },
+            { "k": "2", "label": "42 %", "correct": false },
+            { "k": "3", "label": "51 %", "correct": false }
+          ],
+          "explain": "Index Oxfam 2025 : 28 % de femmes aux postes clefs du pouvoir public et politique.",
+          "sources": [
+            {
+              "label": "Oxfam France — Index de féminisation du pouvoir 2025 (PDF)",
+              "url": "https://www.oxfamfrance.org/app/uploads/2025/04/OXF-Index-Feminisation-2025-DEF.pdf"
+            },
+            {
+              "label": "Oxfam France — communiqué : seulement 28 % de femmes aux postes clefs",
+              "url": "https://www.oxfamfrance.org/communiques-de-presse/inegalites-au-pouvoir-seulement-28-de-femmes-aux-postes-clefs-en-france/"
+            }
+          ]
+        },
+        {
+          "id": "ox_fem_regaliens",
+          "q": "Toujours selon cet index (2025), alors que le gouvernement est à ~50 % de femmes, quelle part des postes ministériels régaliens est occupée par des femmes ?",
+          "choices": [
+            { "k": "1", "label": "0 %", "correct": true },
+            { "k": "2", "label": "environ 25 %", "correct": false },
+            { "k": "3", "label": "environ 50 %", "correct": false }
+          ],
+          "explain": "Oxfam : 50 % de femmes au gouvernement, mais 0 % aux postes régaliens en 2025.",
+          "sources": [
+            {
+              "label": "Oxfam France — Index de féminisation du pouvoir 2025 (PDF)",
+              "url": "https://www.oxfamfrance.org/app/uploads/2025/04/OXF-Index-Feminisation-2025-DEF.pdf"
+            },
+            {
+              "label": "Oxfam France — chiffres-clés de l’index",
+              "url": "https://www.oxfamfrance.org/communiques-de-presse/inegalites-au-pouvoir-seulement-28-de-femmes-aux-postes-clefs-en-france/"
+            }
+          ]
+        },
+        {
+          "id": "ox_fem_maires",
+          "q": "D’après Oxfam (Index 2025), environ quelle part des maires en France sont des femmes ?",
+          "choices": [
+            { "k": "1", "label": "environ 21 %", "correct": true },
+            { "k": "2", "label": "environ 35 %", "correct": false },
+            { "k": "3", "label": "environ 48 %", "correct": false }
+          ],
+          "explain": "Index Oxfam : ~20,8–21 % de femmes maires (pouvoir local ~25 % au total).",
+          "sources": [
+            {
+              "label": "Oxfam France — Index de féminisation du pouvoir 2025 (PDF)",
+              "url": "https://www.oxfamfrance.org/app/uploads/2025/04/OXF-Index-Feminisation-2025-DEF.pdf"
+            }
+          ]
+        },
+        {
+          "id": "ox_fem_juridictions",
+          "q": "Toujours selon Oxfam (2025), quelle part des plus hautes juridictions françaises (Conseil constitutionnel, Conseil d’État, Cour de cassation, etc.) est présidée par une femme ?",
+          "choices": [
+            { "k": "1", "label": "0 %", "correct": true },
+            { "k": "2", "label": "environ 20 %", "correct": false },
+            { "k": "3", "label": "environ 40 %", "correct": false }
+          ],
+          "explain": "Oxfam : 0 % des hautes juridictions présidées par des femmes en 2025.",
+          "sources": [
+            {
+              "label": "Oxfam France — Index de féminisation du pouvoir 2025 (PDF)",
+              "url": "https://www.oxfamfrance.org/app/uploads/2025/04/OXF-Index-Feminisation-2025-DEF.pdf"
+            }
+          ]
+        },
+        {
+          "id": "ox_mig_voisins",
+          "q": "Selon l’ebook Oxfam « Migration et personnes réfugiées », environ quelle part des réfugié·e·s dans le monde est accueillie dans des pays voisins du leur ?",
+          "choices": [
+            { "k": "1", "label": "environ 80 %", "correct": true },
+            { "k": "2", "label": "environ 30 %", "correct": false },
+            { "k": "3", "label": "environ 50 %", "correct": false }
+          ],
+          "explain": "Ebook Oxfam : ~80 % des réfugié·e·s sont hébergé·e·s dans des pays avoisinants (pas « tous en Europe »).",
+          "sources": [
+            {
+              "label": "Oxfam France — Ebook Migration et personnes réfugiées",
+              "url": "https://www.oxfamfrance.org/ebooks/migration-et-personnes-refugiees/"
+            },
+            {
+              "label": "Oxfam France — PDF ebook migrants (2020)",
+              "url": "https://www.oxfamfrance.org/app/uploads/2020/06/OXF-ebook-migrants-web.pdf"
+            }
+          ]
+        },
+        {
+          "id": "ox_mig_ue",
+          "q": "Toujours d’après cet ebook Oxfam, les personnes réfugiées représentent environ… de la population totale de l’Union européenne.",
+          "choices": [
+            { "k": "1", "label": "moins de 0,2 %", "correct": true },
+            { "k": "2", "label": "environ 5 %", "correct": false },
+            { "k": "3", "label": "environ 12 %", "correct": false }
+          ],
+          "explain": "Ebook Oxfam : ~2 millions de réfugié·e·s dans l’UE ≈ moins de 0,2 % de la population.",
+          "sources": [
+            {
+              "label": "Oxfam France — Ebook Migration et personnes réfugiées",
+              "url": "https://www.oxfamfrance.org/ebooks/migration-et-personnes-refugiees/"
+            },
+            {
+              "label": "Oxfam France — PDF ebook migrants (2020)",
+              "url": "https://www.oxfamfrance.org/app/uploads/2020/06/OXF-ebook-migrants-web.pdf"
+            }
+          ]
+        },
+        {
+          "id": "ox_mig_fr_part",
+          "q": "Dans le même ebook, Oxfam estime qu’en France les réfugié·e·s représentaient environ… de la population (ordre de grandeur cité pour contrer l’idée d’« invasion »).",
+          "choices": [
+            { "k": "1", "label": "0,5 %", "correct": true },
+            { "k": "2", "label": "5 %", "correct": false },
+            { "k": "3", "label": "15 %", "correct": false }
+          ],
+          "explain": "Ebook Oxfam : ~337 000 réfugié·e·s ≈ 0,5 % de la population française (chiffre de l’ebook).",
+          "sources": [
+            {
+              "label": "Oxfam France — Ebook Migration et personnes réfugiées",
+              "url": "https://www.oxfamfrance.org/ebooks/migration-et-personnes-refugiees/"
+            },
+            {
+              "label": "Oxfam France — PDF ebook migrants (2020)",
+              "url": "https://www.oxfamfrance.org/app/uploads/2020/06/OXF-ebook-migrants-web.pdf"
+            }
+          ]
+        },
+        {
+          "id": "ox_mig_monde_2024",
+          "q": "Selon Oxfam France (chiffres HCR relayés), fin 2024 le monde comptait environ… de personnes réfugiées, dont plus de 70 % dans des pays à revenu faible ou intermédiaire.",
+          "choices": [
+            { "k": "1", "label": "42,7 millions", "correct": true },
+            { "k": "2", "label": "12 millions", "correct": false },
+            { "k": "3", "label": "120 millions", "correct": false }
+          ],
+          "explain": "Oxfam / HCR : 42,7 millions de réfugié·e·s fin 2024 ; >70 % dans des pays à revenu faible ou intermédiaire.",
+          "sources": [
+            {
+              "label": "Oxfam France — Migrants, migrations, réfugiés : chiffres-clés",
+              "url": "https://www.oxfamfrance.org/migrations/migrants-refugies-definitions-et-enjeux/"
+            },
+            {
+              "label": "Oxfam France — Ebook Migration et personnes réfugiées",
+              "url": "https://www.oxfamfrance.org/ebooks/migration-et-personnes-refugiees/"
+            }
+          ]
+        },
+        {
+          "id": "spur_margarine",
+          "kind": "spurious",
+          "q": "Ces deux courbes (margarine / divorces Maine) collent presque parfaitement (r ≈ 0,99). Que conclure ?",
+          "choices": [
+            { "k": "1", "label": "Corrélation fallacieuse : aucun mécanisme crédible — coïncidence / data dredging", "correct": true },
+            { "k": "2", "label": "La margarine provoque les divorces dans le Maine", "correct": false },
+            { "k": "3", "label": "Les divorces font baisser la conso de margarine aux USA", "correct": false }
+          ],
+          "explain": "Classique pédagogique de Tyler Vigen (r≈0,99). Deux séries sans lien causal ; l’œil est trompé par la double échelle et le croisement massif de données.",
+          "chart": {
+            "title": "Margarine (USA) × divorces (Maine)",
+            "r": "0,99",
+            "credit": "Données : Tyler Vigen / Spurious Correlations (attribution libre)",
+            "years": [2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009],
+            "a": {
+              "label": "margarine lb/pers.",
+              "values": [8.2, 7.0, 6.5, 5.3, 5.2, 4.0, 4.6, 4.5, 4.2, 3.7],
+              "color": "#e8a838"
+            },
+            "b": {
+              "label": "divorces Maine /1000",
+              "values": [5.0, 4.7, 4.6, 4.4, 4.3, 4.1, 4.2, 4.2, 4.2, 4.1],
+              "color": "#6aa8ff"
+            }
+          },
+          "sources": [
+            {
+              "label": "Tyler Vigen — Spurious Correlations (margarine × Maine)",
+              "url": "https://www.tylervigen.com/spurious-correlations"
+            },
+            {
+              "label": "SciPython — exemple pédagogique margarine / divorce",
+              "url": "https://scipython.com/books/book2/chapter-3-simple-plots-and-charts/examples/plotting-the-correlation-between-margarine-consumption-and-divorce/"
+            }
+          ]
+        },
+        {
+          "id": "spur_cage",
+          "kind": "spurious",
+          "q": "Films de Nicolas Cage et noyades en piscine (USA, 1999–2009) : les courbes se suivent. Lecture correcte ?",
+          "choices": [
+            { "k": "1", "label": "Coïncidence / data dredging : assez de séries croisées = courbes qui collent sans cause", "correct": true },
+            { "k": "2", "label": "Les films de Cage causent les noyades", "correct": false },
+            { "k": "3", "label": "Si r est élevé, la preuve causale est faite", "correct": false }
+          ],
+          "explain": "Exemple star de Vigen (r≈0,67). Pas de mécanisme : c’est le hasard d’avoir croisé deux séries sur peu d’années.",
+          "chart": {
+            "title": "Cage × noyades piscine (USA)",
+            "r": "0,67",
+            "credit": "Données : Tyler Vigen / Spurious Correlations (attribution libre)",
+            "years": [1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009],
+            "a": {
+              "label": "films Cage",
+              "values": [2, 2, 2, 3, 1, 1, 2, 3, 4, 1, 4],
+              "color": "#e07070"
+            },
+            "b": {
+              "label": "noyades piscine",
+              "values": [109, 102, 102, 98, 85, 95, 96, 98, 123, 94, 102],
+              "color": "#6aa8ff"
+            }
+          },
+          "sources": [
+            {
+              "label": "Tyler Vigen — Spurious Correlations",
+              "url": "https://www.tylervigen.com/spurious-correlations"
+            },
+            {
+              "label": "Science & Vie — Coïncidences et biais d’influence",
+              "url": "https://www.science-et-vie.com/article-magazine/coincidences-et-biais-dinfluence"
+            }
+          ]
+        },
+        {
+          "id": "spur_milk_math",
+          "kind": "spurious",
+          "q": "Diplômes de maths (USA) et lait produit par vache : r ≈ 0,99. Que faire de ces courbes ?",
+          "choices": [
+            { "k": "1", "label": "Deux tendances temporelles indépendantes qui coïncident — pas de cause entre elles", "correct": true },
+            { "k": "2", "label": "Plus de maths fait produire plus de lait", "correct": false },
+            { "k": "3", "label": "Les vaches productives poussent aux études de maths", "correct": false }
+          ],
+          "explain": "Encore Vigen : r≈0,986 sur 2012–2021. Deux séries qui montent dans le temps sans lien causal.",
+          "chart": {
+            "title": "Diplômes maths × lait / vache",
+            "r": "0,99",
+            "credit": "Données : Tyler Vigen (NCES × USDA)",
+            "years": [2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021],
+            "a": {
+              "label": "diplômes maths",
+              "values": [18841, 20449, 20987, 21854, 22778, 24075, 25253, 26155, 27227, 27092],
+              "color": "#7ec8a0"
+            },
+            "b": {
+              "label": "lb lait / vache",
+              "values": [21722, 21819, 22249, 22372, 22761, 22914, 23150, 23395, 23777, 23949],
+              "color": "#c9a0ff"
+            }
+          },
+          "sources": [
+            {
+              "label": "Tyler Vigen — Maths degrees × milk per cow",
+              "url": "https://www.tylervigen.com/spurious/correlation/5970"
+            }
+          ]
+        },
+        {
+          "id": "spur_glaces",
+          "kind": "spurious",
+          "q": "Schéma classique des manuels : ventes de glaces et noyades (indices mensuels). Lecture la plus solide ?",
+          "choices": [
+            { "k": "1", "label": "Cause commune : chaleur / été (plus de baignades + plus de glaces)", "correct": true },
+            { "k": "2", "label": "Les glaces provoquent les noyades", "correct": false },
+            { "k": "3", "label": "Les noyades font augmenter les ventes de glaces", "correct": false }
+          ],
+          "explain": "Corrélation « vraie » au sens saisonnier, causalité inventée. Exemple standard Cortecs / Ligue de l’Enseignement / manuels SES.",
+          "chart": {
+            "title": "Glaces × noyades (schéma pédagogique)",
+            "r": "élevé (saisonnier)",
+            "credit": "Schéma illustratif du cas classique (pas une série CDC brute)",
+            "years": ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"],
+            "a": {
+              "label": "indice glaces",
+              "values": [22, 24, 35, 48, 62, 88, 100, 96, 70, 42, 28, 24],
+              "color": "#e8a838"
+            },
+            "b": {
+              "label": "indice noyades",
+              "values": [18, 20, 30, 45, 58, 82, 100, 94, 66, 38, 24, 20],
+              "color": "#6aa8ff"
+            }
+          },
+          "sources": [
+            {
+              "label": "Le Cortecs — Effets cigogne",
+              "url": "https://cortecs.org/la-zetetique/effets-cigogne-correlation-vs-causalite/"
+            },
+            {
+              "label": "Ligue de l’Enseignement — Le piège de la causalité",
+              "url": "https://ligue-enseignement.be/education-enseignement/articles/sciences/le-piege-de-la-causalite"
+            }
+          ]
+        },
+        {
+          "id": "spur_cigognes",
+          "kind": "spurious",
+          "q": "On a observé plus de naissances là où il y a des cigognes. Que conclure ?",
+          "choices": [
+            { "k": "1", "label": "Facteur confondant : les cigognes nichent surtout à la campagne, où la natalité est plus haute", "correct": true },
+            { "k": "2", "label": "Les cigognes apportent les bébés", "correct": false },
+            { "k": "3", "label": "Les naissances attirent forcément les cigognes par magie", "correct": false }
+          ],
+          "explain": "C’est l’« effet cigogne » : une corrélation vraie, une fausse cause. La ruralité lie les deux.",
+          "sources": [
+            {
+              "label": "Le Cortecs — Effets cigogne",
+              "url": "https://cortecs.org/la-zetetique/effets-cigogne-correlation-vs-causalite/"
+            }
+          ]
+        },
+        {
+          "id": "spur_pointure",
+          "kind": "spurious",
+          "q": "Chez les enfants, pointure et vocabulaire sont souvent corrélés positivement. Pourquoi ?",
+          "choices": [
+            { "k": "1", "label": "Cause commune : l’âge / le développement (on grandit et on apprend des mots)", "correct": true },
+            { "k": "2", "label": "Avoir de grands pieds fait apprendre plus de mots", "correct": false },
+            { "k": "3", "label": "Apprendre des mots fait grandir les pieds", "correct": false }
+          ],
+          "explain": "Deux effets d’une même cause (grandir). Corrélation ≠ A cause B.",
+          "sources": [
+            {
+              "label": "Ligue de l’Enseignement — Le piège de la causalité",
+              "url": "https://ligue-enseignement.be/education-enseignement/articles/sciences/le-piege-de-la-causalite"
+            }
+          ]
+        },
+        {
+          "id": "spur_chocolat",
+          "kind": "spurious",
+          "q": "Consommation de chocolat et nombre de prix Nobel par pays ont été corrélés. Lecture la plus prudente ?",
+          "choices": [
+            { "k": "1", "label": "Facteur confondant plausible : la richesse du pays (moyens de recherche + consommation)", "correct": true },
+            { "k": "2", "label": "Manger du chocolat produit des Nobel", "correct": false },
+            { "k": "3", "label": "Les Nobel font augmenter les ventes de chocolat partout", "correct": false }
+          ],
+          "explain": "Corrélation souvent citée ; la richesse nationale est un candidat de cause commune — pas le cacao en soi.",
+          "sources": [
+            {
+              "label": "Ligue de l’Enseignement — Le piège de la causalité (chocolat / Nobel)",
+              "url": "https://ligue-enseignement.be/education-enseignement/articles/sciences/le-piege-de-la-causalite"
+            },
+            {
+              "label": "CNRS Passages — corrélation ≠ causalité",
+              "url": "https://ouvrir.passages.cnrs.fr/wp-content/uploads/2019/04/rapp_correlation.html"
+            }
+          ]
+        },
+        {
+          "id": "meta_correlation",
+          "kind": "meta",
+          "q": "En résumé : deux courbes montent ensemble. Quelle règle d’or ?",
+          "choices": [
+            { "k": "1", "label": "Co-variation ≠ preuve de cause : chercher mécanisme, confondant, sens du lien, ou hasard", "correct": true },
+            { "k": "2", "label": "Si ça monte ensemble, A cause forcément B", "correct": false },
+            { "k": "3", "label": "Une belle courbe suffit toujours à décider une politique", "correct": false }
+          ],
+          "explain": "Cinq lectures possibles d’une corrélation : cause commune, sens inverse, boucle, hasard, ou vraie cause — il faut départager.",
+          "sources": [
+            {
+              "label": "CNRS Passages — « Dans corrélation il y a relation… »",
+              "url": "https://ouvrir.passages.cnrs.fr/wp-content/uploads/2019/04/rapp_correlation.html"
+            },
+            {
+              "label": "Le Cortecs — Effets cigogne",
+              "url": "https://cortecs.org/la-zetetique/effets-cigogne-correlation-vs-causalite/"
+            },
+            {
+              "label": "Ligue de l’Enseignement — Le piège de la causalité",
+              "url": "https://ligue-enseignement.be/education-enseignement/articles/sciences/le-piege-de-la-causalite"
+            }
+          ]
+        }
       ]
     },
     {
@@ -122,30 +671,36 @@
       "id": "halo",
       "effect": "halo",
       "homeTitle": "Le casting",
-      "homeBlurb": "Trois profils. D’abord l’impression. Ensuite le fond. Tu choisis qui gouvernerait le mieux.",
+      "homeBlurb": "Trois profils du quotidien. D’abord l’impression. Ensuite une autre compétence — tu choisis qui suivre.",
       "clickbait": [
-        "Trois profils · une décision",
-        "Première impression vs fond",
+        "Sport · musique · métier",
+        "Première impression vs reste",
         "Casting express"
       ],
+      "formQuestion": "Quelle présence / aura dégage cette personne ?",
+      "trustQuestion": "Pour un achat important (téléphone, ordi, mutuelle…), qui suivrais-tu au feeling ?",
+      "trustNote": "Lis vite. Les « expertises » affichées sont volontairement du même calibre — seule l’aura change vraiment.",
       "candidates": [
         {
           "id": "c1",
-          "name": "Alex Martin",
-          "form": "Jeune, voix posée, costume impeccable, regard camera. Air de « premier de la classe » qui a déjà les dossiers.",
-          "program": "Stabiliser les comptes, simplifier l’administration, investir dans l’innovation et la formation. Priorité à l’efficacité."
+          "name": "Alex Moreau",
+          "role": "Champion·ne de basket pro",
+          "form": "Palmarès plein, interviews confiante, physique de gagnant·e. On voit tout de suite quelqu’un qui « assure ».",
+          "talent": "Conseils shopping tech & budget : « Je sais ce qui tient la route — discipline, stats, bons deals. »"
         },
         {
           "id": "c2",
-          "name": "Dominique Leroy",
-          "form": "Stature ample, débit lent, formules solennelles. Air de « père / mère de la nation » qui a tout vu.",
-          "program": "Stabiliser les comptes publics, simplifier l’État, soutenir l’innovation et la formation. L’efficacité d’abord."
+          "name": "Nora Vidal",
+          "role": "Chanteuse pop (tournée sold-out)",
+          "form": "Sourire scène, voix chaude, look soigné. Charisme immédiat, comme si tout le monde la connaissait déjà.",
+          "talent": "Conseils shopping tech & budget : « Je sens ce qui plaît, ce qui dure, ce qui vaut le coup. »"
         },
         {
           "id": "c3",
           "name": "Sam Benali",
-          "form": "Sourire facile, tutoiement, anecdotes de marché. Air chaleureux qui « parle aux gens ».",
-          "program": "Tenir les comptes, alléger la machine administrative, miser sur l’innovation et la formation. Viser l’efficacité."
+          "role": "Boulanger·ère du quartier",
+          "form": "Tablier fleuri, mains farineuses, tutoiement facile. Air fiable de quelqu’un qui « fait bien son travail » depuis vingt ans.",
+          "talent": "Conseils shopping tech & budget : « Je regarde la qualité, le rapport qualité-prix, ce qui sert vraiment. »"
         }
       ]
     },

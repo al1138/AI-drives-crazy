@@ -274,16 +274,19 @@
       return;
     }
     const c = list[state.candIndex];
-    setProgress(`Présentation ${state.candIndex + 1} / ${list.length}`);
+    const q =
+      exp()?.formQuestion || "Quelle présence / aura dégage cette personne ?";
+    setProgress(`Profil ${state.candIndex + 1} / ${list.length}`);
     setKicker("casting · première impression");
-    setQuestion("Quelle présence dégage cette personne ?");
+    setQuestion(q);
     setBody(`
       <article class="halo-card">
+        <p class="halo-role">${esc(c.role || "")}</p>
         <p class="halo-name">${esc(c.name)}</p>
         <p class="halo-form">${esc(c.form)}</p>
       </article>`);
     setChoices([
-      { k: "1", label: "forte présence" },
+      { k: "1", label: "forte aura" },
       { k: "2", label: "correcte" },
       { k: "3", label: "faible" },
     ]);
@@ -291,22 +294,29 @@
 
   function showHaloTrust() {
     const list = candidates();
+    const q =
+      exp()?.trustQuestion ||
+      "Pour un achat important, qui suivrais-tu au feeling ?";
+    const note =
+      exp()?.trustNote ||
+      "Lis vite. Les expertises affichées sont du même calibre — seule l’aura change vraiment.";
     setProgress("Décision finale");
-    setKicker("casting · fond");
-    setQuestion("Qui gérerait le mieux le pays sur le fond ?");
+    setKicker("casting · autre compétence");
+    setQuestion(q);
     setBody(`
       <div class="halo-programs">
         ${list
           .map(
             (c, i) => `
           <article class="halo-prog">
+            <p class="halo-role">${esc(c.role || "")}</p>
             <p class="halo-name">${i + 1}. ${esc(c.name)}</p>
-            <p class="halo-form">${esc(c.program)}</p>
+            <p class="halo-form">${esc(c.talent || c.program || "")}</p>
           </article>`,
           )
           .join("")}
       </div>
-      <p class="bias-note">Lis vite. Choisis au feeling.</p>`);
+      <p class="bias-note">${esc(note)}</p>`);
     setChoices(
       list.map((c, i) => ({
         k: String(i + 1),
@@ -363,14 +373,17 @@
       el().fakeRead.innerHTML = `
         <header class="end-hero">
           <p class="end-kicker">casting · bilan</p>
-          <h1 class="end-title">${s.matched ? "Alignement forme → fond" : "Écart forme / fond"}</h1>
-          <p class="end-lead">Présence max : <strong>${esc(top?.name || "—")}</strong>. Confiance fond : <strong>${esc(trust?.name || "—")}</strong>.</p>
-          <p class="end-humor">${s.matched ? "Tu as choisi au fond la même personne qu’en première impression." : "Tu as séparé un peu la forme et le fond — rare, mais possible."}</p>
+          <h1 class="end-title">${s.matched ? "Aura → confiance" : "Aura ≠ confiance"}</h1>
+          <p class="end-lead">Aura max : <strong>${esc(top?.name || "—")}</strong>${top?.role ? ` <em>(${esc(top.role)})</em>` : ""}. Suivi pour l’achat : <strong>${esc(trust?.name || "—")}</strong>.</p>
+          <p class="end-humor">${s.matched ? "Tu as suivi pour le shopping la même personne qui t’a le plus impressionné·e." : "Tu as séparé un peu l’aura et la compétence — rare, mais possible."}</p>
         </header>
         <section class="real-stats">
           <ul class="stat-list">
             ${s.list
-              .map((c) => `<li>${esc(c.name)} — présence ${s.scores[c.id] || 0}/3</li>`)
+              .map(
+                (c) =>
+                  `<li>${esc(c.name)}${c.role ? ` · ${esc(c.role)}` : ""} — aura ${s.scores[c.id] || 0}/3</li>`,
+              )
               .join("")}
           </ul>
         </section>`;
@@ -378,23 +391,24 @@
 
     H.setReveal(
       "Tu viens de subir l’effet de halo",
-      "Une qualité saillante (allure, voix, assurance, « style ») colore tout le reste : on croit juger le fond, on a souvent jugé la forme. Les programmes de ce casting étaient volontairement équivalents — seuls les portraits changeaient vraiment.",
+      "Une qualité saillante (sport, scène, métier qui « inspire confiance ») colore le reste : on croit juger une autre compétence (ici : conseils d’achat), on a souvent jugé l’aura. Les expertises affichées étaient volontairement équivalentes — seuls les portraits changeaient vraiment.",
       [
-        "La première impression déborde sur la compétence perçue",
-        "Costume, âge, ton, bonhomie = signaux hors bilan",
-        "Le fond technique est plus lent à évaluer que la forme",
-        "En politique, le « style présidentiel » peut masquer le programme",
+        "Réussir dans un domaine ≠ exceller dans un autre",
+        "Aura, célébrité, « sérieux » du métier = raccourcis",
+        "Le cerveau généralise une impression positive",
+        "Pub, influenceurs, labels « expert » jouent sur le même levier",
       ],
     );
 
     if (el().revealExtra) {
       el().revealExtra.innerHTML = `
-        <h3 class="reveal-sub">Cas politiques connus</h3>
+        <h3 class="reveal-sub">Le même piège au quotidien</h3>
         <ul class="reveal-biases">
-          <li><strong>Emmanuel Macron (2017)</strong> — Jeunesse, dynamisme, costume impeccable, image de « premier de la classe » : pour beaucoup, la forme a été lue comme garantie d’efficacité économique.</li>
-          <li><strong>Mitterrand / Chirac</strong> — Stature de « père de la nation » ou bonhomie de marché : le style présidentiel peut éclipser l’évaluation rigoureuse des bilans.</li>
+          <li><strong>Champion·ne sportif·ve → coach budget / nutrition / « mindset »</strong> — la performance se vend comme preuve universelle.</li>
+          <li><strong>Star / influenceur → shopping, mutuelle, appli bancaire</strong> — le liking remplace l’expertise produit.</li>
+          <li><strong>Métiers « qui rassurent »</strong> — blouse, tablier, badge : l’uniforme fait halo, même hors du vrai sujet.</li>
         </ul>
-        <p class="reveal-explain">Encore une fois : ce n’est pas « ils ont trompé », c’est « notre cerveau raccourcit ».</p>`;
+        <p class="reveal-explain">Ce n’est pas « ils mentent » : c’est « notre cerveau raccourcit ». Séparer aura et compétence, c’est un muscle.</p>`;
     }
   }
 
@@ -532,10 +546,10 @@
     } else if (effectName === "halo") {
       helpers.setIntroSteps([
         { k: "espace", t: "ouvrir le casting" },
-        { k: "1 · 2 · 3", t: "présence, puis confiance" },
+        { k: "1 · 2 · 3", t: "aura, puis qui suivre" },
         { k: "terminer", t: "bilan" },
       ]);
-      helpers.setMeta(`${(e.candidates || []).length} profils · ~2 min`);
+      helpers.setMeta(`${(e.candidates || []).length} profils · sport / scène / métier · ~2 min`);
       helpers.setFinishLabel("voir le bilan");
     } else if (effectName === "anchor") {
       helpers.setIntroSteps([
@@ -557,8 +571,8 @@
       );
     } else if (effectName === "halo") {
       helpers.setBridge(
-        "La forme a parlé en premier…",
-        "Encore un cran : on compare ta confiance « fond » à la présence « forme ».",
+        "L’aura a parlé en premier…",
+        "Encore un cran : on compare qui tu as suivi pour l’achat à qui t’a le plus impressionné·e.",
       );
     } else if (effectName === "anchor") {
       helpers.setBridge(
@@ -631,8 +645,8 @@
         <p class="algo-card-body">Messages les plus vus → souvent préférés.</p>`;
     }
     if (eff === "halo") {
-      return `<p class="algo-card-title">${run.matched ? "forme = fond" : "forme ≠ fond"}</p>
-        <p class="algo-card-body">Confiance finale : ${esc(run.trustPick || "—")}</p>`;
+      return `<p class="algo-card-title">${run.matched ? "aura → suivi" : "aura ≠ suivi"}</p>
+        <p class="algo-card-body">Choix final : ${esc(run.trustPick || "—")}</p>`;
     }
     if (eff === "anchor") {
       return `<p class="algo-card-title">${run.pulled}/${run.n} près de l’ancre</p>
@@ -657,8 +671,8 @@
     }
     if (eff === "halo") {
       return `<ul class="proof-diff">
-        <li>1er : ${a.matched ? "forme=fond" : "écart"} · dernier : ${b.matched ? "forme=fond" : "écart"}</li>
-        <li>Les programmes restent équivalents : la variable, c’est le portrait.</li>
+        <li>1er : ${a.matched ? "aura→suivi" : "écart"} · dernier : ${b.matched ? "aura→suivi" : "écart"}</li>
+        <li>Les « expertises » restent équivalentes : la variable, c’est l’aura du profil.</li>
       </ul>`;
     }
     if (eff === "anchor") {

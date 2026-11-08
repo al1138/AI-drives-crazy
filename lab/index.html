@@ -72,37 +72,13 @@
               <div class="key-row choices" id="biasChoices"></div>
             </div>
 
-            <!-- Exp 3 — Corrélation illusoire -->
+            <!-- Exp 3 — Quiz chiffres (corrélation / sources) -->
             <div id="playCorr" hidden>
               <p class="progress" id="corrProgress"></p>
-              <p class="corr-day" id="corrDay">Dossier 1</p>
-              <p class="question" id="corrPrompt">Ces deux observations sont-elles liées ?</p>
-              <div class="corr-pair" id="corrPair">
-                <div class="corr-col">
-                  <p class="corr-kicker">observation A</p>
-                  <p class="corr-value" id="corrDrink"></p>
-                </div>
-                <p class="corr-times" aria-hidden="true">×</p>
-                <div class="corr-col">
-                  <p class="corr-kicker">observation B</p>
-                  <p class="corr-value" id="corrSign"></p>
-                </div>
-              </div>
-              <p class="corr-story" id="corrStory"></p>
-              <div class="key-row choices" id="corrRateChoices">
-                <button type="button" class="key" data-key="1" aria-label="1 : lien plausible">
-                  <span class="key-glyph">1</span>
-                  <span class="key-label">lien plausible</span>
-                </button>
-                <button type="button" class="key" data-key="2" aria-label="2 : douteux">
-                  <span class="key-glyph">2</span>
-                  <span class="key-label">douteux</span>
-                </button>
-                <button type="button" class="key" data-key="3" aria-label="3 : sans lien">
-                  <span class="key-glyph">3</span>
-                  <span class="key-label">sans lien</span>
-                </button>
-              </div>
+              <p class="corr-day" id="corrDay">Question 1</p>
+              <p class="question" id="corrPrompt"></p>
+              <div class="corr-chart-wrap" id="corrChart" hidden></div>
+              <div class="key-row choices" id="corrRateChoices"></div>
             </div>
           </section>
 

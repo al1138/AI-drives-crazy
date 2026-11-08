@@ -17,7 +17,9 @@ const MAX_RUNS_PER_EFFECT = 20;
 /** @typedef {{ id: string, label: string, questions: Question[] }} Pack */
 /** @typedef {{ id: string, effect: string, title: string, blurb: string, questions: Question[], packIds: string[] }} BarnumSession */
 /** @typedef {{ id: string, text: string, kind: string }} Prediction */
-/** @typedef {{ id: string, effect: string, homeTitle: string, homeBlurb: string, clickbait?: string[], predictions?: Prediction[], seriesA?: string[], seriesB?: string[], linkTemplates?: string[] }} ExpDef */
+/** @typedef {{ k: string, label: string, correct?: boolean }} CorrChoice */
+/** @typedef {{ id: string, q: string, choices: CorrChoice[], explain?: string, sources?: { label: string, url: string }[] }} CorrQuestion */
+/** @typedef {{ id: string, effect: string, homeTitle: string, homeBlurb: string, clickbait?: string[], predictions?: Prediction[], quizSize?: number, questions?: CorrQuestion[] }} ExpDef */
 
 const el = {
   labView: document.getElementById("labView"),
@@ -43,10 +45,7 @@ const el = {
   corrProgress: document.getElementById("corrProgress"),
   corrDay: document.getElementById("corrDay"),
   corrPrompt: document.getElementById("corrPrompt"),
-  corrPair: document.getElementById("corrPair"),
-  corrDrink: document.getElementById("corrDrink"),
-  corrSign: document.getElementById("corrSign"),
-  corrStory: document.getElementById("corrStory"),
+  corrChart: document.getElementById("corrChart"),
   corrRateChoices: document.getElementById("corrRateChoices"),
   startRow: document.getElementById("startRow"),
   finishRow: document.getElementById("finishRow"),
@@ -120,13 +119,11 @@ let confirmDeck = [];
 /** @type {Record<string, string>} */
 let confirmMarks = {};
 
-/** Correlation */
-const CORR_DAYS = 5;
-/** @type {{ factA: string, factB: string, story: string, rate: string }[]} */
+/** Correlation / quiz chiffres */
+/** @type {any[]} */
+let corrDeck = [];
+/** @type {{ id: string, key: string, correct: boolean, correctKey: string }[]} */
 let corrLog = [];
-/** ids déjà tirés dans la session pour éviter les doublons immédiats */
-let corrUsedA = /** @type {Set<string>} */ (new Set());
-let corrUsedB = /** @type {Set<string>} */ (new Set());
 
 /** @type {string[]} */
 let clickbaitPool = [];
@@ -511,12 +508,13 @@ function applyHomeCopy() {
     if (el.finishLabel) el.finishLabel.textContent = "voir ma précision";
   } else if (effect() === "correlation") {
     setIntroSteps([
-      { k: "espace", t: "ouvrir l’observatoire" },
-      { k: "1 · 2 · 3", t: "plausible / douteux / sans lien" },
-      { k: "terminer", t: "voir le rapport" },
+      { k: "espace", t: "lancer le quiz" },
+      { k: "1 · 2 · 3", t: "choisir une réponse" },
+      { k: "terminer", t: "voir le score" },
     ]);
-    if (el.meta) el.meta.textContent = `${CORR_DAYS} dossiers · ~2 min`;
-    if (el.finishLabel) el.finishLabel.textContent = "voir le rapport";
+    const n = corrDeck.length || activeExp?.quizSize || 10;
+    if (el.meta) el.meta.textContent = `${n} questions · courbes + chiffres · ~4 min`;
+    if (el.finishLabel) el.finishLabel.textContent = "voir le score";
   } else if (isPolitics()) {
     PoliticsLab.applyHome(politicsHelpers());
   }
@@ -840,19 +838,13 @@ function buildCurrentSnapshot() {
     };
   }
   if (isPolitics()) return PoliticsLab.buildSnapshot(politicsHelpers());
-  const s = corrBiasedScore();
+  const ok = corrLog.filter((r) => r.correct).length;
   return {
     effect: "correlation",
-    pairs: corrLog.map((r) => ({
-      drink: r.factA,
-      sign: r.factB,
-      factA: r.factA,
-      factB: r.factB,
-      rate: r.rate,
-    })),
-    biased: s.biased,
-    honestConv: s.honestConv,
-    conv: s.conv,
+    n: corrLog.length,
+    ok,
+    pct: corrLog.length ? Math.round((ok / corrLog.length) * 100) : 0,
+    keys: corrLog.map((r) => r.key),
   };
 }
 
@@ -896,11 +888,11 @@ function renderProofPanel(runs) {
       : eff === "confirmation"
         ? "Quel que soit ce que tu coches, le bilan met en avant les « ça colle » et gonfle le %."
         : eff === "correlation"
-          ? "Observations A et B toujours tirées à part — les « explications » restent aussi parlantes."
+          ? "Le score est réel : les mauvaises réponses étaient plausibles — d’où l’intérêt des sources."
           : eff === "exposure"
             ? "L’antenne répète : les messages les plus vus restent souvent préférés."
             : eff === "halo"
-              ? "La forme oriente encore le fond — ou tu y résistes, et on le mesure."
+              ? "L’aura oriente encore qui tu suis pour autre chose — ou tu y résistes, et on le mesure."
               : eff === "anchor"
                 ? "Le premier chiffre continue d’attirer les estimations."
                 : "Compare tes passages pour voir le même mécanisme.";
@@ -946,12 +938,14 @@ function proofSummaryHtml(eff, run) {
   if (typeof PoliticsLab !== "undefined" && PoliticsLab.isPoliticsEffect(eff)) {
     return PoliticsLab.proofSummary(eff, run);
   }
-  const pairs = (run.pairs || [])
-    .map((p) => `${p.factA || p.drink} × ${p.factB || p.sign}`)
-    .join(" · ");
-  return `
-    <p class="algo-card-title">Score ${run.biased}% · « plausible » ${run.conv}/${(run.pairs || []).length}</p>
-    <p class="algo-card-body">${escapeHtml(pairs)}</p>`;
+  if (eff === "correlation") {
+    if (run.n != null && run.ok != null) {
+      return `<p class="algo-card-title">${run.ok}/${run.n} · ${run.pct ?? 0}%</p>
+        <p class="algo-card-body">Quiz chiffres (sources Oxfam / Insee…)</p>`;
+    }
+    return `<p class="algo-card-body">Ancienne version (observatoire) — rejoue pour le quiz sourcé.</p>`;
+  }
+  return "<p class='algo-card-body'>—</p>";
 }
 
 function proofOneLiner(eff, run) {
@@ -960,7 +954,11 @@ function proofOneLiner(eff, run) {
   if (typeof PoliticsLab !== "undefined" && PoliticsLab.isPoliticsEffect(eff)) {
     return PoliticsLab.proofOneLiner(eff, run);
   }
-  return `score ${run.biased}% · ${run.conv} « plausible »`;
+  if (eff === "correlation") {
+    if (run.n != null && run.ok != null) return `${run.ok}/${run.n} (${run.pct ?? 0}%)`;
+    return "ancienne version";
+  }
+  return "—";
 }
 
 function proofDiffHtml(eff, a, b) {
@@ -986,12 +984,18 @@ function proofDiffHtml(eff, a, b) {
   if (typeof PoliticsLab !== "undefined" && PoliticsLab.isPoliticsEffect(eff)) {
     return PoliticsLab.proofDiff(eff, a, b);
   }
-  return `<ul class="proof-diff">
-    <li>1er passage : ${(a.pairs || []).length} dossiers jugés</li>
-    <li>Dernier : ${(b.pairs || []).length} dossiers</li>
-    <li>À chaque fois, A et B étaient tirés séparément — le récit inventait la cause.</li>
-    <li>Scores marketing : ${a.biased}% → ${b.biased}%</li>
-  </ul>`;
+  if (eff === "correlation") {
+    const lineA =
+      a.n != null ? `${a.ok}/${a.n} (${a.pct ?? 0}%)` : "ancienne version";
+    const lineB =
+      b.n != null ? `${b.ok}/${b.n} (${b.pct ?? 0}%)` : "ancienne version";
+    return `<ul class="proof-diff">
+      <li>Scores : ${lineA} → ${lineB}</li>
+      <li>Les distracteurs restent plausibles : sans source, l’ordre de grandeur « qui sonne juste » trompe.</li>
+      <li>Même avec de bons chiffres, inventer une cause reste un autre piège (corrélation ≠ causalité).</li>
+    </ul>`;
+  }
+  return "";
 }
 
 function replaySameCompare() {
@@ -1012,9 +1016,9 @@ function prepareBridgeCopy() {
     el.bridgeCopy.textContent =
       "Tu as vu les réussites. Descends : on te montre ce que le bilan avait envie d’oublier.";
   } else if (effect() === "correlation") {
-    el.bridgeTitle.textContent = "Les dossiers avaient l’air solides…";
+    el.bridgeTitle.textContent = "Les mauvaises réponses sonnaient juste…";
     el.bridgeCopy.textContent =
-      "Encore un cran : on montre que A et B étaient tirés séparément.";
+      "Encore un cran : score réel, bonnes réponses, et pourquoi corrélation ≠ causalité.";
   } else if (isPolitics()) {
     PoliticsLab.prepareBridge(politicsHelpers());
   } else {
@@ -1149,26 +1153,154 @@ function renderConfirmEnd() {
   }
 }
 
-/* ——— Corrélation (légendes / fausses causes) ——— */
+/* ——— Corrélation / quiz chiffres sourcés ——— */
 
-function pickUnused(pool, used) {
-  const fresh = pool.filter((x) => !used.has(x));
-  const source = fresh.length ? fresh : pool;
-  const choice = pick(shuffle(source));
-  used.add(choice);
-  return choice;
+function corrKind(q) {
+  if (q?.kind) return q.kind;
+  if (q?.id === "meta_correlation") return "meta";
+  if (String(q?.id || "").startsWith("spur_")) return "spurious";
+  return "fact";
 }
 
-function inventCorrStory(factA, factB) {
-  const templates = activeExp?.linkTemplates || [
-    "Donc {a} provoquerait {b}.",
-  ];
-  const tpl = pick(templates);
-  return tpl.replace(/\{a\}/g, factA).replace(/\{b\}/g, factB);
+function buildCorrDeck() {
+  const pool = activeExp?.questions || [];
+  if (!pool.length) return [];
+  const size = Math.min(activeExp?.quizSize || 10, pool.length);
+  const meta = pool.filter((q) => corrKind(q) === "meta");
+  const withChart = shuffle(
+    pool.filter((q) => corrKind(q) === "spurious" && q.chart?.years?.length),
+  );
+  const spuriousText = shuffle(
+    pool.filter((q) => corrKind(q) === "spurious" && !q.chart?.years?.length),
+  );
+  const facts = shuffle(pool.filter((q) => corrKind(q) === "fact"));
+  const nMeta = meta.length ? 1 : 0;
+  const nChart = Math.min(
+    activeExp?.chartMin || 3,
+    withChart.length,
+    Math.max(0, size - nMeta),
+  );
+  const nSpuriousText = Math.min(
+    Math.max(0, (activeExp?.spuriousMin || 4) - nChart),
+    spuriousText.length,
+    Math.max(0, size - nMeta - nChart),
+  );
+  const nFacts = Math.max(0, size - nChart - nSpuriousText - nMeta);
+  const picked = [
+    ...withChart.slice(0, nChart),
+    ...spuriousText.slice(0, nSpuriousText),
+    ...facts.slice(0, nFacts),
+    ...meta.slice(0, nMeta),
+  ].slice(0, size);
+  // Courbes d’abord (preuve visuelle), méta en dernier
+  const charts = shuffle(picked.filter((q) => q.chart?.years?.length));
+  const mid = shuffle(
+    picked.filter((q) => !q.chart?.years?.length && corrKind(q) !== "meta"),
+  );
+  const tail = picked.filter((q) => corrKind(q) === "meta");
+  return [...charts, ...mid, ...tail].map((q) => {
+    const shuffled = shuffle([...(q.choices || [])]).map((c, i) => ({
+      ...c,
+      k: String(i + 1),
+    }));
+    const correct = shuffled.find((c) => c.correct);
+    return {
+      ...q,
+      kind: corrKind(q),
+      choices: shuffled,
+      correctKey: correct?.k || "1",
+      correctLabel: correct?.label || "",
+    };
+  });
 }
 
-function showCorrDay() {
-  if (stepIndex >= CORR_DAYS) {
+/** Double échelle : les courbes « collent » à l’œil — piège pédagogique classique (Vigen). */
+function renderCorrChartSvg(chart) {
+  const years = chart.years || [];
+  const a = chart.a?.values || [];
+  const b = chart.b?.values || [];
+  const n = Math.min(years.length, a.length, b.length);
+  if (n < 2) return "";
+  const W = 640;
+  const H = 220;
+  const pad = { t: 28, r: 52, b: 36, l: 52 };
+  const iw = W - pad.l - pad.r;
+  const ih = H - pad.t - pad.b;
+  const minA = Math.min(...a.slice(0, n));
+  const maxA = Math.max(...a.slice(0, n));
+  const minB = Math.min(...b.slice(0, n));
+  const maxB = Math.max(...b.slice(0, n));
+  const spanA = maxA - minA || 1;
+  const spanB = maxB - minB || 1;
+  const xAt = (i) => pad.l + (i / (n - 1)) * iw;
+  const yA = (v) => pad.t + ih - ((v - minA) / spanA) * ih;
+  const yB = (v) => pad.t + ih - ((v - minB) / spanB) * ih;
+  const path = (vals, yFn) =>
+    vals
+      .slice(0, n)
+      .map((v, i) => `${i ? "L" : "M"}${xAt(i).toFixed(1)},${yFn(v).toFixed(1)}`)
+      .join(" ");
+  const ticks = [0, Math.floor((n - 1) / 2), n - 1].filter(
+    (v, i, arr) => arr.indexOf(v) === i,
+  );
+  const colA = chart.a?.color || "#c45c26";
+  const colB = chart.b?.color || "#2a6fdb";
+  return `
+    <figure class="corr-chart">
+      <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${escapeHtml(chart.title || "Deux courbes")}">
+        <rect x="0" y="0" width="${W}" height="${H}" fill="#0f0f0f" rx="4"/>
+        <line x1="${pad.l}" y1="${pad.t}" x2="${pad.l}" y2="${pad.t + ih}" stroke="#333" />
+        <line x1="${pad.l + iw}" y1="${pad.t}" x2="${pad.l + iw}" y2="${pad.t + ih}" stroke="#333" />
+        <line x1="${pad.l}" y1="${pad.t + ih}" x2="${pad.l + iw}" y2="${pad.t + ih}" stroke="#333" />
+        <path d="${path(a, yA)}" fill="none" stroke="${colA}" stroke-width="2.5"/>
+        <path d="${path(b, yB)}" fill="none" stroke="${colB}" stroke-width="2.5" stroke-dasharray="5 4"/>
+        ${a
+          .slice(0, n)
+          .map(
+            (v, i) =>
+              `<circle cx="${xAt(i).toFixed(1)}" cy="${yA(v).toFixed(1)}" r="3" fill="${colA}"/>`,
+          )
+          .join("")}
+        ${b
+          .slice(0, n)
+          .map(
+            (v, i) =>
+              `<circle cx="${xAt(i).toFixed(1)}" cy="${yB(v).toFixed(1)}" r="3" fill="${colB}"/>`,
+          )
+          .join("")}
+        ${ticks
+          .map(
+            (i) =>
+              `<text x="${xAt(i).toFixed(1)}" y="${H - 10}" text-anchor="middle" fill="#888" font-size="11" font-family="IBM Plex Mono, monospace">${years[i]}</text>`,
+          )
+          .join("")}
+        <text x="${pad.l}" y="16" fill="${colA}" font-size="11" font-family="IBM Plex Mono, monospace">${escapeHtml(chart.a?.label || "A")}</text>
+        <text x="${W - pad.r}" y="16" text-anchor="end" fill="${colB}" font-size="11" font-family="IBM Plex Mono, monospace">${escapeHtml(chart.b?.label || "B")}</text>
+      </svg>
+      <figcaption class="corr-chart-cap">
+        ${chart.r != null ? `<span>r ≈ ${escapeHtml(String(chart.r))}</span>` : ""}
+        ${chart.credit ? `<span>${escapeHtml(chart.credit)}</span>` : ""}
+      </figcaption>
+    </figure>`;
+}
+
+function renderCorrChoices(question) {
+  if (!el.corrRateChoices) return;
+  el.corrRateChoices.innerHTML = "";
+  el.corrRateChoices.hidden = false;
+  for (const c of question.choices) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "key key-wide";
+    btn.dataset.key = c.k;
+    btn.setAttribute("aria-label", `${c.k} : ${c.label}`);
+    btn.innerHTML = `<span class="key-glyph">${c.k}</span><span class="key-label">${escapeHtml(c.label)}</span>`;
+    el.corrRateChoices.appendChild(btn);
+  }
+}
+
+function showCorrQuestion() {
+  if (stepIndex >= corrDeck.length) {
     showEnd();
     return;
   }
@@ -1178,150 +1310,149 @@ function showCorrDay() {
   if (el.startRow) el.startRow.hidden = true;
   if (el.playCorr) el.playCorr.hidden = false;
 
-  const seriesA = activeExp?.seriesA || ["Événement A"];
-  const seriesB = activeExp?.seriesB || ["Événement B"];
-  // Tirages indépendants — cœur de la démo.
-  const factA = pickUnused(seriesA, corrUsedA);
-  const factB = pickUnused(seriesB, corrUsedB);
-  const story = inventCorrStory(factA, factB);
-
-  // Stocker en attente via dataset sur la zone de jeu
-  if (el.playCorr) {
-    el.playCorr.dataset.factA = factA;
-    el.playCorr.dataset.factB = factB;
-    el.playCorr.dataset.story = story;
-  }
-
-  if (el.corrProgress) el.corrProgress.textContent = `Dossier ${stepIndex + 1} / ${CORR_DAYS}`;
-  if (el.corrDay) el.corrDay.textContent = `Dossier ${stepIndex + 1}`;
+  const q = corrDeck[stepIndex];
+  const kind = corrKind(q);
+  const kicker =
+    kind === "spurious"
+      ? q.chart
+        ? "deux courbes"
+        : "corrélation étrange"
+      : kind === "meta"
+        ? "règle d’or"
+        : "chiffre sourcé";
+  if (el.corrProgress) el.corrProgress.textContent = `${stepIndex + 1} / ${corrDeck.length}`;
+  if (el.corrDay) el.corrDay.textContent = `Question ${stepIndex + 1} · ${kicker}`;
   if (el.corrPrompt) {
     el.corrPrompt.hidden = false;
-    el.corrPrompt.textContent = "Ces deux observations sont-elles liées ?";
+    el.corrPrompt.textContent = q.q;
   }
-  if (el.corrPair) el.corrPair.hidden = false;
-  if (el.corrDrink) el.corrDrink.textContent = factA;
-  if (el.corrSign) el.corrSign.textContent = factB;
-  if (el.corrStory) {
-    el.corrStory.hidden = false;
-    el.corrStory.textContent = story;
+  if (el.corrChart) {
+    if (q.chart?.years?.length) {
+      el.corrChart.hidden = false;
+      el.corrChart.innerHTML = renderCorrChartSvg(q.chart);
+    } else {
+      el.corrChart.hidden = true;
+      el.corrChart.innerHTML = "";
+    }
   }
-  if (el.corrRateChoices) el.corrRateChoices.hidden = false;
-}
-
-function rateCorr(key) {
-  if (!/^[1-3]$/.test(key)) return;
-  const factA = el.playCorr?.dataset.factA || "";
-  const factB = el.playCorr?.dataset.factB || "";
-  const story = el.playCorr?.dataset.story || "";
-  if (!factA || !factB) return;
-  corrLog.push({ factA, factB, story, rate: key });
-  answerOrder.push(key);
-  stepIndex += 1;
-  if (stepIndex >= CORR_DAYS) showEnd();
-  else showCorrDay();
+  renderCorrChoices(q);
 }
 
 function answerCorr(key) {
   if (mode !== "play" || effect() !== "correlation") return;
-  rateCorr(key);
-}
-
-function corrBiasedScore() {
-  const n = corrLog.length || 1;
-  const conv = corrLog.filter((x) => x.rate === "1").length;
-  const mid = corrLog.filter((x) => x.rate === "2").length;
-  const raw = (conv * 2 + mid) / (n * 2);
-  const biased = Math.round((0.55 + raw * 0.4) * 100);
-  const honestConv = Math.round((conv / n) * 100);
-  return { conv, mid, rej: n - conv - mid, biased, honestConv, n };
-}
-
-function renderCorrMatrix(log) {
-  return log
-    .map(
-      (row, i) => `
-      <div class="corr-row">
-        <span class="corr-row-n">D${i + 1}</span>
-        <span>${escapeHtml(row.factA)}</span>
-        <span class="corr-row-x">×</span>
-        <span>${escapeHtml(row.factB)}</span>
-      </div>`,
-    )
-    .join("");
-}
-
-function reshuffleCorrStories() {
-  const poolB = shuffle([...(activeExp?.seriesB || [])]);
-  return corrLog.map((row, i) => {
-    const factB = poolB[i % poolB.length] || row.factB;
-    return {
-      ...row,
-      factB,
-      story: inventCorrStory(row.factA, factB),
-    };
+  if (!/^[1-3]$/.test(key)) return;
+  const q = corrDeck[stepIndex];
+  if (!q?.choices.some((c) => c.k === key)) return;
+  const picked = q.choices.find((c) => c.k === key);
+  corrLog.push({
+    id: q.id,
+    kind: corrKind(q),
+    key,
+    label: picked?.label || "",
+    correct: key === q.correctKey,
+    correctKey: q.correctKey,
+    correctLabel: q.correctLabel,
+    q: q.q,
+    explain: q.explain || "",
+    sources: q.sources || [],
+    chart: q.chart || null,
   });
+  answerOrder.push(key);
+  stepIndex += 1;
+  if (stepIndex >= corrDeck.length) showEnd();
+  else showCorrQuestion();
+}
+
+function corrScore() {
+  const n = corrLog.length;
+  const ok = corrLog.filter((r) => r.correct).length;
+  return { n, ok, pct: n ? Math.round((ok / n) * 100) : 0, miss: n - ok };
+}
+
+function renderCorrSources(sources) {
+  if (!sources?.length) return "";
+  return `<ul class="corr-sources">${sources
+    .map(
+      (s) =>
+        `<li><a href="${escapeHtml(s.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(s.label)}</a></li>`,
+    )
+    .join("")}</ul>`;
 }
 
 function renderCorrEnd() {
-  const s = corrBiasedScore();
+  const s = corrScore();
+  const factN = corrLog.filter((r) => r.kind === "fact").length;
+  const spurN = corrLog.filter((r) => r.kind === "spurious" || r.kind === "meta").length;
+  const factOk = corrLog.filter((r) => r.kind === "fact" && r.correct).length;
+  const spurOk = corrLog.filter(
+    (r) => (r.kind === "spurious" || r.kind === "meta") && r.correct,
+  ).length;
   if (el.fakeRead) {
     el.fakeRead.innerHTML = `
       <header class="end-hero">
-        <p class="end-kicker">observatoire · rapport</p>
-        <h1 class="end-title">Cohérence ${s.biased}%</h1>
-        <p class="end-lead">D’après tes jugements, plusieurs dossiers « tiennent » — comme dans les légendes qui circulent.</p>
-        <p class="end-humor">${s.conv} dossier${s.conv > 1 ? "s" : ""} jugé${s.conv > 1 ? "s" : ""} « lien plausible ».</p>
+        <p class="end-kicker">quiz · score réel</p>
+        <h1 class="end-title">${s.ok} / ${s.n}</h1>
+        <p class="end-lead">${s.pct}% — deux pièges en un : chiffres plausibles sans source, et vraies corrélations avec fausse cause.</p>
+        <p class="end-humor">Chiffres ${factOk}/${factN} · lectures de corrélations ${spurOk}/${spurN}</p>
       </header>
-      <section class="corr-report">
-        <p class="end-kicker">paires présentées</p>
-        <div class="corr-matrix">${renderCorrMatrix(corrLog)}</div>
-      </section>
       <section class="real-stats">
         <div class="stat-grid">
-          <div class="stat-card"><p class="stat-card-value">${s.biased}%</p><p class="stat-card-label">Score affiché</p></div>
-          <div class="stat-card"><p class="stat-card-value">${s.conv}</p><p class="stat-card-label">Lien plausible</p></div>
-          <div class="stat-card"><p class="stat-card-value">${s.mid}</p><p class="stat-card-label">Douteux</p></div>
-          <div class="stat-card"><p class="stat-card-value">${s.rej}</p><p class="stat-card-label">Sans lien</p></div>
+          <div class="stat-card"><p class="stat-card-value">${s.ok}</p><p class="stat-card-label">Bonnes</p></div>
+          <div class="stat-card"><p class="stat-card-value">${s.miss}</p><p class="stat-card-label">Pièges</p></div>
+          <div class="stat-card"><p class="stat-card-value">${factOk}/${factN || "—"}</p><p class="stat-card-label">Chiffres</p></div>
+          <div class="stat-card"><p class="stat-card-value">${spurOk}/${spurN || "—"}</p><p class="stat-card-label">Corrélations</p></div>
         </div>
       </section>`;
   }
 
   setReveal(
-    "Tu viens de subir l’illusion de corrélation",
-    "Chaque dossier collait deux observations tirées séparément, puis inventait une cause (légende, « on sait bien que… », fausse piste mathématique). Deux choses qui bougent ensemble — ou qu’on raconte ensemble — ne prouvent pas que l’une fait l’autre.",
+    "Deux courbes qui collent ne prouvent rien",
+    "1) L’œil adore les courbes parallèles (surtout en double échelle). 2) Un chiffre « plausible » sans source n’est pas une preuve. Dans les deux cas, il manque un mécanisme — ou c’est du hasard après data dredging.",
     [
-      "Observation A et observation B étaient indépendantes",
-      "Le texte ajoutait une cause pour que ça « fasse sens »",
-      "Corrélation (même inventée) ≠ causalité",
-      "Re-mélanger B avec les mêmes A produit d’autres « évidences »",
+      "Courbes : margarine×divorces, Cage×noyades… données réelles, cause inventée",
+      "Double échelle + peu d’années = piège visuel classique (Vigen)",
+      "Réflexe : 3ᵉ variable ? mécanisme ? ou coïncidence ?",
+      "Chiffre : une seule option était sourcée ; le reste sonnait juste",
     ],
   );
 
-  const reshuffled = reshuffleCorrStories();
   if (el.revealExtra) {
+    const rows = corrLog
+      .map((row, i) => {
+        const mark = row.correct ? "ok" : "ko";
+        const yours = escapeHtml(row.label || `touche ${row.key}`);
+        const good = escapeHtml(row.correctLabel);
+        const tag =
+          row.kind === "spurious"
+            ? row.chart
+              ? "courbes"
+              : "corrélation"
+            : row.kind === "meta"
+              ? "règle"
+              : "chiffre";
+        return `
+          <article class="corr-review ${mark}">
+            <p class="corr-review-n">Q${i + 1} · ${tag}</p>
+            <p class="corr-review-q">${escapeHtml(row.q)}</p>
+            ${row.chart ? renderCorrChartSvg(row.chart) : ""}
+            <p class="corr-review-ans"><span>Toi :</span> ${yours}</p>
+            <p class="corr-review-ans"><span>Bonne lecture :</span> ${good}</p>
+            ${row.explain ? `<p class="corr-review-explain">${escapeHtml(row.explain)}</p>` : ""}
+            ${renderCorrSources(row.sources)}
+          </article>`;
+      })
+      .join("");
+
     el.revealExtra.innerHTML = `
-      <h3 class="reveal-sub">Preuve visuelle : mêmes A, autres B</h3>
-      <p class="reveal-explain">
-        On garde les observations A. On re-tire les B au hasard et on réécrit la légende.
-        Ça sonne encore « logique » — donc le lien n’était pas dans les faits, il était dans le récit.
-        (Tu as marqué « plausible » pour ${s.honestConv}% des dossiers.)
-      </p>
-      <div class="algo-compare">
-        <article class="algo-card">
-          <p class="algo-card-kicker">dossiers qu’on t’a vendus</p>
-          <div class="corr-matrix corr-matrix-dark">${renderCorrMatrix(corrLog)}</div>
-        </article>
-        <article class="algo-card algo-card-alt">
-          <p class="algo-card-kicker">re-mélange au hasard</p>
-          <div class="corr-matrix corr-matrix-dark" id="corrReshuffleMatrix">${renderCorrMatrix(reshuffled)}</div>
-        </article>
-      </div>
-      <button type="button" class="algo-reroll" data-action="reroll-corr">Re-mélanger encore</button>
-      <p class="reveal-explain" style="margin-top:14px">
-        Exemples classiques du même piège : pleine lune × urgences, glaces × noyades (l’été),
-        cigognes × naissances, courbes parallèles sans cause. En maths : une corrélation se calcule ;
-        une cause, ça se démontre autrement.
-      </p>`;
+      <h3 class="reveal-sub">Le raisonnement convaincant</h3>
+      <ol class="corr-reasoning">
+        <li><strong>Regarder les courbes sans croire l’histoire</strong> — elles peuvent coller sans cause (Vigen).</li>
+        <li><strong>Chercher la 3ᵉ variable</strong> — été, richesse, âge… (glaces / noyades).</li>
+        <li><strong>Vérifier le chiffre</strong> — d’où vient-il ? (Oxfam, Insee…).</li>
+        <li><strong>Exiger un mécanisme</strong> — sinon ce n’est qu’une coïncidence jolie.</li>
+      </ol>
+      <h3 class="reveal-sub">Correction + citations</h3>
+      <div class="corr-review-list">${rows}</div>`;
   }
 }
 
@@ -1464,11 +1595,6 @@ function rerollBarnumDemo() {
     <p class="algo-card-body">${escapeHtml(rand.body)}</p>`;
 }
 
-function rerollCorrDemo() {
-  const host = document.getElementById("corrReshuffleMatrix");
-  if (!host) return;
-  host.innerHTML = renderCorrMatrix(reshuffleCorrStories());
-}
 
 /* ——— Barnum play ——— */
 
@@ -1522,6 +1648,8 @@ function refreshActiveContent() {
     barnumSession = buildBarnumSession();
   } else if (effect() === "confirmation") {
     confirmDeck = buildConfirmDeck();
+  } else if (effect() === "correlation") {
+    corrDeck = buildCorrDeck();
   }
   applyHomeCopy();
   clickbaitPool = activeExp?.clickbait?.length
@@ -1542,8 +1670,6 @@ function showIdle() {
   answerOrder = [];
   confirmMarks = {};
   corrLog = [];
-  corrUsedA = new Set();
-  corrUsedB = new Set();
   if (typeof PoliticsLab !== "undefined") PoliticsLab.resetState();
   quizStartedAt = 0;
   quizEndedAt = 0;
@@ -1566,8 +1692,6 @@ function startPlay() {
   answerOrder = [];
   confirmMarks = {};
   corrLog = [];
-  corrUsedA = new Set();
-  corrUsedB = new Set();
   setFinishVisible(true);
 
   if (effect() === "barnum") {
@@ -1587,7 +1711,13 @@ function startPlay() {
     }
     showConfirmStep();
   } else if (effect() === "correlation") {
-    showCorrDay();
+    corrDeck = buildCorrDeck();
+    if (!corrDeck.length) {
+      mode = "idle";
+      setFinishVisible(false);
+      return;
+    }
+    showCorrQuestion();
   } else if (isPolitics()) {
     PoliticsLab.start(politicsHelpers());
   } else {
@@ -1747,7 +1877,6 @@ document.addEventListener("click", (e) => {
     if (action === "back") showLab();
     if (action === "replay-compare") replaySameCompare();
     if (action === "reroll-barnum") rerollBarnumDemo();
-    if (action === "reroll-corr") rerollCorrDemo();
     if (action === "scroll-next") scrollNextChapter();
     if (action === "scroll-reveal") scrollToChapter("surprise");
     return;

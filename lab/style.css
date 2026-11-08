@@ -2131,6 +2131,15 @@ body {
   margin-bottom: 10px;
 }
 
+.halo-role {
+  margin: 0 0 4px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
 .halo-name {
   margin: 0 0 6px;
   font-family: "IBM Plex Mono", monospace;
@@ -2183,7 +2192,7 @@ body {
   line-height: 1.4;
 }
 
-/* ——— Exp corrélation : observatoire ——— */
+/* ——— Exp corrélation : quiz chiffres ——— */
 
 .corr-day {
   margin: 0 0 6px;
@@ -2194,99 +2203,143 @@ body {
   color: var(--muted);
 }
 
-.corr-pair {
+#playCorr .key-row {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
   gap: 10px;
-  align-items: center;
-  margin: 12px 0;
-  padding: 14px 12px;
-  background: var(--soft);
+  grid-template-columns: 1fr;
 }
 
-.corr-col {
-  min-width: 0;
+#playCorr .key-wide {
+  justify-content: flex-start;
+  text-align: left;
+  min-height: 3.2em;
+  padding: 10px 12px;
 }
 
-.corr-kicker {
-  margin: 0 0 6px;
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.corr-value {
-  margin: 0;
-  font-size: 16px;
+#playCorr .key-wide .key-label {
+  white-space: normal;
   line-height: 1.35;
-  font-weight: 400;
 }
 
-.corr-times {
+.corr-chart-wrap {
+  margin: 10px 0 14px;
+}
+
+.corr-chart {
   margin: 0;
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 18px;
-  color: var(--muted);
 }
 
-.corr-story {
-  margin: 0 0 16px;
-  font-size: 15px;
-  line-height: 1.5;
-  color: #333;
-  max-width: 36em;
+.corr-chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid #2a2a2a;
 }
 
-.corr-matrix {
-  display: grid;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.corr-row {
-  display: grid;
-  grid-template-columns: 2em 1fr auto 1fr;
-  gap: 8px;
-  align-items: baseline;
-  font-size: 13px;
-  line-height: 1.35;
-  padding: 8px 10px;
-  background: var(--soft);
-}
-
-.corr-row-n {
+.corr-chart-cap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-top: 6px;
   font-family: "IBM Plex Mono", monospace;
   font-size: 11px;
-  color: var(--muted);
+  color: #888;
+  line-height: 1.35;
 }
 
-.corr-row-x {
-  color: var(--muted);
-  font-family: "IBM Plex Mono", monospace;
+.corr-review .corr-chart {
+  margin: 8px 0 10px;
 }
 
-.corr-matrix-dark .corr-row {
-  background: #181818;
+.corr-review-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.corr-review {
+  padding: 12px 14px;
+  border-left: 3px solid #888;
+  background: #141414;
   color: #ddd;
-  border: 1px solid #333;
 }
 
-.corr-matrix-dark .corr-row-n,
-.corr-matrix-dark .corr-row-x {
-  color: #777;
+.corr-review.ok {
+  border-left-color: #6fbf8a;
 }
 
-@media (max-width: 520px) {
-  .corr-row {
-    grid-template-columns: 2em 1fr;
-    grid-template-rows: auto auto;
-  }
+.corr-review.ko {
+  border-left-color: #e07070;
+}
 
-  .corr-row-x {
-    display: none;
-  }
+.corr-review-n {
+  margin: 0 0 4px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #888;
+}
+
+.corr-review-q {
+  margin: 0 0 8px;
+  font-size: 15px;
+  line-height: 1.4;
+  color: #eee;
+}
+
+.corr-review-ans {
+  margin: 0 0 4px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #ccc;
+}
+
+.corr-review-ans span {
+  color: #888;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-right: 6px;
+}
+
+.corr-review-explain {
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #aaa;
+}
+
+.corr-sources {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 4px;
+}
+
+.corr-sources a {
+  color: #9ec0ff;
+  font-size: 12px;
+  line-height: 1.35;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.corr-reasoning {
+  margin: 8px 0 18px;
+  padding-left: 1.2em;
+  color: #ddd;
+  font-size: 14px;
+  line-height: 1.45;
+  display: grid;
+  gap: 8px;
+}
+
+.corr-reasoning strong {
+  color: #fff;
+  font-weight: 500;
 }
 
 [hidden] {

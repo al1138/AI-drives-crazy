@@ -124,6 +124,72 @@
             Astrologie, voyance, tests douteux : même mécanisme.
           </p>
           <ul class="reveal-levers" id="barnumLevers"></ul>
+
+          <h3 class="reveal-sub">Les questions ne comptaient pas</h3>
+          <p class="reveal-explain" id="revealExplain">
+            Le « profil » n’a jamais lu le sens de tes choix (chat, coucher tôt, etc.).
+            Il ne voit que des touches <code>1</code>, <code>2</code> ou <code>3</code>.
+            Ces chiffres servent uniquement à tirer au sort des phrases toutes faites
+            dans de toutes petites listes — et à inventer des pourcentages qui ont l’air précis.
+            Seule la section <em>Tes chiffres</em> était honnête (comptages, durée, etc.).
+          </p>
+
+          <div class="fake-algo" aria-label="Schéma du faux algorithme">
+            <div class="fake-algo-step">
+              <span class="fake-algo-n">1</span>
+              <p class="fake-algo-title">Tes réponses</p>
+              <p class="fake-algo-code" id="algoKeys">1 · 2 · 3 · …</p>
+              <p class="fake-algo-note">le libellé est jeté</p>
+            </div>
+            <div class="fake-algo-arrow" aria-hidden="true">→</div>
+            <div class="fake-algo-step">
+              <span class="fake-algo-n">2</span>
+              <p class="fake-algo-title">Hash bidon</p>
+              <p class="fake-algo-code" id="algoSeed">seed = …</p>
+              <p class="fake-algo-note">aucun « sens » ici</p>
+            </div>
+            <div class="fake-algo-arrow" aria-hidden="true">→</div>
+            <div class="fake-algo-step">
+              <span class="fake-algo-n">3</span>
+              <p class="fake-algo-title">Tirage + %</p>
+              <p class="fake-algo-code">phrase[seed % 4]<br />% = 61 + (seed % 29)</p>
+              <p class="fake-algo-note">listes génériques</p>
+            </div>
+            <div class="fake-algo-arrow" aria-hidden="true">→</div>
+            <div class="fake-algo-step fake-algo-out">
+              <span class="fake-algo-n">4</span>
+              <p class="fake-algo-title">« Portrait perso »</p>
+              <p class="fake-algo-note">impression de science</p>
+            </div>
+          </div>
+
+          <div class="algo-demo">
+            <p class="algo-demo-lead">
+              Preuve visuelle : on garde la même machine, on change seulement les touches.
+              Le texte bouge un peu (autre tirage dans la liste), mais il reste aussi vague,
+              aussi flatteur, aussi « juste » — pour n’importe qui.
+            </p>
+            <div class="algo-compare">
+              <article class="algo-card">
+                <p class="algo-card-kicker">avec tes réponses</p>
+                <p class="algo-card-keys" id="demoKeysYours"></p>
+                <p class="algo-card-title" id="demoTitleYours"></p>
+                <p class="algo-card-body" id="demoBodyYours"></p>
+                <p class="algo-card-pcts" id="demoPctsYours"></p>
+              </article>
+              <article class="algo-card algo-card-alt">
+                <p class="algo-card-kicker">avec des réponses au hasard</p>
+                <p class="algo-card-keys" id="demoKeysRand"></p>
+                <p class="algo-card-title" id="demoTitleRand"></p>
+                <p class="algo-card-body" id="demoBodyRand"></p>
+                <p class="algo-card-pcts" id="demoPctsRand"></p>
+              </article>
+            </div>
+            <button type="button" class="algo-reroll" data-action="reroll-barnum">
+              Relancer le hasard — autre personne fictive
+            </button>
+          </div>
+
           <h3 class="reveal-sub">Autres biais qui trompent</h3>
           <ul class="reveal-biases">
             <li><strong>Confirmation</strong> — tu retiens ce qui colle, tu oublies le reste</li>

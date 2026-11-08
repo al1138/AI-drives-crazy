@@ -54,6 +54,16 @@ const el = {
   statGrid: document.getElementById("statGrid"),
   choiceBars: document.getElementById("choiceBars"),
   statList: document.getElementById("statList"),
+  algoKeys: document.getElementById("algoKeys"),
+  algoSeed: document.getElementById("algoSeed"),
+  demoKeysYours: document.getElementById("demoKeysYours"),
+  demoTitleYours: document.getElementById("demoTitleYours"),
+  demoBodyYours: document.getElementById("demoBodyYours"),
+  demoPctsYours: document.getElementById("demoPctsYours"),
+  demoKeysRand: document.getElementById("demoKeysRand"),
+  demoTitleRand: document.getElementById("demoTitleRand"),
+  demoBodyRand: document.getElementById("demoBodyRand"),
+  demoPctsRand: document.getElementById("demoPctsRand"),
   axis1Title: document.getElementById("axis1Title"),
   axis2Title: document.getElementById("axis2Title"),
   axis3Title: document.getElementById("axis3Title"),
@@ -283,11 +293,12 @@ function buildBarnumReading(map) {
     "Déclarations doubles (A et non-A) : impossible d’être « faux »",
     "Tout est positif : le cerveau accepte plus facilement",
     "Désirs universels présentés comme diagnostics",
-    "Chiffres précis → illusion de science (les vrais chiffres sont plus haut)",
-    "Autorité du « test » : questions + pourcentages",
+    "Chiffres précis → illusion de science (sauf le bloc « Tes chiffres »)",
+    "Autorité du « test » : questions + pourcentages — le sens des réponses est ignoré",
   ];
 
   return {
+    seed,
     title: barnumPick(seed, titles, 0),
     lead: n
       ? `Analyse générée à partir de ${n} réponse${n > 1 ? "s" : ""}.`
@@ -296,6 +307,78 @@ function buildBarnumReading(map) {
     metrics,
     levers,
   };
+}
+
+/** @param {Record<string, string>} map */
+function keysFromMap(map, order) {
+  if (order && order.length) return order.slice();
+  if (activeTest?.questions?.length) {
+    return activeTest.questions.map((q) => map[q.id]).filter(Boolean);
+  }
+  return Object.values(map);
+}
+
+/** @param {string[]} keys */
+function formatKeysLine(keys) {
+  return keys.length ? keys.join(" · ") : "(aucune)";
+}
+
+/** Fabrication d’un jeu de réponses aléatoires sur les mêmes questions. */
+function randomAnswersMap() {
+  /** @type {Record<string, string>} */
+  const map = {};
+  const qs = activeTest?.questions || [];
+  if (!qs.length) {
+    for (let i = 0; i < 10; i++) map[`x${i}`] = String(1 + Math.floor(Math.random() * 3));
+    return map;
+  }
+  for (const q of qs) {
+    map[q.id] = String(1 + Math.floor(Math.random() * 3));
+  }
+  return map;
+}
+
+/**
+ * @param {ReturnType<typeof buildBarnumReading>} reading
+ * @param {string[]} keys
+ * @param {{ keys: HTMLElement | null, title: HTMLElement | null, body: HTMLElement | null, pcts: HTMLElement | null }} slots
+ */
+function paintDemoCard(reading, keys, slots) {
+  if (slots.keys) slots.keys.textContent = formatKeysLine(keys);
+  if (slots.title) slots.title.textContent = reading.title;
+  if (slots.body) slots.body.textContent = reading.body;
+  if (slots.pcts) {
+    slots.pcts.textContent = reading.metrics.map((m) => `${m.title.split(" ")[0]} ${m.pct}%`).join(" · ");
+  }
+}
+
+function renderFakeAlgoDemo(map, order) {
+  const keys = keysFromMap(map, order);
+  const yours = buildBarnumReading(map);
+
+  if (el.algoKeys) el.algoKeys.textContent = formatKeysLine(keys);
+  if (el.algoSeed) el.algoSeed.textContent = `seed = ${yours.seed}`;
+
+  paintDemoCard(yours, keys, {
+    keys: el.demoKeysYours,
+    title: el.demoTitleYours,
+    body: el.demoBodyYours,
+    pcts: el.demoPctsYours,
+  });
+
+  rerollFakeAlgoCompare();
+}
+
+function rerollFakeAlgoCompare() {
+  const randMap = randomAnswersMap();
+  const randKeys = keysFromMap(randMap, null);
+  const rand = buildBarnumReading(randMap);
+  paintDemoCard(rand, randKeys, {
+    keys: el.demoKeysRand,
+    title: el.demoTitleRand,
+    body: el.demoBodyRand,
+    pcts: el.demoPctsRand,
+  });
 }
 
 /**
@@ -673,6 +756,8 @@ function showEnd() {
     }
   }
 
+  renderFakeAlgoDemo(answers, answerOrder);
+
   el.newsError.hidden = true;
   const saved = localStorage.getItem(NEWS_KEY);
   if (saved) {
@@ -784,6 +869,7 @@ document.addEventListener("click", (e) => {
     const action = actionBtn.getAttribute("data-action");
     if (action === "finish") showEnd();
     if (action === "back") showLab();
+    if (action === "reroll-barnum") rerollFakeAlgoCompare();
     return;
   }
   if (mode === "end") return;

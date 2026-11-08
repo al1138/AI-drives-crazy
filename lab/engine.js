@@ -1009,9 +1009,10 @@ function showLab() {
   window.scrollTo(0, 0);
 }
 
-function submitNewsletter(e) {
+async function submitNewsletter(e) {
   e.preventDefault();
   el.newsError.hidden = true;
+  el.newsOk.hidden = true;
   const email = String(el.newsEmail.value || "").trim().toLowerCase();
   const okEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   if (!okEmail) {
@@ -1025,11 +1026,32 @@ function submitNewsletter(e) {
     el.newsError.textContent = "Coche la case pour confirmer.";
     return;
   }
-  localStorage.setItem(
-    NEWS_KEY,
-    JSON.stringify({ email, at: Date.now(), source: "lab-end-v1" }),
-  );
-  el.newsOk.hidden = false;
+
+  const btn = el.newsForm?.querySelector('button[type="submit"]');
+  if (btn) btn.disabled = true;
+
+  try {
+    const res = await fetch("/api/subscribe", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ email, consent: true }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) {
+      throw new Error(data.error || "inscription impossible");
+    }
+    localStorage.setItem(
+      NEWS_KEY,
+      JSON.stringify({ email, at: Date.now(), source: "cf-d1" }),
+    );
+    el.newsOk.hidden = false;
+  } catch (err) {
+    el.newsError.hidden = false;
+    el.newsError.textContent =
+      err instanceof Error ? err.message : "réseau / serveur indisponible";
+  } finally {
+    if (btn) btn.disabled = false;
+  }
 }
 
 function toggleHuntDay(day) {

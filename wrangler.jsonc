@@ -2,5 +2,12 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "ai-drives-crazy",
   "compatibility_date": "2026-11-08",
-  "pages_build_output_dir": "lab"
+  "pages_build_output_dir": "lab",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ontelit-mail",
+      "database_id": "c0c23411-1077-47d8-8985-a0af444de7af"
+    }
+  ]
 }

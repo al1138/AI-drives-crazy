@@ -288,18 +288,29 @@ function patternsForLang(lang) {
   return PATTERNS.filter((p) => p.lang === lang);
 }
 
-/** Prefer never-seen posts until the bank is exhausted, then reshuffle via weights. */
+/**
+ * Jamais deux fois la même question d’affilée, ni avant d’avoir épuisé
+ * la banque de la langue courante. Grim = pondération, pas un sous-deck.
+ */
 function choosePattern(profile) {
   const byLang = patternsForLang(langMode);
-  const rollGrim = Math.random() < profile.grimRate;
-  let pool = rollGrim
-    ? byLang.filter((p) => p.grim)
-    : byLang.filter((p) => !p.grim);
-  if (!pool.length) pool = byLang.length ? byLang : PATTERNS;
+  const excludeId = current?.id ?? null;
+  const langIds = byLang.map((p) => p.id);
 
-  const unseen = pool.filter((p) => !profile.seenIds.includes(p.id));
-  const use = unseen.length ? unseen : pool;
-  return pickWeighted(use, (p) => patternScore(p, profile));
+  let pool = byLang.filter(
+    (p) => !profile.seenIds.includes(p.id) && p.id !== excludeId,
+  );
+
+  if (!pool.length) {
+    // Nouveau tour pour cette langue : on réouvre le deck (sauf la question courante).
+    const langSet = new Set(langIds);
+    profile.seenIds = profile.seenIds.filter((id) => !langSet.has(id));
+    saveProfile(profile);
+    pool = byLang.filter((p) => p.id !== excludeId);
+  }
+
+  if (!pool.length) pool = byLang.length ? byLang : PATTERNS;
+  return pickWeighted(pool, (p) => patternScore(p, profile));
 }
 
 function unseenPostCount(profile) {
@@ -622,10 +633,10 @@ function barnumPct(seed, salt, min = 61, max = 89) {
 function buildBarnumReading(p, axes, humor) {
   const seed = barnumSeed(p);
   const titles = [
-    "Profil rare — comme tout le monde",
-    "Signature cognitive #unique*",
-    "Lecture calibrée sur tes choix*",
-    "Portrait haute résolution*",
+    "Profil rare",
+    "Signature cognitive",
+    "Lecture calibrée sur tes choix",
+    "Portrait haute résolution",
   ];
   const duals = [
     "Tu es souvent lucide et direct·e, mais une part de toi garde des zones volontairement floues.",
@@ -640,10 +651,10 @@ function buildBarnumReading(p, axes, humor) {
     "Tu préfères être respecté·e pour ta lucidité plutôt que pour ton image.",
   ];
   const futures = [
-    "Une décision que tu reportes depuis peu va bientôt paraître évidente — rétrospectivement.",
+    "Une décision que tu reportes depuis peu va bientôt paraître évidente.",
     "Quelqu’un sous-estimera ton flair cette semaine. Tu t’en souviendras.",
-    "Un détail « anodin » du quotidien va confirmer ce que tu pensais déjà.",
-    "Tu vas sentir, un instant, que le hasard te fait un clin d’œil. Il ne le fait pas.",
+    "Un détail anodin du quotidien va confirmer ce que tu pensais déjà.",
+    "Tu vas sentir, un instant, que le hasard te fait un clin d’œil.",
   ];
   const days = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
   const day = barnumPick(seed, days, 3);
@@ -653,38 +664,37 @@ function buildBarnumReading(p, axes, humor) {
   const c = barnumPct(seed, 3);
   const d = barnumPct(seed, 4, 55, 78);
 
+  // Phase 1 — « vraie fausse » réponse (ton sérieux, zéro spoil)
   const body = [
     barnumPick(seed, duals, 1),
     barnumPick(seed, desires, 2),
-    `Tes notes (${p.tests || 0} tests${humor != null ? `, jauge ${humor}%` : ""}) dessinent une sensibilité à ${a}% « paradoxe » — chiffre précis, signification universelle.`,
+    `D’après tes ${p.tests || 0} interactions${humor != null ? ` et une jauge à ${humor}%` : ""}, ta sensibilité paradoxale atteint ${a}%.`,
     barnumPick(seed, futures, 5),
-    `*Unique au sens marketing. Compatible avec 94% des lecteurs du même âge mental.`,
   ].join(" ");
 
   const metrics = [
     {
       title: `Lucidité (${day})`,
       pct: a,
-      desc: `Pic de clarté le ${day} · valeur ${a}% — assez haute pour flatter, assez floue pour coller.`,
+      desc: `Pic de clarté estimé le ${day}.`,
     },
     {
       title: "Contrôle / lâcher-prise",
       pct: b,
-      desc: `Tu veux maîtriser (${b}%)… et tu te libères quand ça bloque. Les deux à la fois.`,
+      desc: `Équilibre entre maîtrise et abandon mesuré à ${b}%.`,
     },
     {
       title: "Besoin d’être vu·e",
       pct: c,
-      desc: `${c}% d’appétit pour la reconnaissance — désir humain de base, emballé en score perso.`,
+      desc: `Appétit de reconnaissance calibré à ${c}%.`,
     },
     {
-      title: "Résistance au bullshit",
+      title: "Résistance au bruit",
       pct: d,
-      desc: `${d}% anti-baratin — ironique, puisque ce bloc est du baratin méthodique.`,
+      desc: `Filtre anti-distraction évalué à ${d}%.`,
     },
   ];
 
-  // Légère teinte avec les vrais axes (illusion de calibration scientifique)
   metrics[0].pct = clamp(Math.round((metrics[0].pct + axes.paradox) / 2), 55, 92);
   metrics[1].pct = clamp(Math.round((metrics[1].pct + axes.impossible) / 2), 55, 92);
   metrics[2].pct = clamp(Math.round((metrics[2].pct + axes.daily) / 2), 55, 92);
@@ -695,12 +705,15 @@ function buildBarnumReading(p, axes, humor) {
     "Tout est positif : le cerveau accepte plus facilement",
     "Désirs universels présentés comme diagnostics",
     "Chiffres précis (61–89%) → illusion de science",
-    "Autorité de l’outil : « bilans », jauges, pourcentages",
+    "Autorité de l’outil : bilans, jauges, pourcentages",
   ];
 
   return {
     title: barnumPick(seed, titles, 0),
-    lead: "Si ça te parle fort : ce n’est pas que c’est vrai. C’est que c’est conçu pour coller.",
+    lead:
+      humor == null
+        ? "Analyse générée à partir de ton passage dans le lab."
+        : `Analyse générée à partir de ${p.tests} notes · jauge ${humor}%.`,
     body,
     metrics,
     levers,
@@ -917,10 +930,7 @@ function showEnd() {
 
   el.endTitle.textContent = reading.title;
   el.endLead.textContent = reading.lead;
-  el.endHumor.textContent =
-    humor == null
-      ? "Matériau : 0 note · 0 IA · fausse précision quand même"
-      : `Matériau : ${profile.tests} notes · jauge ${humor}% · 0 IA · précision toujours fake`;
+  el.endHumor.textContent = reading.lead;
 
   if (el.barnumBody) el.barnumBody.textContent = reading.body;
 

@@ -145,67 +145,66 @@
         </footer>
       </main>
 
-      <!-- BILAN BARNUM -->
+      <!-- BILAN : d’abord la fausse lecture, puis le reveal -->
       <section class="end" id="endView" hidden>
-        <aside class="barnum-banner" role="note">
-          <p class="barnum-banner-title">Effet Barnum (Forer) — démonstration</p>
-          <p class="barnum-banner-text">
-            Ce bilan a l’air écrit pour toi. Il s’applique à presque tout le monde.
-            Astrologie, voyance, tests douteux : même mécanisme. On le montre à découvert.
+        <div class="fake-read" id="fakeRead">
+          <header class="end-hero">
+            <p class="end-kicker">lecture personnalisée</p>
+            <h1 class="end-title" id="endTitle">Ton profil</h1>
+            <p class="end-lead" id="endLead"></p>
+            <p class="end-humor" id="endHumor"></p>
+          </header>
+
+          <section class="barnum-reading" aria-label="Lecture personnalisée">
+            <p class="barnum-body" id="barnumBody"></p>
+          </section>
+
+          <section class="axes" aria-label="Indices calibrés" id="barnumAxes">
+            <article class="axis">
+              <div class="axis-top">
+                <h2 id="axis1Title">Indice A</h2>
+                <span id="axisParadoxVal">0%</span>
+              </div>
+              <p class="axis-desc" id="axis1Desc"></p>
+              <div class="axis-track"><div class="axis-fill" id="axisParadox" style="width:0%"></div></div>
+            </article>
+            <article class="axis">
+              <div class="axis-top">
+                <h2 id="axis2Title">Indice B</h2>
+                <span id="axisImpossibleVal">0%</span>
+              </div>
+              <p class="axis-desc" id="axis2Desc"></p>
+              <div class="axis-track"><div class="axis-fill" id="axisImpossible" style="width:0%"></div></div>
+            </article>
+            <article class="axis">
+              <div class="axis-top">
+                <h2 id="axis3Title">Indice C</h2>
+                <span id="axisDailyVal">0%</span>
+              </div>
+              <p class="axis-desc" id="axis3Desc"></p>
+              <div class="axis-track"><div class="axis-fill" id="axisDaily" style="width:0%"></div></div>
+            </article>
+            <article class="axis">
+              <div class="axis-top">
+                <h2 id="axis4Title">Indice D</h2>
+                <span id="axisMetaVal">0%</span>
+              </div>
+              <p class="axis-desc" id="axis4Desc"></p>
+              <div class="axis-track"><div class="axis-fill" id="axisMeta" style="width:0%"></div></div>
+            </article>
+          </section>
+        </div>
+
+        <section class="reveal" aria-labelledby="revealTitle">
+          <p class="reveal-kicker">après la surprise</p>
+          <h2 class="reveal-title" id="revealTitle">Tu viens de subir l’effet Barnum</h2>
+          <p class="reveal-lead">
+            Ce texte avait l’air écrit pour toi. Il marche sur presque n’importe qui.
+            Astrologie, voyance, tests douteux : même mécanisme. Voici comment on t’a eu.
           </p>
-        </aside>
-
-        <header class="end-hero">
-          <p class="end-kicker">lecture « personnalisée »</p>
-          <h1 class="end-title" id="endTitle">Ton profil</h1>
-          <p class="end-lead" id="endLead"></p>
-          <p class="end-humor" id="endHumor"></p>
-        </header>
-
-        <section class="barnum-reading" aria-label="Texte Barnum">
-          <p class="barnum-body" id="barnumBody"></p>
-        </section>
-
-        <section class="axes" aria-label="Indices faussement précis" id="barnumAxes">
-          <article class="axis">
-            <div class="axis-top">
-              <h2 id="axis1Title">Indice A</h2>
-              <span id="axisParadoxVal">0%</span>
-            </div>
-            <p class="axis-desc" id="axis1Desc"></p>
-            <div class="axis-track"><div class="axis-fill" id="axisParadox" style="width:0%"></div></div>
-          </article>
-          <article class="axis">
-            <div class="axis-top">
-              <h2 id="axis2Title">Indice B</h2>
-              <span id="axisImpossibleVal">0%</span>
-            </div>
-            <p class="axis-desc" id="axis2Desc"></p>
-            <div class="axis-track"><div class="axis-fill" id="axisImpossible" style="width:0%"></div></div>
-          </article>
-          <article class="axis">
-            <div class="axis-top">
-              <h2 id="axis3Title">Indice C</h2>
-              <span id="axisDailyVal">0%</span>
-            </div>
-            <p class="axis-desc" id="axis3Desc"></p>
-            <div class="axis-track"><div class="axis-fill" id="axisDaily" style="width:0%"></div></div>
-          </article>
-          <article class="axis">
-            <div class="axis-top">
-              <h2 id="axis4Title">Indice D</h2>
-              <span id="axisMetaVal">0%</span>
-            </div>
-            <p class="axis-desc" id="axis4Desc"></p>
-            <div class="axis-track"><div class="axis-fill" id="axisMeta" style="width:0%"></div></div>
-          </article>
-        </section>
-
-        <section class="bias-box" aria-labelledby="biasTitle">
-          <h2 class="bias-title" id="biasTitle">Comment on t’a eu</h2>
-          <ul class="bias-list" id="barnumLevers"></ul>
-          <h2 class="bias-title">Autres biais qui trompent</h2>
-          <ul class="bias-list bias-list-secondary">
+          <ul class="reveal-levers" id="barnumLevers"></ul>
+          <h3 class="reveal-sub">Autres biais qui trompent</h3>
+          <ul class="reveal-biases">
             <li><strong>Confirmation</strong> — tu retiens ce qui colle, tu oublies le reste</li>
             <li><strong>Corrélation illusoire</strong> — deux coïncidences deviennent une « preuve »</li>
             <li><strong>Rétrospectif</strong> — « je le savais depuis le début »</li>

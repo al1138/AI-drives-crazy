@@ -1,6 +1,6 @@
 {
   "defaultEffect": "barnum",
-  "rotation": ["barnum", "confirmation", "correlation", "exposure", "halo", "anchor"],
+  "rotation": ["barnum", "confirmation", "correlation", "exposure", "halo", "anchor", "science", "choice"],
   "experiences": [
     {
       "id": "barnum",
@@ -411,25 +411,25 @@
         {
           "id": "spur_margarine",
           "kind": "spurious",
-          "q": "Ces deux courbes (margarine / divorces Maine) collent presque parfaitement (r ≈ 0,99). Que conclure ?",
+          "q": "Ces deux courbes (margarine et divorces dans le Maine) se suivent presque parfaitement. Que conclure ?",
           "choices": [
-            { "k": "1", "label": "Corrélation fallacieuse : aucun mécanisme crédible — coïncidence / data dredging", "correct": true },
+            { "k": "1", "label": "Hasard : les courbes se ressemblent, mais l’un ne cause pas l’autre", "correct": true },
             { "k": "2", "label": "La margarine provoque les divorces dans le Maine", "correct": false },
-            { "k": "3", "label": "Les divorces font baisser la conso de margarine aux USA", "correct": false }
+            { "k": "3", "label": "Les divorces font baisser la consommation de margarine aux USA", "correct": false }
           ],
-          "explain": "Classique pédagogique de Tyler Vigen (r≈0,99). Deux séries sans lien causal ; l’œil est trompé par la double échelle et le croisement massif de données.",
+          "explain": "Exemple célèbre de Tyler Vigen. Les deux courbes se suivent, mais il n’y a aucun lien de cause entre elles — juste une coïncidence.",
           "chart": {
-            "title": "Margarine (USA) × divorces (Maine)",
+            "title": "Margarine (USA) et divorces (Maine)",
             "r": "0,99",
             "credit": "Données : Tyler Vigen / Spurious Correlations (attribution libre)",
             "years": [2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009],
             "a": {
-              "label": "margarine lb/pers.",
+              "label": "margarine (livres / personne)",
               "values": [8.2, 7.0, 6.5, 5.3, 5.2, 4.0, 4.6, 4.5, 4.2, 3.7],
               "color": "#e8a838"
             },
             "b": {
-              "label": "divorces Maine /1000",
+              "label": "divorces Maine (pour 1000)",
               "values": [5.0, 4.7, 4.6, 4.4, 4.3, 4.1, 4.2, 4.2, 4.2, 4.1],
               "color": "#6aa8ff"
             }
@@ -448,13 +448,13 @@
         {
           "id": "spur_cage",
           "kind": "spurious",
-          "q": "Films de Nicolas Cage et noyades en piscine (USA, 1999–2009) : les courbes se suivent. Lecture correcte ?",
+          "q": "Films de Nicolas Cage et noyades en piscine (USA, 1999–2009) : les courbes se suivent. Quelle lecture est juste ?",
           "choices": [
-            { "k": "1", "label": "Coïncidence / data dredging : assez de séries croisées = courbes qui collent sans cause", "correct": true },
+            { "k": "1", "label": "Hasard : si on compare assez de séries, certaines finissent par se ressembler", "correct": true },
             { "k": "2", "label": "Les films de Cage causent les noyades", "correct": false },
-            { "k": "3", "label": "Si r est élevé, la preuve causale est faite", "correct": false }
+            { "k": "3", "label": "Si les courbes se suivent, la preuve est faite", "correct": false }
           ],
-          "explain": "Exemple star de Vigen (r≈0,67). Pas de mécanisme : c’est le hasard d’avoir croisé deux séries sur peu d’années.",
+          "explain": "Exemple célèbre de Tyler Vigen. Aucun lien réel entre les films et les noyades : en croisant assez de données, on trouve toujours des coïncidences.",
           "chart": {
             "title": "Cage × noyades piscine (USA)",
             "r": "0,67",
@@ -485,15 +485,15 @@
         {
           "id": "spur_milk_math",
           "kind": "spurious",
-          "q": "Diplômes de maths (USA) et lait produit par vache : r ≈ 0,99. Que faire de ces courbes ?",
+          "q": "Diplômes de maths (USA) et lait produit par vache : les courbes montent ensemble. Que conclure ?",
           "choices": [
-            { "k": "1", "label": "Deux tendances temporelles indépendantes qui coïncident — pas de cause entre elles", "correct": true },
+            { "k": "1", "label": "Elles montent en même temps par hasard — l’une ne cause pas l’autre", "correct": true },
             { "k": "2", "label": "Plus de maths fait produire plus de lait", "correct": false },
             { "k": "3", "label": "Les vaches productives poussent aux études de maths", "correct": false }
           ],
-          "explain": "Encore Vigen : r≈0,986 sur 2012–2021. Deux séries qui montent dans le temps sans lien causal.",
+          "explain": "Encore Vigen. Deux choses qui montent avec les années, sans que l’une explique l’autre.",
           "chart": {
-            "title": "Diplômes maths × lait / vache",
+            "title": "Diplômes maths et lait par vache",
             "r": "0,99",
             "credit": "Données : Tyler Vigen (NCES × USDA)",
             "years": [2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021],
@@ -503,7 +503,7 @@
               "color": "#7ec8a0"
             },
             "b": {
-              "label": "lb lait / vache",
+              "label": "lait par vache",
               "values": [21722, 21819, 22249, 22372, 22761, 22914, 23150, 23395, 23777, 23949],
               "color": "#c9a0ff"
             }
@@ -518,25 +518,25 @@
         {
           "id": "spur_glaces",
           "kind": "spurious",
-          "q": "Schéma classique des manuels : ventes de glaces et noyades (indices mensuels). Lecture la plus solide ?",
+          "q": "Ventes de glaces et noyades montent souvent ensemble l’été. Quelle lecture est la plus juste ?",
           "choices": [
-            { "k": "1", "label": "Cause commune : chaleur / été (plus de baignades + plus de glaces)", "correct": true },
+            { "k": "1", "label": "C’est la chaleur : on mange plus de glaces et on se baigne plus", "correct": true },
             { "k": "2", "label": "Les glaces provoquent les noyades", "correct": false },
             { "k": "3", "label": "Les noyades font augmenter les ventes de glaces", "correct": false }
           ],
-          "explain": "Corrélation « vraie » au sens saisonnier, causalité inventée. Exemple standard Cortecs / Ligue de l’Enseignement / manuels SES.",
+          "explain": "Les deux montent vraiment en été, mais ce n’est pas la glace qui noie. C’est la chaleur qui pousse aux deux.",
           "chart": {
-            "title": "Glaces × noyades (schéma pédagogique)",
-            "r": "élevé (saisonnier)",
-            "credit": "Schéma illustratif du cas classique (pas une série CDC brute)",
+            "title": "Glaces et noyades (exemple classique)",
+            "r": "élevé l’été",
+            "credit": "Schéma illustratif du cas classique des manuels",
             "years": ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"],
             "a": {
-              "label": "indice glaces",
+              "label": "glaces",
               "values": [22, 24, 35, 48, 62, 88, 100, 96, 70, 42, 28, 24],
               "color": "#e8a838"
             },
             "b": {
-              "label": "indice noyades",
+              "label": "noyades",
               "values": [18, 20, 30, 45, 58, 82, 100, 94, 66, 38, 24, 20],
               "color": "#6aa8ff"
             }
@@ -557,11 +557,11 @@
           "kind": "spurious",
           "q": "On a observé plus de naissances là où il y a des cigognes. Que conclure ?",
           "choices": [
-            { "k": "1", "label": "Facteur confondant : les cigognes nichent surtout à la campagne, où la natalité est plus haute", "correct": true },
+            { "k": "1", "label": "Les cigognes vivent surtout à la campagne, où il y a aussi plus de naissances", "correct": true },
             { "k": "2", "label": "Les cigognes apportent les bébés", "correct": false },
-            { "k": "3", "label": "Les naissances attirent forcément les cigognes par magie", "correct": false }
+            { "k": "3", "label": "Les naissances attirent forcément les cigognes", "correct": false }
           ],
-          "explain": "C’est l’« effet cigogne » : une corrélation vraie, une fausse cause. La ruralité lie les deux.",
+          "explain": "Les deux vont ensemble, mais ce n’est pas la cigogne. C’est la campagne qui explique les deux.",
           "sources": [
             {
               "label": "Le Cortecs — Effets cigogne",
@@ -572,13 +572,13 @@
         {
           "id": "spur_pointure",
           "kind": "spurious",
-          "q": "Chez les enfants, pointure et vocabulaire sont souvent corrélés positivement. Pourquoi ?",
+          "q": "Chez les enfants, plus la pointure est grande, plus le vocabulaire est riche. Pourquoi ?",
           "choices": [
-            { "k": "1", "label": "Cause commune : l’âge / le développement (on grandit et on apprend des mots)", "correct": true },
+            { "k": "1", "label": "Parce qu’ils grandissent : les pieds et le vocabulaire progressent avec l’âge", "correct": true },
             { "k": "2", "label": "Avoir de grands pieds fait apprendre plus de mots", "correct": false },
             { "k": "3", "label": "Apprendre des mots fait grandir les pieds", "correct": false }
           ],
-          "explain": "Deux effets d’une même cause (grandir). Corrélation ≠ A cause B.",
+          "explain": "Les deux augmentent parce que l’enfant grandit. Ce n’est pas la pointure qui enrichit le vocabulaire.",
           "sources": [
             {
               "label": "Ligue de l’Enseignement — Le piège de la causalité",
@@ -589,13 +589,13 @@
         {
           "id": "spur_chocolat",
           "kind": "spurious",
-          "q": "Consommation de chocolat et nombre de prix Nobel par pays ont été corrélés. Lecture la plus prudente ?",
+          "q": "On a trouvé un lien entre chocolat mangé et prix Nobel par pays. Quelle lecture est la plus juste ?",
           "choices": [
-            { "k": "1", "label": "Facteur confondant plausible : la richesse du pays (moyens de recherche + consommation)", "correct": true },
+            { "k": "1", "label": "Les pays riches mangent plus de chocolat et financent aussi plus la recherche", "correct": true },
             { "k": "2", "label": "Manger du chocolat produit des Nobel", "correct": false },
             { "k": "3", "label": "Les Nobel font augmenter les ventes de chocolat partout", "correct": false }
           ],
-          "explain": "Corrélation souvent citée ; la richesse nationale est un candidat de cause commune — pas le cacao en soi.",
+          "explain": "Ce n’est probablement pas le cacao. La richesse du pays peut expliquer les deux à la fois.",
           "sources": [
             {
               "label": "Ligue de l’Enseignement — Le piège de la causalité (chocolat / Nobel)",
@@ -610,13 +610,13 @@
         {
           "id": "meta_correlation",
           "kind": "meta",
-          "q": "En résumé : deux courbes montent ensemble. Quelle règle d’or ?",
+          "q": "En résumé : deux courbes montent ensemble. Quelle règle garder ?",
           "choices": [
-            { "k": "1", "label": "Co-variation ≠ preuve de cause : chercher mécanisme, confondant, sens du lien, ou hasard", "correct": true },
-            { "k": "2", "label": "Si ça monte ensemble, A cause forcément B", "correct": false },
-            { "k": "3", "label": "Une belle courbe suffit toujours à décider une politique", "correct": false }
+            { "k": "1", "label": "Se ressembler ne prouve pas que l’un cause l’autre : il faut chercher pourquoi", "correct": true },
+            { "k": "2", "label": "Si ça monte ensemble, le premier cause forcément le second", "correct": false },
+            { "k": "3", "label": "Une belle courbe suffit toujours pour décider", "correct": false }
           ],
-          "explain": "Cinq lectures possibles d’une corrélation : cause commune, sens inverse, boucle, hasard, ou vraie cause — il faut départager.",
+          "explain": "Deux courbes qui se suivent, ce n’est qu’un début. Ensuite on cherche : même cause cachée ? sens inverse ? ou simple hasard ?",
           "sources": [
             {
               "label": "CNRS Passages — « Dans corrélation il y a relation… »",
@@ -670,38 +670,64 @@
     {
       "id": "halo",
       "effect": "halo",
-      "homeTitle": "Le casting",
-      "homeBlurb": "Trois profils du quotidien. D’abord l’impression. Ensuite une autre compétence — tu choisis qui suivre.",
+      "homeTitle": "Le prof en vidéo",
+      "homeBlurb": "Tu vois un extrait. Tu juges. On compare à une vraie expérience de 1977.",
       "clickbait": [
-        "Sport · musique · métier",
-        "Première impression vs reste",
-        "Casting express"
+        "Même prof · deux versions",
+        "Expérience Nisbett & Wilson",
+        "Juge sans spoiler"
       ],
-      "formQuestion": "Quelle présence / aura dégage cette personne ?",
-      "trustQuestion": "Pour un achat important (téléphone, ordi, mutuelle…), qui suivrais-tu au feeling ?",
-      "trustNote": "Lis vite. Les « expertises » affichées sont volontairement du même calibre — seule l’aura change vraiment.",
-      "candidates": [
+      "experiment": {
+        "title": "Nisbett & Wilson, 1977",
+        "blurb": "Deux groupes voient le même professeur (même apparence, mêmes gestes, même accent). Seule change l’attitude : chaleureux ou froid. Puis on demande si l’apparence, les manières et l’accent sont agréables ou irritants.",
+        "finding": "Quand le prof est chaleureux, les traits inchangés sont jugés agréables. Quand il est froid, les mêmes traits sont jugés irritants. Les participant·e·s ne se rendaient pas compte de ce glissement.",
+        "url": "https://deepblue.lib.umich.edu/bitstream/handle/2027.42/92158/TheHaloEffect.pdf",
+        "urlLabel": "Article original (Nisbett & Wilson, 1977)"
+      },
+      "sharedNote": "Apparence, gestes et accent restent les mêmes dans les deux versions. Seule change l’attitude (chaleureux ou froid).",
+      "conditions": [
         {
-          "id": "c1",
-          "name": "Alex Moreau",
-          "role": "Champion·ne de basket pro",
-          "form": "Palmarès plein, interviews confiante, physique de gagnant·e. On voit tout de suite quelqu’un qui « assure ».",
-          "talent": "Conseils shopping tech & budget : « Je sais ce qui tient la route — discipline, stats, bons deals. »"
+          "id": "warm",
+          "valence": 1,
+          "kicker": "extrait · version A",
+          "title": "Marc, professeur",
+          "body": "Marc parle avec un léger accent européen. Il sourit, écoute les questions, encourage. Il dit : « Si quelque chose n’est pas clair, on reprend ensemble. » Même costume, mêmes gestes, même voix qu’en version B."
         },
         {
-          "id": "c2",
-          "name": "Nora Vidal",
-          "role": "Chanteuse pop (tournée sold-out)",
-          "form": "Sourire scène, voix chaude, look soigné. Charisme immédiat, comme si tout le monde la connaissait déjà.",
-          "talent": "Conseils shopping tech & budget : « Je sens ce qui plaît, ce qui dure, ce qui vaut le coup. »"
-        },
-        {
-          "id": "c3",
-          "name": "Sam Benali",
-          "role": "Boulanger·ère du quartier",
-          "form": "Tablier fleuri, mains farineuses, tutoiement facile. Air fiable de quelqu’un qui « fait bien son travail » depuis vingt ans.",
-          "talent": "Conseils shopping tech & budget : « Je regarde la qualité, le rapport qualité-prix, ce qui sert vraiment. »"
+          "id": "cold",
+          "valence": -1,
+          "kicker": "extrait · version B",
+          "title": "Marc, professeur",
+          "body": "Marc parle avec un léger accent européen. Il coupe court, regarde peu, reste distant. Il dit : « C’était clair. On passe à la suite. » Même costume, mêmes gestes, même voix qu’en version A."
         }
+      ],
+      "globalQuestion": "Impression générale sur Marc ?",
+      "globalChoices": [
+        { "k": "1", "label": "plutôt sympathique", "valence": 1 },
+        { "k": "2", "label": "mitigé", "valence": 0 },
+        { "k": "3", "label": "plutôt antipathique", "valence": -1 }
+      ],
+      "ratings": [
+        {
+          "id": "appearance",
+          "q": "Son apparence te paraît…",
+          "note": "Rappel : le costume et le physique sont les mêmes dans les deux versions."
+        },
+        {
+          "id": "manner",
+          "q": "Ses manières / gestes te paraissent…",
+          "note": "Rappel : les gestes filmés sont les mêmes ; seule l’attitude change."
+        },
+        {
+          "id": "accent",
+          "q": "Son accent te paraît…",
+          "note": "Rappel : c’est le même accent dans les deux versions."
+        }
+      ],
+      "ratingChoices": [
+        { "k": "1", "label": "agréable", "valence": 1 },
+        { "k": "2", "label": "neutre", "valence": 0 },
+        { "k": "3", "label": "irritant", "valence": -1 }
       ]
     },
     {
@@ -757,6 +783,298 @@
             { "k": "1", "label": "reste autour de 8–10 %", "value": 9, "pulled": true },
             { "k": "2", "label": "peut monter vers 16–18 %", "value": 17, "pulled": false },
             { "k": "3", "label": "peut s’effondrer sous 5 %", "value": 4, "pulled": false }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "science",
+      "effect": "science",
+      "homeTitle": "La méthode qui se contredit",
+      "homeBlurb": "8 questions. Pourquoi une étude peut être fausse… et pourquoi c’est une force.",
+      "clickbait": [
+        "Science · contradiction utile",
+        "Pourquoi une étude compte",
+        "Méthode vs opinion"
+      ],
+      "quizSize": 8,
+      "questions": [
+        {
+          "id": "sci_obs",
+          "q": "En science, par quoi commence-t-on le plus souvent ?",
+          "choices": [
+            { "k": "1", "label": "Par regarder le monde et poser une question claire", "correct": true },
+            { "k": "2", "label": "Par affirmer d’abord ce qu’on a envie de croire", "correct": false },
+            { "k": "3", "label": "Par demander à une célébrité son avis", "correct": false }
+          ],
+          "explain": "On part d’une observation ou d’un problème, puis on formule une idée à tester — pas l’inverse.",
+          "sources": [
+            {
+              "label": "CNRS — Les mathématiques pour l’esprit critique",
+              "url": "https://www.insmi.cnrs.fr/fr/cnrsinfo/mathematiques-pour-esprit-critique"
+            }
+          ]
+        },
+        {
+          "id": "sci_hyp",
+          "q": "Une bonne idée scientifique doit pouvoir…",
+          "choices": [
+            { "k": "1", "label": "être mise à l’épreuve (et éventuellement se révéler fausse)", "correct": true },
+            { "k": "2", "label": "rester vraie quoi qu’il arrive", "correct": false },
+            { "k": "3", "label": "séduire le plus grand nombre d’abord", "correct": false }
+          ],
+          "explain": "Si rien ne peut montrer qu’on a tort, ce n’est pas une hypothèse scientifique : c’est une croyance blindée.",
+          "sources": [
+            {
+              "label": "Le Cortecs — esprit critique / méthode",
+              "url": "https://cortecs.org/"
+            }
+          ]
+        },
+        {
+          "id": "sci_test",
+          "q": "Pour trancher entre deux explications, le mieux est…",
+          "choices": [
+            { "k": "1", "label": "de comparer : changer une chose, garder le reste égal autant que possible", "correct": true },
+            { "k": "2", "label": "de choisir celle qui « sonne juste »", "correct": false },
+            { "k": "3", "label": "de garder la première idée venue", "correct": false }
+          ],
+          "explain": "Comparer (groupe A / groupe B, avant / après…) limite les histoires inventées. C’est le cœur des expériences.",
+          "sources": [
+            {
+              "label": "Ligue de l’Enseignement — Le piège de la causalité",
+              "url": "https://ligue-enseignement.be/education-enseignement/articles/sciences/le-piege-de-la-causalite"
+            }
+          ]
+        },
+        {
+          "id": "sci_contra",
+          "q": "Une nouvelle étude contredit une étude plus ancienne. Que dit la méthode ?",
+          "choices": [
+            { "k": "1", "label": "C’est normal : on corrige, on précise, on avance", "correct": true },
+            { "k": "2", "label": "La science s’effondre : tout était faux", "correct": false },
+            { "k": "3", "label": "Il faut ignorer la nouvelle étude", "correct": false }
+          ],
+          "explain": "Se tromper et se corriger publiquement est une force. Une opinion figée ne se corrige pas ; une science digne de ce nom, si.",
+          "sources": [
+            {
+              "label": "CNRS — esprit critique",
+              "url": "https://www.insmi.cnrs.fr/fr/cnrsinfo/mathematiques-pour-esprit-critique"
+            }
+          ]
+        },
+        {
+          "id": "sci_repro",
+          "q": "Pourquoi refaire une expérience ailleurs, avec d’autres personnes ?",
+          "choices": [
+            { "k": "1", "label": "Pour voir si le résultat tient encore (et n’était pas un coup de chance)", "correct": true },
+            { "k": "2", "label": "Parce que la première fois suffit toujours", "correct": false },
+            { "k": "3", "label": "Pour prouver qu’on avait raison dès le départ", "correct": false }
+          ],
+          "explain": "La reproduction (ou réplication) protège contre le hasard et les biais d’un seul labo.",
+          "sources": [
+            {
+              "label": "Le Cortecs — esprit critique",
+              "url": "https://cortecs.org/"
+            }
+          ]
+        },
+        {
+          "id": "sci_method",
+          "q": "Qu’est-ce qui donne plus de valeur à une étude qu’à une anecdote ?",
+          "choices": [
+            { "k": "1", "label": "La méthode est dite clairement : d’autres peuvent vérifier ou contredire", "correct": true },
+            { "k": "2", "label": "Elle est racontée avec confiance", "correct": false },
+            { "k": "3", "label": "Elle vient d’une personne célèbre", "correct": false }
+          ],
+          "explain": "La transparence de la méthode permet le contrôle. L’anecdote, elle, ne se laisse pas facilement tester.",
+          "sources": [
+            {
+              "label": "CNRS Passages — corrélation et prudence",
+              "url": "https://ouvrir.passages.cnrs.fr/wp-content/uploads/2019/04/rapp_correlation.html"
+            }
+          ]
+        },
+        {
+          "id": "sci_provisoire",
+          "q": "En science, une conclusion est surtout…",
+          "choices": [
+            { "k": "1", "label": "provisoire : meilleure à ce jour, ouverte à mieux demain", "correct": true },
+            { "k": "2", "label": "définitive une fois publiée", "correct": false },
+            { "k": "3", "label": "vraie si elle plaît au public", "correct": false }
+          ],
+          "explain": "Les meilleures théories sont celles qui résistent le mieux aux tests — jusqu’à ce qu’une meilleure arrive.",
+          "sources": [
+            {
+              "label": "CNRS — esprit critique",
+              "url": "https://www.insmi.cnrs.fr/fr/cnrsinfo/mathematiques-pour-esprit-critique"
+            }
+          ]
+        },
+        {
+          "id": "sci_force",
+          "q": "Pourquoi la contradiction entre études peut-elle être une bonne nouvelle ?",
+          "choices": [
+            { "k": "1", "label": "Parce qu’elle force à préciser : dans quelles conditions ça marche vraiment ?", "correct": true },
+            { "k": "2", "label": "Parce qu’elle prouve qu’il ne faut plus rien lire", "correct": false },
+            { "k": "3", "label": "Parce que la plus ancienne a toujours raison", "correct": false }
+          ],
+          "explain": "Deux résultats qui s’opposent poussent à mieux définir le problème. C’est ainsi que la connaissance gagne en solidité.",
+          "sources": [
+            {
+              "label": "Le Cortecs — esprit critique",
+              "url": "https://cortecs.org/"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "choice",
+      "effect": "choice",
+      "homeTitle": "Comment on décide",
+      "homeBlurb": "8 questions. Majorité, proportionnelle, tirage au sort… le mode de choix change le résultat.",
+      "clickbait": [
+        "Votes · tirage au sort",
+        "Qui gagne selon la règle ?",
+        "Méthodes de décision"
+      ],
+      "quizSize": 8,
+      "questions": [
+        {
+          "id": "ch_major",
+          "q": "En scrutin majoritaire simple (un tour), qui est élu ?",
+          "choices": [
+            { "k": "1", "label": "Celui ou celle qui a le plus de voix, même sans dépasser 50 %", "correct": true },
+            { "k": "2", "label": "Toujours celui ou celle qui a plus de 50 % dès le premier tour", "correct": false },
+            { "k": "3", "label": "Toutes les listes, au prorata des voix", "correct": false }
+          ],
+          "explain": "Au majoritaire, le plus haut score l’emporte. On peut gagner avec bien moins de la moitié des voix si le reste est éclaté.",
+          "sources": [
+            {
+              "label": "vie-publique.fr — Modes de scrutin",
+              "url": "https://www.vie-publique.fr/infographie/294589-infographie-quels-sont-les-differents-modes-de-scrutin"
+            }
+          ]
+        },
+        {
+          "id": "ch_prop",
+          "q": "En scrutin proportionnel, que fait-on des sièges ?",
+          "choices": [
+            { "k": "1", "label": "On les répartit selon la part de voix de chaque liste", "correct": true },
+            { "k": "2", "label": "On les donne tous à la liste arrivée en tête", "correct": false },
+            { "k": "3", "label": "On tire les élus au sort parmi les candidats", "correct": false }
+          ],
+          "explain": "La proportionnelle vise à coller au poids des voix. En France : européennes, et une part des régionales / municipales (selon les cas).",
+          "sources": [
+            {
+              "label": "vie-publique.fr — Modes de scrutin",
+              "url": "https://www.vie-publique.fr/infographie/294589-infographie-quels-sont-les-differents-modes-de-scrutin"
+            },
+            {
+              "label": "Éduscol — Organisation de la vie politique (SES)",
+              "url": "https://eduscol.education.gouv.fr/"
+            }
+          ]
+        },
+        {
+          "id": "ch_tradeoff",
+          "q": "Majoritaire ou proportionnel : quel effet typique ?",
+          "choices": [
+            { "k": "1", "label": "Majoritaire : majorités plus nettes ; proportionnel : représentation plus fidèle des voix", "correct": true },
+            { "k": "2", "label": "Les deux donnent toujours exactement le même parlement", "correct": false },
+            { "k": "3", "label": "La proportionnelle donne toujours un seul vainqueur clair", "correct": false }
+          ],
+          "explain": "Chaque règle a un prix : stabilité d’un côté, fidélité aux scores de l’autre. Ce n’est pas « neutre ».",
+          "sources": [
+            {
+              "label": "Éduscol SES — modes de scrutin et vie politique",
+              "url": "https://eduscol.education.gouv.fr/"
+            }
+          ]
+        },
+        {
+          "id": "ch_sortition",
+          "q": "À quoi sert surtout le tirage au sort (sortition) dans une démocratie ?",
+          "choices": [
+            { "k": "1", "label": "Choisir des citoyen·nes au hasard pour délibérer (jury, convention…)", "correct": true },
+            { "k": "2", "label": "Remplacer toutes les élections présidentielles", "correct": false },
+            { "k": "3", "label": "Donner le pouvoir au plus riche", "correct": false }
+          ],
+          "explain": "Le hasard donne une chance égale d’être tiré·e. On l’utilise pour des jurys ou des conventions citoyennes — pas pour « tout décider à pile ou face ».",
+          "sources": [
+            {
+              "label": "Électeurs en Herbe — méthodes de décision",
+              "url": "https://www.electeursenherbe.fr/lesson-plan/la-prise-de-decision-politique-8/"
+            }
+          ]
+        },
+        {
+          "id": "ch_scenario",
+          "q": "Trois options A, B, C. Scores : A 40 %, B 35 %, C 25 %. Au majoritaire à un tour, qui gagne ?",
+          "choices": [
+            { "k": "1", "label": "A (le plus haut score)", "correct": true },
+            { "k": "2", "label": "Personne : il faut 50 %", "correct": false },
+            { "k": "3", "label": "B et C à égalité", "correct": false }
+          ],
+          "explain": "A gagne sans majorité absolue. Si B et C s’étaient unis, le résultat aurait pu changer — d’où l’intérêt des règles à deux tours ou d’autres méthodes.",
+          "sources": [
+            {
+              "label": "vie-publique.fr — scrutin majoritaire",
+              "url": "https://www.vie-publique.fr/infographie/294589-infographie-quels-sont-les-differents-modes-de-scrutin"
+            }
+          ]
+        },
+        {
+          "id": "ch_tworound",
+          "q": "Au majoritaire à deux tours (ex. présidentielle française), à quoi sert surtout le 2ᵉ tour ?",
+          "choices": [
+            { "k": "1", "label": "À départager pour viser une majorité plus large entre finalistes", "correct": true },
+            { "k": "2", "label": "À tirer au sort entre les deux premiers", "correct": false },
+            { "k": "3", "label": "À donner des sièges à toutes les listes", "correct": false }
+          ],
+          "explain": "Le second tour concentre le choix. Des alliances et des reports de voix deviennent décisifs.",
+          "sources": [
+            {
+              "label": "vie-publique.fr — élections et modes de scrutin",
+              "url": "https://www.vie-publique.fr/infographie/294589-infographie-quels-sont-les-differents-modes-de-scrutin"
+            }
+          ]
+        },
+        {
+          "id": "ch_jm",
+          "q": "Dans le jugement majoritaire, que fait chaque votant·e ?",
+          "choices": [
+            { "k": "1", "label": "Donne une mention à chaque option (excellent, bien, passable…)", "correct": true },
+            { "k": "2", "label": "Ne choisit qu’un seul nom, sans noter les autres", "correct": false },
+            { "k": "3", "label": "Classe les options par tirage au sort", "correct": false }
+          ],
+          "explain": "On évalue toutes les options. On retient ensuite la mention « du milieu » (majoritaire) — utile pour comparer plusieurs propositions.",
+          "sources": [
+            {
+              "label": "SGDF — explorer le jugement majoritaire",
+              "url": "https://ressources.sgdf.fr/public/view/2350/"
+            }
+          ]
+        },
+        {
+          "id": "ch_meta",
+          "q": "Quelle règle d’or garder sur les méthodes de choix ?",
+          "choices": [
+            { "k": "1", "label": "La règle n’est jamais neutre : elle peut changer qui gagne et qui est représenté", "correct": true },
+            { "k": "2", "label": "Toutes les méthodes donnent toujours le même vainqueur", "correct": false },
+            { "k": "3", "label": "Seule l’opinion des expert·e·s compte, jamais la règle", "correct": false }
+          ],
+          "explain": "Choisir comment on décide, c’est déjà décider. Majorité, proportionnelle, tirage au sort ou mentions : chaque outil a des effets.",
+          "sources": [
+            {
+              "label": "Électeurs en Herbe — comparer les méthodes",
+              "url": "https://www.electeursenherbe.fr/lesson-plan/la-prise-de-decision-politique-8/"
+            },
+            {
+              "label": "vie-publique.fr — modes de scrutin",
+              "url": "https://www.vie-publique.fr/infographie/294589-infographie-quels-sont-les-differents-modes-de-scrutin"
+            }
           ]
         }
       ]

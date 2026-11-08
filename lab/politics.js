@@ -247,168 +247,194 @@
     }
   }
 
-  /* ——— Halo ——— */
+  /* ——— Halo (Nisbett & Wilson 1977) ——— */
 
   function startHalo() {
     resetState();
-    state.phase = "form";
-    state.candIndex = 0;
-    state.charisma = {};
+    const conditions = exp()?.conditions || [];
+    state.condition = conditions.length
+      ? conditions[Math.floor(Math.random() * conditions.length)]
+      : null;
+    state.phase = "global";
+    state.rateIndex = 0;
+    state.globalKey = null;
+    state.globalValence = 0;
+    state.ratings = {};
     H.setMode("play");
     hideAllPlays();
     if (el().hint) el().hint.hidden = true;
     if (el().startRow) el().startRow.hidden = true;
     showBias();
-    showHaloForm();
+    showHaloGlobal();
   }
 
-  function candidates() {
-    return exp()?.candidates || [];
-  }
-
-  function showHaloForm() {
-    const list = candidates();
-    if (state.candIndex >= list.length) {
-      state.phase = "trust";
-      showHaloTrust();
+  function showHaloGlobal() {
+    const c = state.condition;
+    if (!c) {
+      H.showEnd();
       return;
     }
-    const c = list[state.candIndex];
-    const q =
-      exp()?.formQuestion || "Quelle présence / aura dégage cette personne ?";
-    setProgress(`Profil ${state.candIndex + 1} / ${list.length}`);
-    setKicker("casting · première impression");
-    setQuestion(q);
+    setProgress("1 / 4");
+    setKicker(c.kicker || "extrait");
+    setQuestion(exp()?.globalQuestion || "Impression générale ?");
     setBody(`
       <article class="halo-card">
-        <p class="halo-role">${esc(c.role || "")}</p>
-        <p class="halo-name">${esc(c.name)}</p>
-        <p class="halo-form">${esc(c.form)}</p>
+        <p class="halo-role">${esc(exp()?.sharedNote || "")}</p>
+        <p class="halo-name">${esc(c.title || "Marc")}</p>
+        <p class="halo-form">${esc(c.body || "")}</p>
       </article>`);
-    setChoices([
-      { k: "1", label: "forte aura" },
-      { k: "2", label: "correcte" },
-      { k: "3", label: "faible" },
+    setChoices(exp()?.globalChoices || [
+      { k: "1", label: "plutôt sympathique" },
+      { k: "2", label: "mitigé" },
+      { k: "3", label: "plutôt antipathique" },
     ]);
   }
 
-  function showHaloTrust() {
-    const list = candidates();
-    const q =
-      exp()?.trustQuestion ||
-      "Pour un achat important, qui suivrais-tu au feeling ?";
-    const note =
-      exp()?.trustNote ||
-      "Lis vite. Les expertises affichées sont du même calibre — seule l’aura change vraiment.";
-    setProgress("Décision finale");
-    setKicker("casting · autre compétence");
-    setQuestion(q);
-    setBody(`
-      <div class="halo-programs">
-        ${list
-          .map(
-            (c, i) => `
-          <article class="halo-prog">
-            <p class="halo-role">${esc(c.role || "")}</p>
-            <p class="halo-name">${i + 1}. ${esc(c.name)}</p>
-            <p class="halo-form">${esc(c.talent || c.program || "")}</p>
-          </article>`,
-          )
-          .join("")}
-      </div>
-      <p class="bias-note">${esc(note)}</p>`);
+  function showHaloRating() {
+    const ratings = exp()?.ratings || [];
+    if (state.rateIndex >= ratings.length) {
+      H.showEnd();
+      return;
+    }
+    const r = ratings[state.rateIndex];
+    setProgress(`${state.rateIndex + 2} / ${ratings.length + 1}`);
+    setKicker("jugement · détail");
+    setQuestion(r.q);
+    setBody(
+      r.note
+        ? `<p class="bias-note">${esc(r.note)}</p>`
+        : `<p class="bias-note">${esc(exp()?.sharedNote || "")}</p>`,
+    );
     setChoices(
-      list.map((c, i) => ({
-        k: String(i + 1),
-        label: c.name,
-      })),
+      exp()?.ratingChoices || [
+        { k: "1", label: "agréable" },
+        { k: "2", label: "neutre" },
+        { k: "3", label: "irritant" },
+      ],
     );
   }
 
+  function choiceValence(pool, key) {
+    const hit = (pool || []).find((c) => c.k === key);
+    return hit && typeof hit.valence === "number" ? hit.valence : 0;
+  }
+
   function answerHalo(key) {
-    const list = candidates();
-    if (state.phase === "form") {
-      if (!/^[1-3]$/.test(key)) return;
-      const c = list[state.candIndex];
-      if (!c) return;
-      // 1 = forte (score 3), 2 = mid (2), 3 = faible (1)
-      const score = key === "1" ? 3 : key === "2" ? 2 : 1;
-      state.charisma[c.id] = score;
+    if (!/^[1-3]$/.test(key)) return;
+    if (state.phase === "global") {
+      state.globalKey = key;
+      state.globalValence = choiceValence(exp()?.globalChoices, key);
       H.pushAnswer(key);
-      state.candIndex += 1;
-      showHaloForm();
+      state.phase = "rate";
+      state.rateIndex = 0;
+      showHaloRating();
       return;
     }
-    if (state.phase === "trust") {
-      const idx = Number(key) - 1;
-      const c = list[idx];
-      if (!c) return;
-      state.trustPick = c.id;
+    if (state.phase === "rate") {
+      const ratings = exp()?.ratings || [];
+      const r = ratings[state.rateIndex];
+      if (!r) return;
+      state.ratings[r.id] = {
+        key,
+        valence: choiceValence(exp()?.ratingChoices, key),
+        label: (exp()?.ratingChoices || []).find((c) => c.k === key)?.label || key,
+        q: r.q,
+      };
       H.pushAnswer(key);
-      H.showEnd();
+      state.rateIndex += 1;
+      if (state.rateIndex >= ratings.length) H.showEnd();
+      else showHaloRating();
     }
   }
 
   function haloStats() {
-    const list = candidates();
-    const scores = state.charisma || {};
-    let topId = list[0]?.id;
-    let topScore = -1;
-    for (const c of list) {
-      const sc = scores[c.id] || 0;
-      if (sc > topScore) {
-        topScore = sc;
-        topId = c.id;
-      }
+    const cond = state.condition;
+    const condVal = typeof cond?.valence === "number" ? cond.valence : 0;
+    const entries = Object.values(state.ratings || {});
+    const n = entries.length;
+    let aligned = 0;
+    for (const e of entries) {
+      if (e.valence === 0) continue;
+      if (condVal !== 0 && e.valence === condVal) aligned += 1;
+      else if (condVal === 0 && state.globalValence !== 0 && e.valence === state.globalValence)
+        aligned += 1;
     }
-    const matched = state.trustPick === topId;
-    return { scores, topId, topScore, matched, trustPick: state.trustPick, list };
+    const rated = entries.filter((e) => e.valence !== 0).length;
+    const showedHalo = rated > 0 && aligned >= Math.ceil(rated * 0.66);
+    return {
+      conditionId: cond?.id || "",
+      conditionValence: condVal,
+      globalKey: state.globalKey,
+      globalValence: state.globalValence,
+      ratings: state.ratings,
+      aligned,
+      rated,
+      n,
+      showedHalo,
+      matched: showedHalo,
+    };
   }
 
   function renderHaloEnd() {
     const s = haloStats();
-    const top = s.list.find((c) => c.id === s.topId);
-    const trust = s.list.find((c) => c.id === s.trustPick);
+    const condLabel =
+      s.conditionValence > 0
+        ? "version chaleureuse"
+        : s.conditionValence < 0
+          ? "version froide"
+          : "version";
+    const rows = Object.entries(s.ratings || {})
+      .map(([id, r]) => {
+        const follow =
+          r.valence !== 0 && r.valence === s.conditionValence
+            ? "suit l’impression"
+            : r.valence === 0
+              ? "neutre"
+              : "résiste";
+        return `<li><strong>${esc(r.q)}</strong> → ${esc(r.label)} <em>(${follow})</em></li>`;
+      })
+      .join("");
+
     if (el().fakeRead) {
       el().fakeRead.innerHTML = `
         <header class="end-hero">
-          <p class="end-kicker">casting · bilan</p>
-          <h1 class="end-title">${s.matched ? "Aura → confiance" : "Aura ≠ confiance"}</h1>
-          <p class="end-lead">Aura max : <strong>${esc(top?.name || "—")}</strong>${top?.role ? ` <em>(${esc(top.role)})</em>` : ""}. Suivi pour l’achat : <strong>${esc(trust?.name || "—")}</strong>.</p>
-          <p class="end-humor">${s.matched ? "Tu as suivi pour le shopping la même personne qui t’a le plus impressionné·e." : "Tu as séparé un peu l’aura et la compétence — rare, mais possible."}</p>
+          <p class="end-kicker">expérience · tes réponses</p>
+          <h1 class="end-title">${s.showedHalo ? "Halo observé" : "Halo faible / résisté"}</h1>
+          <p class="end-lead">Tu as vu la <strong>${esc(condLabel)}</strong>. Sur ${s.rated || s.n} jugements « agréable/irritant », <strong>${s.aligned}</strong> suivent cette impression — alors que l’apparence, les gestes et l’accent étaient les mêmes.</p>
+          <p class="end-humor">${s.showedHalo ? "Tes notes de détail ont glissé avec l’attitude. C’est exactement ce que l’expérience de 1977 a mesuré." : "Tu as moins suivi l’impression globale — possible, et utile à comparer à l’étude."}</p>
         </header>
         <section class="real-stats">
-          <ul class="stat-list">
-            ${s.list
-              .map(
-                (c) =>
-                  `<li>${esc(c.name)}${c.role ? ` · ${esc(c.role)}` : ""} — aura ${s.scores[c.id] || 0}/3</li>`,
-              )
-              .join("")}
-          </ul>
+          <ul class="stat-list">${rows || "<li>—</li>"}</ul>
         </section>`;
     }
 
+    const ex = exp()?.experiment || {};
     H.setReveal(
-      "Tu viens de subir l’effet de halo",
-      "Une qualité saillante (sport, scène, métier qui « inspire confiance ») colore le reste : on croit juger une autre compétence (ici : conseils d’achat), on a souvent jugé l’aura. Les expertises affichées étaient volontairement équivalentes — seuls les portraits changeaient vraiment.",
+      "Effet de halo — preuve par l’expérience",
+      "Ce n’est pas un avis : c’est le même protocole que Nisbett & Wilson (1977). Une seule chose change (chaleureux / froid). Si tes jugements sur l’apparence, les manières ou l’accent suivent cette impression, le halo est dans tes réponses.",
       [
-        "Réussir dans un domaine ≠ exceller dans un autre",
-        "Aura, célébrité, « sérieux » du métier = raccourcis",
-        "Le cerveau généralise une impression positive",
-        "Pub, influenceurs, labels « expert » jouent sur le même levier",
+        "Même prof, mêmes traits visibles — seule l’attitude change",
+        "Tu as noté des détails « objectifs » après l’impression globale",
+        "Si les détails suivent l’impression → halo",
+        "Dans l’étude, les gens croyaient souvent juger les détails librement",
       ],
     );
 
     if (el().revealExtra) {
       el().revealExtra.innerHTML = `
-        <h3 class="reveal-sub">Le même piège au quotidien</h3>
-        <ul class="reveal-biases">
-          <li><strong>Champion·ne sportif·ve → coach budget / nutrition / « mindset »</strong> — la performance se vend comme preuve universelle.</li>
-          <li><strong>Star / influenceur → shopping, mutuelle, appli bancaire</strong> — le liking remplace l’expertise produit.</li>
-          <li><strong>Métiers « qui rassurent »</strong> — blouse, tablier, badge : l’uniforme fait halo, même hors du vrai sujet.</li>
-        </ul>
-        <p class="reveal-explain">Ce n’est pas « ils mentent » : c’est « notre cerveau raccourcit ». Séparer aura et compétence, c’est un muscle.</p>`;
+        <h3 class="reveal-sub">${esc(ex.title || "Nisbett & Wilson, 1977")}</h3>
+        <p class="reveal-explain">${esc(ex.blurb || "")}</p>
+        <p class="reveal-explain">${esc(ex.finding || "")}</p>
+        ${
+          ex.url
+            ? `<p class="reveal-explain"><a href="${esc(ex.url)}" target="_blank" rel="noopener noreferrer">${esc(ex.urlLabel || "Lire l’étude")}</a></p>`
+            : ""
+        }
+        <h3 class="reveal-sub">Pourquoi ça convainc</h3>
+        <p class="reveal-explain">
+          On a changé une seule chose, on a mesuré le reste. Tes réponses sont la preuve (ou la résistance) —
+          pas un discours plaqué après coup. C’est la démarche scientifique appliquée à un biais.
+        </p>`;
     }
   }
 
@@ -544,13 +570,14 @@
       helpers.setMeta(`${(e.slogans || []).length} slogans · ~2 min`);
       helpers.setFinishLabel("voir le bilan");
     } else if (effectName === "halo") {
+      const n = 1 + (e.ratings || []).length;
       helpers.setIntroSteps([
-        { k: "espace", t: "ouvrir le casting" },
-        { k: "1 · 2 · 3", t: "aura, puis qui suivre" },
-        { k: "terminer", t: "bilan" },
+        { k: "espace", t: "voir l’extrait" },
+        { k: "1 · 2 · 3", t: "juger" },
+        { k: "terminer", t: "voir l’expérience" },
       ]);
-      helpers.setMeta(`${(e.candidates || []).length} profils · sport / scène / métier · ~2 min`);
-      helpers.setFinishLabel("voir le bilan");
+      helpers.setMeta(`${n} jugements · expérience 1977 · ~2 min`);
+      helpers.setFinishLabel("voir l’expérience");
     } else if (effectName === "anchor") {
       helpers.setIntroSteps([
         { k: "espace", t: "entrer dans la salle" },
@@ -571,8 +598,8 @@
       );
     } else if (effectName === "halo") {
       helpers.setBridge(
-        "L’aura a parlé en premier…",
-        "Encore un cran : on compare qui tu as suivi pour l’achat à qui t’a le plus impressionné·e.",
+        "Tes notes de détail sont là…",
+        "Encore un cran : on les compare au protocole réel de 1977.",
       );
     } else if (effectName === "anchor") {
       helpers.setBridge(
@@ -623,10 +650,11 @@
       const s = haloStats();
       return {
         effect: "halo",
-        matched: s.matched,
-        topId: s.topId,
-        trustPick: s.trustPick,
-        scores: s.scores,
+        matched: s.showedHalo,
+        showedHalo: s.showedHalo,
+        conditionId: s.conditionId,
+        aligned: s.aligned,
+        rated: s.rated,
       };
     }
     const s = anchorStats();
@@ -645,8 +673,8 @@
         <p class="algo-card-body">Messages les plus vus → souvent préférés.</p>`;
     }
     if (eff === "halo") {
-      return `<p class="algo-card-title">${run.matched ? "aura → suivi" : "aura ≠ suivi"}</p>
-        <p class="algo-card-body">Choix final : ${esc(run.trustPick || "—")}</p>`;
+      return `<p class="algo-card-title">${run.showedHalo || run.matched ? "halo observé" : "halo faible"}</p>
+        <p class="algo-card-body">${run.aligned ?? "—"}/${run.rated ?? "—"} détails alignés · ${esc(run.conditionId || "")}</p>`;
     }
     if (eff === "anchor") {
       return `<p class="algo-card-title">${run.pulled}/${run.n} près de l’ancre</p>
@@ -657,7 +685,8 @@
 
   function proofOneLiner(eff, run) {
     if (eff === "exposure") return `${run.familiarHits}/${run.pickN} familiers`;
-    if (eff === "halo") return run.matched ? "halo aligné" : "halo résisté";
+    if (eff === "halo")
+      return run.showedHalo || run.matched ? "halo observé" : "halo faible";
     if (eff === "anchor") return `${run.pulled}/${run.n} ancrés`;
     return "";
   }
@@ -671,8 +700,8 @@
     }
     if (eff === "halo") {
       return `<ul class="proof-diff">
-        <li>1er : ${a.matched ? "aura→suivi" : "écart"} · dernier : ${b.matched ? "aura→suivi" : "écart"}</li>
-        <li>Les « expertises » restent équivalentes : la variable, c’est l’aura du profil.</li>
+        <li>1er : ${a.showedHalo || a.matched ? "halo" : "résisté"} · dernier : ${b.showedHalo || b.matched ? "halo" : "résisté"}</li>
+        <li>Même protocole : une seule chose change (chaleureux / froid), on mesure le reste.</li>
       </ul>`;
     }
     if (eff === "anchor") {

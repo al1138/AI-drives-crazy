@@ -46,6 +46,8 @@ const el = {
   corrDay: document.getElementById("corrDay"),
   corrPrompt: document.getElementById("corrPrompt"),
   corrChart: document.getElementById("corrChart"),
+  corrChartFs: document.getElementById("corrChartFs"),
+  corrChartFsInner: document.getElementById("corrChartFsInner"),
   corrRateChoices: document.getElementById("corrRateChoices"),
   startRow: document.getElementById("startRow"),
   finishRow: document.getElementById("finishRow"),
@@ -195,6 +197,11 @@ function pickExperience() {
 
 function effect() {
   return activeExp?.effect || "barnum";
+}
+
+/** Quiz à deck commun (corr / science / choix) */
+function isDeckQuiz(eff = effect()) {
+  return eff === "correlation" || eff === "science" || eff === "choice";
 }
 
 function newsletterTestId() {
@@ -514,6 +521,24 @@ function applyHomeCopy() {
     ]);
     const n = corrDeck.length || activeExp?.quizSize || 10;
     if (el.meta) el.meta.textContent = `${n} questions · courbes + chiffres · ~4 min`;
+    if (el.finishLabel) el.finishLabel.textContent = "voir le score";
+  } else if (effect() === "science") {
+    setIntroSteps([
+      { k: "espace", t: "lancer le quiz" },
+      { k: "1 · 2 · 3", t: "choisir une réponse" },
+      { k: "terminer", t: "voir le score" },
+    ]);
+    const n = corrDeck.length || activeExp?.quizSize || 8;
+    if (el.meta) el.meta.textContent = `${n} questions · méthode scientifique · ~3 min`;
+    if (el.finishLabel) el.finishLabel.textContent = "voir le score";
+  } else if (effect() === "choice") {
+    setIntroSteps([
+      { k: "espace", t: "lancer le quiz" },
+      { k: "1 · 2 · 3", t: "choisir une réponse" },
+      { k: "terminer", t: "voir le score" },
+    ]);
+    const n = corrDeck.length || activeExp?.quizSize || 8;
+    if (el.meta) el.meta.textContent = `${n} questions · votes & tirage · ~3 min`;
     if (el.finishLabel) el.finishLabel.textContent = "voir le score";
   } else if (isPolitics()) {
     PoliticsLab.applyHome(politicsHelpers());
@@ -840,7 +865,7 @@ function buildCurrentSnapshot() {
   if (isPolitics()) return PoliticsLab.buildSnapshot(politicsHelpers());
   const ok = corrLog.filter((r) => r.correct).length;
   return {
-    effect: "correlation",
+    effect: effect(),
     n: corrLog.length,
     ok,
     pct: corrLog.length ? Math.round((ok / corrLog.length) * 100) : 0,
@@ -889,13 +914,17 @@ function renderProofPanel(runs) {
         ? "Quel que soit ce que tu coches, le bilan met en avant les « ça colle » et gonfle le %."
         : eff === "correlation"
           ? "Le score est réel : les mauvaises réponses étaient plausibles — d’où l’intérêt des sources."
-          : eff === "exposure"
-            ? "L’antenne répète : les messages les plus vus restent souvent préférés."
-            : eff === "halo"
-              ? "L’aura oriente encore qui tu suis pour autre chose — ou tu y résistes, et on le mesure."
-              : eff === "anchor"
-                ? "Le premier chiffre continue d’attirer les estimations."
-                : "Compare tes passages pour voir le même mécanisme.";
+          : eff === "science"
+            ? "Le score est réel : chaque bonne réponse suit une règle de la méthode scientifique."
+            : eff === "choice"
+              ? "Le score est réel : chaque règle de choix (vote, tirage…) change qui gagne."
+              : eff === "exposure"
+                ? "L’antenne répète : les messages les plus vus restent souvent préférés."
+                : eff === "halo"
+                  ? "Tes jugements de détail suivent (ou non) l’impression — comme en 1977."
+                  : eff === "anchor"
+                    ? "Le premier chiffre continue d’attirer les estimations."
+                    : "Compare tes passages pour voir le même mécanisme.";
 
   el.proofBody.innerHTML = `
     <div class="algo-compare">
@@ -938,12 +967,18 @@ function proofSummaryHtml(eff, run) {
   if (typeof PoliticsLab !== "undefined" && PoliticsLab.isPoliticsEffect(eff)) {
     return PoliticsLab.proofSummary(eff, run);
   }
-  if (eff === "correlation") {
+  if (isDeckQuiz(eff)) {
     if (run.n != null && run.ok != null) {
+      const body =
+        eff === "science"
+          ? "Quiz démarche scientifique"
+          : eff === "choice"
+            ? "Quiz méthodes de choix"
+            : "Quiz chiffres / courbes";
       return `<p class="algo-card-title">${run.ok}/${run.n} · ${run.pct ?? 0}%</p>
-        <p class="algo-card-body">Quiz chiffres (sources Oxfam / Insee…)</p>`;
+        <p class="algo-card-body">${body}</p>`;
     }
-    return `<p class="algo-card-body">Ancienne version (observatoire) — rejoue pour le quiz sourcé.</p>`;
+    return `<p class="algo-card-body">Ancienne version — rejoue.</p>`;
   }
   return "<p class='algo-card-body'>—</p>";
 }
@@ -954,7 +989,7 @@ function proofOneLiner(eff, run) {
   if (typeof PoliticsLab !== "undefined" && PoliticsLab.isPoliticsEffect(eff)) {
     return PoliticsLab.proofOneLiner(eff, run);
   }
-  if (eff === "correlation") {
+  if (isDeckQuiz(eff)) {
     if (run.n != null && run.ok != null) return `${run.ok}/${run.n} (${run.pct ?? 0}%)`;
     return "ancienne version";
   }
@@ -984,15 +1019,20 @@ function proofDiffHtml(eff, a, b) {
   if (typeof PoliticsLab !== "undefined" && PoliticsLab.isPoliticsEffect(eff)) {
     return PoliticsLab.proofDiff(eff, a, b);
   }
-  if (eff === "correlation") {
+  if (isDeckQuiz(eff)) {
     const lineA =
       a.n != null ? `${a.ok}/${a.n} (${a.pct ?? 0}%)` : "ancienne version";
     const lineB =
       b.n != null ? `${b.ok}/${b.n} (${b.pct ?? 0}%)` : "ancienne version";
+    const tip =
+      eff === "science"
+        ? "La méthode se corrige : se tromper et republier, c’est avancer."
+        : eff === "choice"
+          ? "Changer la règle (majorité, proportionnelle, tirage…) peut changer le vainqueur."
+          : "Sans source, l’ordre de grandeur « qui sonne juste » trompe — et deux courbes qui collent ne prouvent pas une cause.";
     return `<ul class="proof-diff">
       <li>Scores : ${lineA} → ${lineB}</li>
-      <li>Les distracteurs restent plausibles : sans source, l’ordre de grandeur « qui sonne juste » trompe.</li>
-      <li>Même avec de bons chiffres, inventer une cause reste un autre piège (corrélation ≠ causalité).</li>
+      <li>${tip}</li>
     </ul>`;
   }
   return "";
@@ -1018,7 +1058,15 @@ function prepareBridgeCopy() {
   } else if (effect() === "correlation") {
     el.bridgeTitle.textContent = "Les mauvaises réponses sonnaient juste…";
     el.bridgeCopy.textContent =
-      "Encore un cran : score réel, bonnes réponses, et pourquoi corrélation ≠ causalité.";
+      "Encore un cran : score réel, bonnes réponses, et pourquoi deux courbes qui collent ne prouvent rien.";
+  } else if (effect() === "science") {
+    el.bridgeTitle.textContent = "Tu as tranché…";
+    el.bridgeCopy.textContent =
+      "Encore un cran : score, puis pourquoi la contradiction est une force de la méthode.";
+  } else if (effect() === "choice") {
+    el.bridgeTitle.textContent = "La règle a tranché…";
+    el.bridgeCopy.textContent =
+      "Encore un cran : score, puis pourquoi majorité, proportionnelle ou tirage au sort ne sont jamais neutres.";
   } else if (isPolitics()) {
     PoliticsLab.prepareBridge(politicsHelpers());
   } else {
@@ -1221,9 +1269,9 @@ function renderCorrChartSvg(chart) {
   const b = chart.b?.values || [];
   const n = Math.min(years.length, a.length, b.length);
   if (n < 2) return "";
-  const W = 640;
-  const H = 220;
-  const pad = { t: 28, r: 52, b: 36, l: 52 };
+  const W = 720;
+  const H = 360;
+  const pad = { t: 26, r: 44, b: 32, l: 44 };
   const iw = W - pad.l - pad.r;
   const ih = H - pad.t - pad.b;
   const minA = Math.min(...a.slice(0, n));
@@ -1246,42 +1294,72 @@ function renderCorrChartSvg(chart) {
   const colA = chart.a?.color || "#c45c26";
   const colB = chart.b?.color || "#2a6fdb";
   return `
-    <figure class="corr-chart">
-      <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${escapeHtml(chart.title || "Deux courbes")}">
+    <figure class="corr-chart corr-chart-zoom" data-action="zoom-corr-chart" tabindex="0" role="button" aria-label="Agrandir la courbe">
+      <svg viewBox="0 0 ${W} ${H}" role="img" aria-hidden="true">
         <rect x="0" y="0" width="${W}" height="${H}" fill="#0f0f0f" rx="4"/>
         <line x1="${pad.l}" y1="${pad.t}" x2="${pad.l}" y2="${pad.t + ih}" stroke="#333" />
         <line x1="${pad.l + iw}" y1="${pad.t}" x2="${pad.l + iw}" y2="${pad.t + ih}" stroke="#333" />
         <line x1="${pad.l}" y1="${pad.t + ih}" x2="${pad.l + iw}" y2="${pad.t + ih}" stroke="#333" />
-        <path d="${path(a, yA)}" fill="none" stroke="${colA}" stroke-width="2.5"/>
-        <path d="${path(b, yB)}" fill="none" stroke="${colB}" stroke-width="2.5" stroke-dasharray="5 4"/>
+        <path d="${path(a, yA)}" fill="none" stroke="${colA}" stroke-width="3"/>
+        <path d="${path(b, yB)}" fill="none" stroke="${colB}" stroke-width="3" stroke-dasharray="6 5"/>
         ${a
           .slice(0, n)
           .map(
             (v, i) =>
-              `<circle cx="${xAt(i).toFixed(1)}" cy="${yA(v).toFixed(1)}" r="3" fill="${colA}"/>`,
+              `<circle cx="${xAt(i).toFixed(1)}" cy="${yA(v).toFixed(1)}" r="4" fill="${colA}"/>`,
           )
           .join("")}
         ${b
           .slice(0, n)
           .map(
             (v, i) =>
-              `<circle cx="${xAt(i).toFixed(1)}" cy="${yB(v).toFixed(1)}" r="3" fill="${colB}"/>`,
+              `<circle cx="${xAt(i).toFixed(1)}" cy="${yB(v).toFixed(1)}" r="4" fill="${colB}"/>`,
           )
           .join("")}
         ${ticks
           .map(
             (i) =>
-              `<text x="${xAt(i).toFixed(1)}" y="${H - 10}" text-anchor="middle" fill="#888" font-size="11" font-family="IBM Plex Mono, monospace">${years[i]}</text>`,
+              `<text x="${xAt(i).toFixed(1)}" y="${H - 8}" text-anchor="middle" fill="#888" font-size="12" font-family="IBM Plex Mono, monospace">${years[i]}</text>`,
           )
           .join("")}
-        <text x="${pad.l}" y="16" fill="${colA}" font-size="11" font-family="IBM Plex Mono, monospace">${escapeHtml(chart.a?.label || "A")}</text>
-        <text x="${W - pad.r}" y="16" text-anchor="end" fill="${colB}" font-size="11" font-family="IBM Plex Mono, monospace">${escapeHtml(chart.b?.label || "B")}</text>
+        <text x="${pad.l}" y="18" fill="${colA}" font-size="12" font-family="IBM Plex Mono, monospace">${escapeHtml(chart.a?.label || "A")}</text>
+        <text x="${W - pad.r}" y="18" text-anchor="end" fill="${colB}" font-size="12" font-family="IBM Plex Mono, monospace">${escapeHtml(chart.b?.label || "B")}</text>
       </svg>
       <figcaption class="corr-chart-cap">
         ${chart.r != null ? `<span>r ≈ ${escapeHtml(String(chart.r))}</span>` : ""}
         ${chart.credit ? `<span>${escapeHtml(chart.credit)}</span>` : ""}
+        <span class="corr-chart-hint">cliquer pour agrandir</span>
       </figcaption>
     </figure>`;
+}
+
+function corrChartFsOpen() {
+  return el.corrChartFs && !el.corrChartFs.hidden;
+}
+
+function openCorrChartFullscreen(figure) {
+  if (!el.corrChartFs || !el.corrChartFsInner || !(figure instanceof Element)) return;
+  const clone = figure.cloneNode(true);
+  clone.removeAttribute("data-action");
+  clone.removeAttribute("role");
+  clone.removeAttribute("tabindex");
+  clone.classList.remove("corr-chart-zoom");
+  clone.classList.add("corr-chart-fs-figure");
+  const hint = clone.querySelector(".corr-chart-hint");
+  if (hint) hint.remove();
+  el.corrChartFsInner.innerHTML = "";
+  el.corrChartFsInner.appendChild(clone);
+  el.corrChartFs.hidden = false;
+  document.body.classList.add("corr-fs-open");
+  const closeBtn = el.corrChartFs.querySelector(".corr-chart-fs-close");
+  if (closeBtn instanceof HTMLElement) closeBtn.focus();
+}
+
+function closeCorrChartFullscreen() {
+  if (!el.corrChartFs) return;
+  el.corrChartFs.hidden = true;
+  if (el.corrChartFsInner) el.corrChartFsInner.innerHTML = "";
+  document.body.classList.remove("corr-fs-open");
 }
 
 function renderCorrChoices(question) {
@@ -1313,13 +1391,17 @@ function showCorrQuestion() {
   const q = corrDeck[stepIndex];
   const kind = corrKind(q);
   const kicker =
-    kind === "spurious"
-      ? q.chart
-        ? "deux courbes"
-        : "corrélation étrange"
-      : kind === "meta"
-        ? "règle d’or"
-        : "chiffre sourcé";
+    effect() === "science"
+      ? "méthode"
+      : effect() === "choice"
+        ? "décision"
+        : kind === "spurious"
+          ? q.chart
+            ? "deux courbes"
+            : "corrélation étrange"
+          : kind === "meta"
+            ? "règle d’or"
+            : "chiffre sourcé";
   if (el.corrProgress) el.corrProgress.textContent = `${stepIndex + 1} / ${corrDeck.length}`;
   if (el.corrDay) el.corrDay.textContent = `Question ${stepIndex + 1} · ${kicker}`;
   if (el.corrPrompt) {
@@ -1339,7 +1421,7 @@ function showCorrQuestion() {
 }
 
 function answerCorr(key) {
-  if (mode !== "play" || effect() !== "correlation") return;
+  if (mode !== "play" || !isDeckQuiz()) return;
   if (!/^[1-3]$/.test(key)) return;
   const q = corrDeck[stepIndex];
   if (!q?.choices.some((c) => c.k === key)) return;
@@ -1379,6 +1461,66 @@ function renderCorrSources(sources) {
     .join("")}</ul>`;
 }
 
+function renderScienceEnd() {
+  const s = corrScore();
+  if (el.fakeRead) {
+    el.fakeRead.innerHTML = `
+      <header class="end-hero">
+        <p class="end-kicker">méthode · score</p>
+        <h1 class="end-title">${s.ok} / ${s.n}</h1>
+        <p class="end-lead">${s.pct}% — la science n’est pas « avoir raison une fois », c’est pouvoir se tromper à voix haute et corriger.</p>
+        <p class="end-humor">${s.miss ? `${s.miss} piège${s.miss > 1 ? "s" : ""} d’opinion « qui sonne juste »` : "Sans faute — rare quand l’intuition pousse à figer une vérité."}</p>
+      </header>
+      <section class="real-stats">
+        <div class="stat-grid">
+          <div class="stat-card"><p class="stat-card-value">${s.ok}</p><p class="stat-card-label">Bonnes</p></div>
+          <div class="stat-card"><p class="stat-card-value">${s.miss}</p><p class="stat-card-label">Pièges</p></div>
+          <div class="stat-card"><p class="stat-card-value">${s.pct}%</p><p class="stat-card-label">Réussite</p></div>
+          <div class="stat-card"><p class="stat-card-value">${s.n}</p><p class="stat-card-label">Questions</p></div>
+        </div>
+      </section>`;
+  }
+
+  setReveal(
+    "Pourquoi la méthode a plus de valeur",
+    "Une étude peut être contredite — et c’est voulu. Une opinion figée ne se corrige pas. La science avance parce qu’elle expose sa méthode : d’autres peuvent vérifier, refaire, ou montrer l’erreur.",
+    [
+      "Question claire + idée qu’on peut mettre à l’épreuve",
+      "Comparer (pas seulement « ça me paraît vrai »)",
+      "Dire comment on a fait, pour que d’autres puissent refaire",
+      "Accepter la contradiction : elle force à préciser",
+      "Conclusion provisoire : meilleure à ce jour, ouverte à mieux",
+    ],
+  );
+
+  if (el.revealExtra) {
+    const rows = corrLog
+      .map((row, i) => {
+        const mark = row.correct ? "ok" : "ko";
+        return `
+          <article class="corr-review ${mark}">
+            <p class="corr-review-n">Q${i + 1}</p>
+            <p class="corr-review-q">${escapeHtml(row.q)}</p>
+            <p class="corr-review-ans"><span>Toi :</span> ${escapeHtml(row.label || "")}</p>
+            <p class="corr-review-ans"><span>Bonne lecture :</span> ${escapeHtml(row.correctLabel)}</p>
+            ${row.explain ? `<p class="corr-review-explain">${escapeHtml(row.explain)}</p>` : ""}
+            ${renderCorrSources(row.sources)}
+          </article>`;
+      })
+      .join("");
+
+    el.revealExtra.innerHTML = `
+      <h3 class="reveal-sub">La force de l’apparente contradiction</h3>
+      <p class="reveal-explain">
+        Deux études qui ne disent pas la même chose ne « cassent » pas la science :
+        elles obligent à demander <em>dans quelles conditions</em> chaque résultat tient.
+        C’est plus solide qu’une vérité qui refuse d’être testée.
+      </p>
+      <h3 class="reveal-sub">Correction</h3>
+      <div class="corr-review-list">${rows}</div>`;
+  }
+}
+
 function renderCorrEnd() {
   const s = corrScore();
   const factN = corrLog.filter((r) => r.kind === "fact").length;
@@ -1407,12 +1549,12 @@ function renderCorrEnd() {
 
   setReveal(
     "Deux courbes qui collent ne prouvent rien",
-    "1) L’œil adore les courbes parallèles (surtout en double échelle). 2) Un chiffre « plausible » sans source n’est pas une preuve. Dans les deux cas, il manque un mécanisme — ou c’est du hasard après data dredging.",
+    "1) L’œil aime les courbes qui se ressemblent — même quand il n’y a aucun lien. 2) Un chiffre « qui sonne juste » sans source n’est pas une preuve non plus. Dans les deux cas, il faut demander : pourquoi, et d’où ça vient ?",
     [
-      "Courbes : margarine×divorces, Cage×noyades… données réelles, cause inventée",
-      "Double échelle + peu d’années = piège visuel classique (Vigen)",
-      "Réflexe : 3ᵉ variable ? mécanisme ? ou coïncidence ?",
-      "Chiffre : une seule option était sourcée ; le reste sonnait juste",
+      "Courbes réelles (margarine, Cage…) — mais cause inventée",
+      "Deux axes différents peuvent faire croire à un lien",
+      "Réflexe : autre explication ? ou simple hasard ?",
+      "Chiffre : une seule option venait d’une source ; le reste sonnait juste",
     ],
   );
 
@@ -1444,12 +1586,12 @@ function renderCorrEnd() {
       .join("");
 
     el.revealExtra.innerHTML = `
-      <h3 class="reveal-sub">Le raisonnement convaincant</h3>
+      <h3 class="reveal-sub">Le raisonnement simple</h3>
       <ol class="corr-reasoning">
-        <li><strong>Regarder les courbes sans croire l’histoire</strong> — elles peuvent coller sans cause (Vigen).</li>
-        <li><strong>Chercher la 3ᵉ variable</strong> — été, richesse, âge… (glaces / noyades).</li>
+        <li><strong>Ne pas croire l’histoire trop vite</strong> — deux courbes qui se suivent ne disent pas « A cause B ».</li>
+        <li><strong>Chercher autre chose</strong> — l’été, la richesse, l’âge… peuvent expliquer les deux.</li>
         <li><strong>Vérifier le chiffre</strong> — d’où vient-il ? (Oxfam, Insee…).</li>
-        <li><strong>Exiger un mécanisme</strong> — sinon ce n’est qu’une coïncidence jolie.</li>
+        <li><strong>Demander comment</strong> — s’il n’y a pas d’explication claire, c’est peut‑être du hasard.</li>
       </ol>
       <h3 class="reveal-sub">Correction + citations</h3>
       <div class="corr-review-list">${rows}</div>`;
@@ -1648,7 +1790,7 @@ function refreshActiveContent() {
     barnumSession = buildBarnumSession();
   } else if (effect() === "confirmation") {
     confirmDeck = buildConfirmDeck();
-  } else if (effect() === "correlation") {
+  } else if (effect() === "correlation" || effect() === "science") {
     corrDeck = buildCorrDeck();
   }
   applyHomeCopy();
@@ -1710,7 +1852,7 @@ function startPlay() {
       return;
     }
     showConfirmStep();
-  } else if (effect() === "correlation") {
+  } else if (effect() === "correlation" || effect() === "science") {
     corrDeck = buildCorrDeck();
     if (!corrDeck.length) {
       mode = "idle";
@@ -1744,6 +1886,8 @@ function showEnd() {
     renderConfirmEnd();
   } else if (effect() === "correlation") {
     renderCorrEnd();
+  } else if (effect() === "science") {
+    renderScienceEnd();
   } else if (isPolitics()) {
     PoliticsLab.renderEnd(politicsHelpers());
   }
@@ -1793,7 +1937,7 @@ function handleKey(raw) {
   if (mode !== "play" || !/^[1-3]$/.test(k)) return;
   if (effect() === "barnum") answerBarnum(k);
   else if (effect() === "confirmation") answerConfirm(k);
-  else if (effect() === "correlation") answerCorr(k);
+  else if (effect() === "correlation" || effect() === "science") answerCorr(k);
   else if (isPolitics()) PoliticsLab.answer(k, politicsHelpers());
 }
 
@@ -1841,6 +1985,21 @@ document.addEventListener("keydown", (e) => {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
   const t = e.target instanceof HTMLElement ? e.target : null;
   if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;
+  if (corrChartFsOpen()) {
+    if (e.key === "Escape" || e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      closeCorrChartFullscreen();
+    }
+    return;
+  }
+  if (
+    t?.closest?.("[data-action='zoom-corr-chart']") &&
+    (e.key === "Enter" || e.key === " ")
+  ) {
+    e.preventDefault();
+    openCorrChartFullscreen(t.closest("[data-action='zoom-corr-chart']"));
+    return;
+  }
   if (mode === "end" && el.endView?.hidden && !el.labView?.hidden) mode = "idle";
   if (mode === "end") return;
   const isSpace = e.code === "Space" || e.key === " ";
@@ -1870,9 +2029,26 @@ document.addEventListener(
 );
 
 document.addEventListener("click", (e) => {
+  if (corrChartFsOpen()) {
+    const target = e.target instanceof Element ? e.target : null;
+    if (
+      target?.closest?.("[data-action='close-corr-chart']") ||
+      target === el.corrChartFs
+    ) {
+      e.preventDefault();
+      closeCorrChartFullscreen();
+    }
+    return;
+  }
+
   const actionBtn = e.target instanceof Element ? e.target.closest("[data-action]") : null;
   if (actionBtn) {
     const action = actionBtn.getAttribute("data-action");
+    if (action === "zoom-corr-chart") {
+      e.preventDefault();
+      openCorrChartFullscreen(actionBtn);
+      return;
+    }
     if (action === "finish") showEnd();
     if (action === "back") showLab();
     if (action === "replay-compare") replaySameCompare();

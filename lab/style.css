@@ -2195,34 +2195,52 @@ body {
 /* ——— Exp corrélation : quiz chiffres ——— */
 
 .corr-day {
-  margin: 0 0 6px;
+  margin: 0 0 4px;
   font-family: "IBM Plex Mono", monospace;
-  font-size: 12px;
+  font-size: 11px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--muted);
 }
 
+#playCorr .question {
+  font-size: clamp(15px, 2.6vw, 18px);
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  max-width: 40em;
+}
+
+#playCorr .progress {
+  font-size: 11px;
+}
+
 #playCorr .key-row {
   display: grid;
-  gap: 10px;
+  gap: 8px;
   grid-template-columns: 1fr;
 }
 
 #playCorr .key-wide {
   justify-content: flex-start;
   text-align: left;
-  min-height: 3.2em;
-  padding: 10px 12px;
+  min-height: 2.6em;
+  padding: 8px 12px;
 }
 
 #playCorr .key-wide .key-label {
   white-space: normal;
-  line-height: 1.35;
+  line-height: 1.3;
+  font-size: 14px;
+}
+
+#playCorr .key-wide .key-glyph {
+  font-size: 13px;
 }
 
 .corr-chart-wrap {
-  margin: 10px 0 14px;
+  margin: 8px 0 12px;
+  width: 100%;
+  max-width: none;
 }
 
 .corr-chart {
@@ -2232,6 +2250,7 @@ body {
 .corr-chart svg {
   display: block;
   width: 100%;
+  min-height: 280px;
   height: auto;
   border: 1px solid #2a2a2a;
 }
@@ -2242,9 +2261,84 @@ body {
   gap: 8px 14px;
   margin-top: 6px;
   font-family: "IBM Plex Mono", monospace;
-  font-size: 11px;
+  font-size: 10px;
   color: #888;
   line-height: 1.35;
+}
+
+.corr-chart-hint {
+  margin-left: auto;
+  color: #666;
+}
+
+.corr-chart-zoom {
+  cursor: zoom-in;
+}
+
+.corr-chart-zoom:focus-visible {
+  outline: 2px solid #6aa8ff;
+  outline-offset: 3px;
+}
+
+.corr-review .corr-chart svg {
+  min-height: 220px;
+}
+
+.corr-chart-fs {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+    max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  background: rgba(0, 0, 0, 0.88);
+  backdrop-filter: blur(4px);
+}
+
+.corr-chart-fs[hidden] {
+  display: none !important;
+}
+
+.corr-chart-fs-inner {
+  width: min(1100px, 100%);
+  max-height: 100%;
+}
+
+.corr-chart-fs-figure {
+  margin: 0;
+}
+
+.corr-chart-fs-figure svg {
+  width: 100%;
+  min-height: min(70vh, 520px);
+  height: auto;
+  border: 1px solid #333;
+  background: #0f0f0f;
+}
+
+.corr-chart-fs-close {
+  position: absolute;
+  top: max(12px, env(safe-area-inset-top));
+  right: max(12px, env(safe-area-inset-right));
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #ddd;
+  background: #1a1a1a;
+  border: 1px solid #444;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.corr-chart-fs-close:hover {
+  background: #222;
+  color: #fff;
+}
+
+body.corr-fs-open {
+  overflow: hidden;
 }
 
 .corr-review .corr-chart {

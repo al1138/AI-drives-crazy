@@ -1,34 +1,21 @@
 /**
- * On te lit — faux test de personnalité (effet Barnum au bilan, secret jusqu’à la fin).
+ * On te lit — expériences ludiques (Barnum, confirmation, corrélation illusoire).
+ * Twist secret jusqu’au bilan / reveal.
  */
 
 const BRAND = "On te lit";
-
-/** Accroches type test perso — sans spoiler (pas de « piège », « faux », etc.). */
-const CLICKBAIT_SUBS = [
-  "10 minutes pour mieux te comprendre",
-  "Le test de personnalité du moment",
-  "Ce que tes habitudes disent de toi",
-  "Ton profil en 10 questions",
-  "Découvre ton type en moins de 3 minutes",
-  "Les réponses révèlent ton style de vie",
-  "Un portrait fidèle, basé sur tes choix",
-  "Es-tu plutôt instinct ou méthode ?",
-  "Ton mode de fonctionnement, décrypté",
-  "Qui es-tu quand personne ne regarde ?",
-  "Un bilan perso clair et sans blabla",
-  "Commence le test — résultats immédiats",
-];
-
 const SUB_ROTATE_MS = 5000;
 const NEWS_KEY = "ontelit.newsletter.v1";
 const SESSION_KEY = "ontelit.session.v1";
-const SEEN_KEY = "ontelit.seen.v1";
+const SEEN_Q_KEY = "ontelit.seen.v1";
+const SEEN_EXP_KEY = "ontelit.exp.seen.v1";
 
 /** @typedef {{ k: string, label: string }} Choice */
 /** @typedef {{ id: string, q: string, choices: Choice[], packId?: string, packLabel?: string }} Question */
 /** @typedef {{ id: string, label: string, questions: Question[] }} Pack */
-/** @typedef {{ id: string, effect: string, title: string, blurb: string, questions: Question[], packIds: string[] }} TestDef */
+/** @typedef {{ id: string, effect: string, title: string, blurb: string, questions: Question[], packIds: string[] }} BarnumSession */
+/** @typedef {{ id: string, text: string, kind: string }} Prediction */
+/** @typedef {{ id: string, effect: string, homeTitle: string, homeBlurb: string, clickbait?: string[], predictions?: Prediction[], drinks?: Choice[], signs?: string[], moodBits?: string[], linkTemplates?: string[] }} ExpDef */
 
 const el = {
   labView: document.getElementById("labView"),
@@ -36,50 +23,36 @@ const el = {
   hint: document.getElementById("hint"),
   testTitle: document.getElementById("testTitle"),
   testBlurb: document.getElementById("testBlurb"),
+  introSteps: document.getElementById("introSteps"),
+  playBarnum: document.getElementById("playBarnum"),
+  playConfirm: document.getElementById("playConfirm"),
+  playCorr: document.getElementById("playCorr"),
   progress: document.getElementById("progress"),
   question: document.getElementById("question"),
   choices: document.getElementById("choices"),
+  confirmProgress: document.getElementById("confirmProgress"),
+  confirmText: document.getElementById("confirmText"),
+  corrProgress: document.getElementById("corrProgress"),
+  corrDay: document.getElementById("corrDay"),
+  corrPrompt: document.getElementById("corrPrompt"),
+  corrDrinkChoices: document.getElementById("corrDrinkChoices"),
+  corrPair: document.getElementById("corrPair"),
+  corrDrink: document.getElementById("corrDrink"),
+  corrSign: document.getElementById("corrSign"),
+  corrStory: document.getElementById("corrStory"),
+  corrRateChoices: document.getElementById("corrRateChoices"),
   startRow: document.getElementById("startRow"),
+  finishLabel: document.getElementById("finishLabel"),
   brandLogo: document.getElementById("brandLogo"),
   brandSub: document.getElementById("brandSub"),
   meta: document.getElementById("meta"),
   stats: document.getElementById("stats"),
   resetBtn: document.getElementById("resetBtn"),
-  endTitle: document.getElementById("endTitle"),
-  endLead: document.getElementById("endLead"),
-  endHumor: document.getElementById("endHumor"),
-  barnumBody: document.getElementById("barnumBody"),
-  barnumLevers: document.getElementById("barnumLevers"),
-  realStatsLead: document.getElementById("realStatsLead"),
-  statGrid: document.getElementById("statGrid"),
-  choiceBars: document.getElementById("choiceBars"),
-  statList: document.getElementById("statList"),
-  algoKeys: document.getElementById("algoKeys"),
-  algoSeed: document.getElementById("algoSeed"),
-  demoKeysYours: document.getElementById("demoKeysYours"),
-  demoTitleYours: document.getElementById("demoTitleYours"),
-  demoBodyYours: document.getElementById("demoBodyYours"),
-  demoPctsYours: document.getElementById("demoPctsYours"),
-  demoKeysRand: document.getElementById("demoKeysRand"),
-  demoTitleRand: document.getElementById("demoTitleRand"),
-  demoBodyRand: document.getElementById("demoBodyRand"),
-  demoPctsRand: document.getElementById("demoPctsRand"),
-  axis1Title: document.getElementById("axis1Title"),
-  axis2Title: document.getElementById("axis2Title"),
-  axis3Title: document.getElementById("axis3Title"),
-  axis4Title: document.getElementById("axis4Title"),
-  axis1Desc: document.getElementById("axis1Desc"),
-  axis2Desc: document.getElementById("axis2Desc"),
-  axis3Desc: document.getElementById("axis3Desc"),
-  axis4Desc: document.getElementById("axis4Desc"),
-  axisParadox: document.getElementById("axisParadox"),
-  axisParadoxVal: document.getElementById("axisParadoxVal"),
-  axisImpossible: document.getElementById("axisImpossible"),
-  axisImpossibleVal: document.getElementById("axisImpossibleVal"),
-  axisDaily: document.getElementById("axisDaily"),
-  axisDailyVal: document.getElementById("axisDailyVal"),
-  axisMeta: document.getElementById("axisMeta"),
-  axisMetaVal: document.getElementById("axisMetaVal"),
+  fakeRead: document.getElementById("fakeRead"),
+  revealTitle: document.getElementById("revealTitle"),
+  revealLead: document.getElementById("revealLead"),
+  revealLevers: document.getElementById("revealLevers"),
+  revealExtra: document.getElementById("revealExtra"),
   newsForm: document.getElementById("newsForm"),
   newsEmail: document.getElementById("newsEmail"),
   newsConsent: document.getElementById("newsConsent"),
@@ -88,8 +61,15 @@ const el = {
   newsBrand: document.querySelector(".news-brand"),
 };
 
-/** @type {'idle'|'quiz'|'end'} */
+/** @type {'idle'|'play'|'end'} */
 let mode = "idle";
+/** @type {ExpDef[]} */
+let expCatalog = [];
+/** @type {string[]} */
+let rotation = ["barnum", "confirmation", "correlation"];
+/** @type {ExpDef | null} */
+let activeExp = null;
+
 /** @type {Pack[]} */
 let packs = [];
 /** @type {string[]} */
@@ -97,9 +77,10 @@ let titlePool = [];
 /** @type {string[]} */
 let blurbPool = [];
 let sessionSize = 10;
-/** @type {TestDef | null} */
-let activeTest = null;
-let qIndex = 0;
+/** @type {BarnumSession | null} */
+let barnumSession = null;
+
+let stepIndex = 0;
 /** @type {Record<string, string>} */
 let answers = {};
 /** @type {string[]} */
@@ -107,12 +88,30 @@ let answerOrder = [];
 let quizStartedAt = 0;
 let quizEndedAt = 0;
 
+/** Confirmation */
+/** @type {Prediction[]} */
+let confirmDeck = [];
+/** @type {Record<string, string>} */
+let confirmMarks = {};
+
+/** Correlation */
+const CORR_DAYS = 5;
+/** @type {{ drink: string, drinkLabel: string, sign: string, story: string, rate: string }[]} */
+let corrLog = [];
+/** @type {'pick'|'rate'} */
+let corrPhase = "pick";
+let corrPending = /** @type {{ drink: string, drinkLabel: string, sign: string, story: string } | null} */ (null);
+
+/** @type {string[]} */
+let clickbaitPool = [];
+/** @type {ReturnType<typeof setInterval> | null} */
+let subTimer = null;
+let subIndex = 0;
+
+/* ——— utils ——— */
+
 function dayIndex() {
   return Math.floor(Date.now() / 86400000);
-}
-
-function clamp(n, a, b) {
-  return Math.max(a, Math.min(b, n));
 }
 
 function shuffle(arr) {
@@ -124,9 +123,13 @@ function shuffle(arr) {
   return a;
 }
 
-function loadSeen() {
+function pick(list, i = Math.floor(Math.random() * list.length)) {
+  return list[i % list.length];
+}
+
+function loadJsonSeen(key) {
   try {
-    const raw = localStorage.getItem(SEEN_KEY);
+    const raw = localStorage.getItem(key);
     const data = raw ? JSON.parse(raw) : [];
     return Array.isArray(data) ? data.filter((x) => typeof x === "string") : [];
   } catch {
@@ -134,16 +137,69 @@ function loadSeen() {
   }
 }
 
-function saveSeen(ids) {
-  const prev = new Set(loadSeen());
+function saveJsonSeen(key, ids, max = 80) {
+  const prev = new Set(loadJsonSeen(key));
   for (const id of ids) prev.add(id);
   const list = [...prev];
-  // Garde une fenêtre raisonnable pour re-varier après un tour complet.
-  while (list.length > 80) list.shift();
-  localStorage.setItem(SEEN_KEY, JSON.stringify(list));
+  while (list.length > max) list.shift();
+  localStorage.setItem(key, JSON.stringify(list));
 }
 
-/** Aplatit les packs avec métadonnées. */
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+/* ——— expérience active ——— */
+
+function pickExperience() {
+  const params = new URLSearchParams(location.search);
+  const wanted = params.get("e") || params.get("exp");
+  if (wanted) {
+    const hit = expCatalog.find((x) => x.id === wanted || x.effect === wanted);
+    if (hit) return hit;
+  }
+  const seen = new Set(loadJsonSeen(SEEN_EXP_KEY));
+  const order = rotation.length ? rotation : expCatalog.map((x) => x.id);
+  const fresh = order.filter((id) => !seen.has(id));
+  const pool = fresh.length ? fresh : order;
+  const id = pool[dayIndex() % pool.length];
+  return expCatalog.find((x) => x.id === id) || expCatalog[0] || null;
+}
+
+function effect() {
+  return activeExp?.effect || "barnum";
+}
+
+function newsletterTestId() {
+  if (effect() === "barnum") return barnumSession?.packIds?.join("+") || "barnum";
+  return activeExp?.id || effect();
+}
+
+/* ——— clickbait ——— */
+
+function renderBrandSub() {
+  if (!el.brandSub || !clickbaitPool.length) return;
+  el.brandSub.textContent = clickbaitPool[subIndex % clickbaitPool.length];
+}
+
+function rotateBrandSub() {
+  if (!clickbaitPool.length) return;
+  subIndex = (subIndex + 1) % clickbaitPool.length;
+  renderBrandSub();
+}
+
+function startSubRotator() {
+  renderBrandSub();
+  if (subTimer != null) clearInterval(subTimer);
+  subTimer = setInterval(rotateBrandSub, SUB_ROTATE_MS);
+}
+
+/* ——— Barnum session build (inchangé dans l’esprit) ——— */
+
 function allQuestions() {
   /** @type {Question[]} */
   const out = [];
@@ -155,45 +211,34 @@ function allQuestions() {
   return out;
 }
 
-/**
- * Tire 10 questions : mélange multi-packs, priorité les déjà vues.
- * @returns {TestDef | null}
- */
-function buildSession() {
+function buildBarnumSession() {
   const pool = allQuestions();
   if (!pool.length) return null;
-
   const size = Math.min(sessionSize, pool.length);
-  const seen = new Set(loadSeen());
+  const seen = new Set(loadJsonSeen(SEEN_Q_KEY));
   const fresh = shuffle(pool.filter((q) => !seen.has(q.id)));
   const used = shuffle(pool.filter((q) => seen.has(q.id)));
-
   /** @type {Question[]} */
   let picked = [];
-
-  // Visée : au moins 2 packs représentés quand c’est possible.
   const byPack = new Map();
   for (const q of fresh.length ? fresh : used) {
     if (!byPack.has(q.packId)) byPack.set(q.packId, []);
     byPack.get(q.packId).push(q);
   }
   const packIds = shuffle([...byPack.keys()]);
-  // Round-robin entre packs pour la variété.
   let guard = 0;
   while (picked.length < size && guard < 200) {
     guard += 1;
     let progressed = false;
     for (const pid of packIds) {
       const bucket = byPack.get(pid);
-      if (!bucket || !bucket.length) continue;
+      if (!bucket?.length) continue;
       if (picked.length >= size) break;
       picked.push(bucket.shift());
       progressed = true;
     }
     if (!progressed) break;
   }
-
-  // Complète avec le reste (fresh puis déjà vues).
   if (picked.length < size) {
     const have = new Set(picked.map((q) => q.id));
     for (const q of [...fresh, ...used]) {
@@ -203,26 +248,20 @@ function buildSession() {
       if (picked.length >= size) break;
     }
   }
-
   picked = shuffle(picked).slice(0, size);
   const packIdsUsed = [...new Set(picked.map((q) => q.packId).filter(Boolean))];
-  const t = titlePool[dayIndex() % Math.max(titlePool.length, 1)] || "Quel type es-tu vraiment ?";
-  const b =
-    blurbPool[dayIndex() % Math.max(blurbPool.length, 1)] ||
-    "10 questions rapides. Réponds spontanément — ton profil t’attend à la fin.";
-
   return {
-    id: `mix-${packIdsUsed.join("+") || "solo"}-${picked.map((q) => q.id).join(".")}`,
+    id: `mix-${packIdsUsed.join("+")}`,
     effect: "barnum",
-    title: t,
-    blurb: b,
+    title: titlePool[dayIndex() % Math.max(titlePool.length, 1)] || activeExp?.homeTitle || "",
+    blurb: blurbPool[dayIndex() % Math.max(blurbPool.length, 1)] || activeExp?.homeBlurb || "",
     questions: picked,
     packIds: /** @type {string[]} */ (packIdsUsed),
   };
 }
 
 function barnumSeed(map) {
-  const raw = `${activeTest?.id || ""}|${Object.entries(map)
+  const raw = `${barnumSession?.id || ""}|${Object.entries(map)
     .map(([k, v]) => `${k}:${v}`)
     .join("|")}`;
   let h = 2166136261;
@@ -244,12 +283,7 @@ function barnumPct(seed, salt, min = 61, max = 89) {
 function buildBarnumReading(map) {
   const seed = barnumSeed(map);
   const n = Object.keys(map).length;
-  const titles = [
-    "Profil rare",
-    "Signature intérieure",
-    "Lecture calibrée",
-    "Portrait haute résolution",
-  ];
+  const titles = ["Profil rare", "Signature intérieure", "Lecture calibrée", "Portrait haute résolution"];
   const duals = [
     "Tu es souvent lucide et direct·e, mais une part de toi garde des zones volontairement floues.",
     "Tu aimes les idées nettes, tout en tolérant mieux le doute que tu ne l’admets.",
@@ -274,121 +308,26 @@ function buildBarnumReading(map) {
   const b = barnumPct(seed, 2);
   const c = barnumPct(seed, 3);
   const d = barnumPct(seed, 4, 55, 78);
-
   const body = [
     barnumPick(seed, duals, 1),
     barnumPick(seed, desires, 2),
     `D’après tes ${n} réponses, ta cohérence intérieure atteint ${a}%.`,
     barnumPick(seed, futures, 5),
   ].join(" ");
-
-  const metrics = [
-    { title: `Lucidité (${day})`, pct: a, desc: `Pic de clarté estimé le ${day}.` },
-    { title: "Contrôle / lâcher-prise", pct: b, desc: `Équilibre maîtrise / abandon à ${b}%.` },
-    { title: "Besoin d’être vu·e", pct: c, desc: `Appétit de reconnaissance à ${c}%.` },
-    { title: "Résistance au bruit", pct: d, desc: `Filtre anti-distraction à ${d}%.` },
-  ];
-
-  const levers = [
-    "Déclarations doubles (A et non-A) : impossible d’être « faux »",
-    "Tout est positif : le cerveau accepte plus facilement",
-    "Désirs universels présentés comme diagnostics",
-    "Chiffres précis → illusion de science (sauf le bloc « Tes chiffres »)",
-    "Autorité du « test » : questions + pourcentages — le sens des réponses est ignoré",
-  ];
-
   return {
     seed,
     title: barnumPick(seed, titles, 0),
-    lead: n
-      ? `Analyse générée à partir de ${n} réponse${n > 1 ? "s" : ""}.`
-      : "Analyse générée à partir de ton passage.",
+    lead: n ? `Analyse générée à partir de ${n} réponse${n > 1 ? "s" : ""}.` : "Analyse générée.",
     body,
-    metrics,
-    levers,
+    metrics: [
+      { title: `Lucidité (${day})`, pct: a, desc: `Pic de clarté estimé le ${day}.` },
+      { title: "Contrôle / lâcher-prise", pct: b, desc: `Équilibre maîtrise / abandon à ${b}%.` },
+      { title: "Besoin d’être vu·e", pct: c, desc: `Appétit de reconnaissance à ${c}%.` },
+      { title: "Résistance au bruit", pct: d, desc: `Filtre anti-distraction à ${d}%.` },
+    ],
   };
 }
 
-/** @param {Record<string, string>} map */
-function keysFromMap(map, order) {
-  if (order && order.length) return order.slice();
-  if (activeTest?.questions?.length) {
-    return activeTest.questions.map((q) => map[q.id]).filter(Boolean);
-  }
-  return Object.values(map);
-}
-
-/** @param {string[]} keys */
-function formatKeysLine(keys) {
-  return keys.length ? keys.join(" · ") : "(aucune)";
-}
-
-/** Fabrication d’un jeu de réponses aléatoires sur les mêmes questions. */
-function randomAnswersMap() {
-  /** @type {Record<string, string>} */
-  const map = {};
-  const qs = activeTest?.questions || [];
-  if (!qs.length) {
-    for (let i = 0; i < 10; i++) map[`x${i}`] = String(1 + Math.floor(Math.random() * 3));
-    return map;
-  }
-  for (const q of qs) {
-    map[q.id] = String(1 + Math.floor(Math.random() * 3));
-  }
-  return map;
-}
-
-/**
- * @param {ReturnType<typeof buildBarnumReading>} reading
- * @param {string[]} keys
- * @param {{ keys: HTMLElement | null, title: HTMLElement | null, body: HTMLElement | null, pcts: HTMLElement | null }} slots
- */
-function paintDemoCard(reading, keys, slots) {
-  if (slots.keys) slots.keys.textContent = formatKeysLine(keys);
-  if (slots.title) slots.title.textContent = reading.title;
-  if (slots.body) slots.body.textContent = reading.body;
-  if (slots.pcts) {
-    slots.pcts.textContent = reading.metrics.map((m) => `${m.title.split(" ")[0]} ${m.pct}%`).join(" · ");
-  }
-}
-
-function renderFakeAlgoDemo(map, order) {
-  const keys = keysFromMap(map, order);
-  const yours = buildBarnumReading(map);
-
-  if (el.algoKeys) el.algoKeys.textContent = formatKeysLine(keys);
-  if (el.algoSeed) el.algoSeed.textContent = `seed = ${yours.seed}`;
-
-  paintDemoCard(yours, keys, {
-    keys: el.demoKeysYours,
-    title: el.demoTitleYours,
-    body: el.demoBodyYours,
-    pcts: el.demoPctsYours,
-  });
-
-  rerollFakeAlgoCompare();
-}
-
-function rerollFakeAlgoCompare() {
-  const randMap = randomAnswersMap();
-  const randKeys = keysFromMap(randMap, null);
-  const rand = buildBarnumReading(randMap);
-  paintDemoCard(rand, randKeys, {
-    keys: el.demoKeysRand,
-    title: el.demoTitleRand,
-    body: el.demoBodyRand,
-    pcts: el.demoPctsRand,
-  });
-}
-
-/**
- * Stats 100 % dérivées des réponses / de la session.
- * @param {Record<string, string>} map
- * @param {string[]} order
- * @param {TestDef | null} test
- * @param {number} startedAt
- * @param {number} endedAt
- */
 function computeRealStats(map, order, test, startedAt, endedAt) {
   const keys = order.length ? order.slice() : Object.values(map);
   const n = keys.length;
@@ -398,21 +337,9 @@ function computeRealStats(map, order, test, startedAt, endedAt) {
     if (k === "1" || k === "2" || k === "3") counts[k] += 1;
   }
   const pct = (c) => (n ? Math.round((c / n) * 1000) / 10 : 0);
-  const pct1 = pct(counts["1"]);
-  const pct2 = pct(counts["2"]);
-  const pct3 = pct(counts["3"]);
-
-  let dominant = "—";
-  let dominantCount = 0;
-  for (const k of ["1", "2", "3"]) {
-    if (counts[k] > dominantCount) {
-      dominantCount = counts[k];
-      dominant = k;
-    }
-  }
-  const ties = ["1", "2", "3"].filter((k) => counts[k] === dominantCount && dominantCount > 0);
-  if (ties.length > 1) dominant = ties.join(" / ");
-
+  let switches = 0;
+  for (let i = 1; i < keys.length; i++) if (keys[i] !== keys[i - 1]) switches += 1;
+  const stability = n > 1 ? Math.round(((n - 1 - switches) / (n - 1)) * 1000) / 10 : 100;
   let longestStreak = 0;
   let streakKey = "—";
   let cur = 0;
@@ -428,76 +355,43 @@ function computeRealStats(map, order, test, startedAt, endedAt) {
       streakKey = curKey;
     }
   }
-
-  let switches = 0;
-  for (let i = 1; i < keys.length; i++) {
-    if (keys[i] !== keys[i - 1]) switches += 1;
-  }
-  const stability = n > 1 ? Math.round(((n - 1 - switches) / (n - 1)) * 1000) / 10 : 100;
-
-  const numeric = keys.map((k) => Number(k)).filter((x) => x >= 1 && x <= 3);
-  const avg =
-    numeric.length > 0
-      ? Math.round((numeric.reduce((a, b) => a + b, 0) / numeric.length) * 100) / 100
-      : 0;
-  const uniq = new Set(keys).size;
-  const diversity = n ? Math.round((uniq / 3) * 1000) / 10 : 0;
-
   const ms = startedAt && endedAt && endedAt >= startedAt ? endedAt - startedAt : 0;
   const sec = Math.round(ms / 1000);
   const perQ = n && sec ? Math.round((sec / n) * 10) / 10 : 0;
-
+  const numeric = keys.map(Number).filter((x) => x >= 1 && x <= 3);
+  const avg = numeric.length
+    ? Math.round((numeric.reduce((a, b) => a + b, 0) / numeric.length) * 100) / 100
+    : 0;
+  let dominant = "—";
+  let dominantCount = 0;
+  for (const k of ["1", "2", "3"]) {
+    if (counts[k] > dominantCount) {
+      dominantCount = counts[k];
+      dominant = k;
+    }
+  }
   const packLabels = [...new Set((test?.questions || []).map((q) => q.packLabel).filter(Boolean))];
-  const packsAnswered = new Set();
-  for (const q of test?.questions || []) {
-    if (map[q.id] && q.packLabel) packsAnswered.add(q.packLabel);
-  }
-
-  const first = keys[0] || "—";
-  const last = keys[keys.length - 1] || "—";
-  const completion = offered ? Math.round((n / offered) * 1000) / 10 : 0;
-
-  // Labels choisis (échantillon) pour donner du “vécu”.
-  /** @type {string[]} */
-  const chosenLabels = [];
-  for (const q of test?.questions || []) {
-    const k = map[q.id];
-    if (!k) continue;
-    const c = q.choices.find((x) => x.k === k);
-    if (c) chosenLabels.push(c.label);
-  }
-
   return {
     n,
     offered,
-    completion,
+    completion: offered ? Math.round((n / offered) * 1000) / 10 : 0,
     counts,
-    pct1,
-    pct2,
-    pct3,
+    pct1: pct(counts["1"]),
+    pct2: pct(counts["2"]),
+    pct3: pct(counts["3"]),
     dominant,
-    dominantCount,
     longestStreak,
     streakKey,
     switches,
     stability,
     avg,
-    diversity,
     sec,
     perQ,
     packLabels,
-    packsAnswered: [...packsAnswered],
-    first,
-    last,
-    chosenLabels,
     sequence: keys.join(" · ") || "—",
+    first: keys[0] || "—",
+    last: keys[keys.length - 1] || "—",
   };
-}
-
-function setAxis(fillEl, valEl, pct) {
-  if (!fillEl || !valEl) return;
-  fillEl.style.width = `${pct}%`;
-  valEl.textContent = `${pct}%`;
 }
 
 function formatDuration(sec) {
@@ -508,154 +402,555 @@ function formatDuration(sec) {
   return s ? `${m} min ${s} s` : `${m} min`;
 }
 
-/** @param {ReturnType<typeof computeRealStats>} s */
-function renderRealStats(s) {
-  if (el.realStatsLead) {
-    el.realStatsLead.textContent =
-      s.n === 0
-        ? "Aucune réponse enregistrée — tu as terminé avant de choisir."
-        : `${s.n} réponse${s.n > 1 ? "s" : ""} sur ${s.offered} question${s.offered > 1 ? "s" : ""} · ${formatDuration(s.sec)}`;
-  }
+/* ——— UI helpers ——— */
 
-  if (el.statGrid) {
-    el.statGrid.innerHTML = "";
-    const cards = [
-      { label: "Questions posées", value: String(s.offered) },
-      { label: "Réponses données", value: String(s.n) },
-      { label: "Complétion", value: `${s.completion}%` },
-      { label: "Durée", value: formatDuration(s.sec) },
-      { label: "Temps / question", value: s.perQ ? `${s.perQ} s` : "—" },
-      { label: "Choix dominant", value: s.dominant === "—" ? "—" : `touche ${s.dominant}` },
-    ];
-    for (const c of cards) {
-      const div = document.createElement("div");
-      div.className = "stat-card";
-      div.innerHTML = `<p class="stat-card-value">${c.value}</p><p class="stat-card-label">${c.label}</p>`;
-      el.statGrid.appendChild(div);
+function hidePlays() {
+  if (el.playBarnum) el.playBarnum.hidden = true;
+  if (el.playConfirm) el.playConfirm.hidden = true;
+  if (el.playCorr) el.playCorr.hidden = true;
+}
+
+function setIntroSteps(lines) {
+  if (!el.introSteps) return;
+  el.introSteps.innerHTML = lines
+    .map((l) => `<li><span>${escapeHtml(l.k)}</span> — ${escapeHtml(l.t)}</li>`)
+    .join("");
+}
+
+function applyHomeCopy() {
+  if (!activeExp) return;
+  const title =
+    effect() === "barnum" && barnumSession ? barnumSession.title : activeExp.homeTitle;
+  const blurb =
+    effect() === "barnum" && barnumSession ? barnumSession.blurb : activeExp.homeBlurb;
+  if (el.testTitle) el.testTitle.textContent = title;
+  if (el.testBlurb) el.testBlurb.textContent = blurb;
+
+  if (effect() === "barnum") {
+    setIntroSteps([
+      { k: "espace", t: "lancer le test" },
+      { k: "1 · 2 · 3", t: "choisir ta réponse" },
+      { k: "terminer", t: "obtenir ton profil" },
+    ]);
+    if (el.meta) {
+      const n = barnumSession?.questions?.length || 10;
+      const packsN = barnumSession?.packIds?.length || 0;
+      el.meta.textContent =
+        packsN > 1 ? `${n} questions · ${packsN} thèmes · ~3 min` : `${n} questions · ~3 min`;
     }
+    if (el.finishLabel) el.finishLabel.textContent = "voir mon profil";
+  } else if (effect() === "confirmation") {
+    setIntroSteps([
+      { k: "espace", t: "ouvrir le babillard" },
+      { k: "1 · 2 · 3", t: "colle / non / vague" },
+      { k: "terminer", t: "voir ta précision" },
+    ]);
+    if (el.meta) el.meta.textContent = `${confirmDeck.length || 10} prédictions · ~2 min`;
+    if (el.finishLabel) el.finishLabel.textContent = "voir ma précision";
+  } else {
+    setIntroSteps([
+      { k: "espace", t: "lancer Café & Cosmic" },
+      { k: "1 · 2 · 3", t: "boisson, puis avis" },
+      { k: "terminer", t: "voir la corrélation" },
+    ]);
+    if (el.meta) el.meta.textContent = `${CORR_DAYS} jours simulés · ~2 min`;
+    if (el.finishLabel) el.finishLabel.textContent = "voir la corrélation";
   }
+}
 
-  if (el.choiceBars) {
-    el.choiceBars.innerHTML = "";
-    const rows = [
-      { k: "1", pct: s.pct1, n: s.counts["1"] },
-      { k: "2", pct: s.pct2, n: s.counts["2"] },
-      { k: "3", pct: s.pct3, n: s.counts["3"] },
-    ];
-    for (const r of rows) {
-      const row = document.createElement("div");
-      row.className = "choice-bar-row";
-      row.innerHTML = `
-        <span class="choice-bar-key">${r.k}</span>
-        <div class="choice-bar-track"><div class="choice-bar-fill" style="width:${r.pct}%"></div></div>
-        <span class="choice-bar-pct">${r.pct}% <em>(${r.n})</em></span>`;
-      el.choiceBars.appendChild(row);
-    }
-  }
-
-  if (el.statList) {
-    el.statList.innerHTML = "";
-    const lines = [
-      `Séquence des touches : ${s.sequence}`,
-      `Première réponse : ${s.first} · dernière : ${s.last}`,
-      `Changements de touche : ${s.switches} · stabilité : ${s.stability}%`,
-      `Plus longue série : ${s.longestStreak}× la touche ${s.streakKey}`,
-      `Moyenne des choix (1–3) : ${s.avg || "—"}`,
-      `Diversité des touches : ${s.diversity}% (${new Set(s.sequence.split(" · ").filter((x) => x && x !== "—")).size}/3 utilisées)`,
-      s.packsAnswered.length
-        ? `Thèmes croisés : ${s.packsAnswered.join(", ")}`
-        : s.packLabels.length
-          ? `Thèmes du tirage : ${s.packLabels.join(", ")}`
-          : null,
-      s.chosenLabels.length
-        ? `Échantillon de tes libellés : ${s.chosenLabels.slice(0, 4).join(" · ")}${s.chosenLabels.length > 4 ? "…" : ""}`
-        : null,
-    ].filter(Boolean);
-
-    for (const line of lines) {
+function setReveal(title, lead, levers) {
+  if (el.revealTitle) el.revealTitle.textContent = title;
+  if (el.revealLead) el.revealLead.textContent = lead;
+  if (el.revealLevers) {
+    el.revealLevers.innerHTML = "";
+    for (const line of levers) {
       const li = document.createElement("li");
       li.textContent = line;
-      el.statList.appendChild(li);
+      el.revealLevers.appendChild(li);
     }
   }
 }
 
-function saveSession() {
-  localStorage.setItem(
-    SESSION_KEY,
-    JSON.stringify({
-      testId: activeTest?.id,
-      qIndex,
-      answers,
-      answerOrder,
-      quizStartedAt,
-    }),
+function prepareNewsForm() {
+  if (!el.newsError || !el.newsOk) return;
+  el.newsError.hidden = true;
+  const saved = localStorage.getItem(NEWS_KEY);
+  if (saved) {
+    try {
+      const data = JSON.parse(saved);
+      if (el.newsEmail) el.newsEmail.value = data.email || "";
+      if (el.newsConsent) el.newsConsent.checked = true;
+      el.newsOk.hidden = false;
+    } catch {
+      el.newsOk.hidden = true;
+    }
+  } else {
+    el.newsOk.hidden = true;
+  }
+}
+
+/* ——— Confirmation ——— */
+
+function buildConfirmDeck() {
+  const pool = activeExp?.predictions || [];
+  return shuffle(pool).slice(0, Math.min(10, pool.length));
+}
+
+function showConfirmStep() {
+  if (stepIndex >= confirmDeck.length) {
+    showEnd();
+    return;
+  }
+  mode = "play";
+  hidePlays();
+  if (el.hint) el.hint.hidden = true;
+  if (el.startRow) el.startRow.hidden = true;
+  if (el.playConfirm) el.playConfirm.hidden = false;
+  const p = confirmDeck[stepIndex];
+  if (el.confirmProgress) el.confirmProgress.textContent = `${stepIndex + 1} / ${confirmDeck.length}`;
+  if (el.confirmText) el.confirmText.textContent = p.text;
+}
+
+function answerConfirm(key) {
+  if (mode !== "play" || effect() !== "confirmation") return;
+  if (!/^[1-3]$/.test(key)) return;
+  const p = confirmDeck[stepIndex];
+  if (!p) return;
+  confirmMarks[p.id] = key;
+  answerOrder.push(key);
+  stepIndex += 1;
+  if (stepIndex >= confirmDeck.length) showEnd();
+  else showConfirmStep();
+}
+
+/** Précision biaisée : on gonfle en traitant « vague » comme demi-succès et en oubliant les non. */
+function confirmBiasedScore(marks) {
+  let hits = 0;
+  let soft = 0;
+  let miss = 0;
+  for (const p of confirmDeck) {
+    const m = marks[p.id];
+    if (m === "1") hits += 1;
+    else if (m === "3") soft += 1;
+    else miss += 1;
+  }
+  const weighted = hits + soft * 0.5;
+  const denom = Math.max(1, hits + soft); // « oublie » les non dans le dénominateur
+  const biased = Math.round((weighted / denom) * 100);
+  const honest = Math.round((hits / Math.max(1, confirmDeck.length)) * 100);
+  return { hits, soft, miss, biased, honest, total: confirmDeck.length };
+}
+
+function renderConfirmEnd() {
+  const s = confirmBiasedScore(confirmMarks);
+  const hitList = confirmDeck.filter((p) => confirmMarks[p.id] === "1");
+  const missList = confirmDeck.filter((p) => confirmMarks[p.id] === "2");
+  const vagueList = confirmDeck.filter((p) => confirmMarks[p.id] === "3");
+
+  if (el.fakeRead) {
+    el.fakeRead.innerHTML = `
+      <header class="end-hero">
+        <p class="end-kicker">babillard · bilan</p>
+        <h1 class="end-title">Précision ${s.biased}%</h1>
+        <p class="end-lead">Sur les prédictions que tu as retenues, le babillard cartonne.</p>
+        <p class="end-humor">Les réussites brillent. Le reste… passe à la trappe.</p>
+      </header>
+      <section class="confirm-hits">
+        <p class="end-kicker">ce qui a collé</p>
+        <ul class="sticky-board sticky-board-hits">
+          ${hitList
+            .map((p) => `<li class="sticky-mini sticky-hit">${escapeHtml(p.text)}</li>`)
+            .join("") || "<li class="sticky-mini">Rien coché « ça colle » — rare, mais possible.</li>"}
+        </ul>
+      </section>
+      <section class="real-stats">
+        <p class="end-kicker">compteurs (avant la surprise)</p>
+        <div class="stat-grid">
+          <div class="stat-card"><p class="stat-card-value">${s.hits}</p><p class="stat-card-label">Ça colle</p></div>
+          <div class="stat-card"><p class="stat-card-value">${s.soft}</p><p class="stat-card-label">Trop vague</p></div>
+          <div class="stat-card"><p class="stat-card-value">${s.miss}</p><p class="stat-card-label">Non (peu mises en avant)</p></div>
+          <div class="stat-card"><p class="stat-card-value">${s.biased}%</p><p class="stat-card-label">Score affiché</p></div>
+        </div>
+      </section>`;
+  }
+
+  setReveal(
+    "Tu viens de subir le biais de confirmation",
+    "On a mis en lumière ce qui collait, et on a presque oublié le reste. C’est exactement ce que font horoscopes, « preuves » anecdotiques et souvenirs sélectifs.",
+    [
+      "Les réussites sont affichées en grand ; les échecs sont relégués",
+      "Le % « précision » excluait les « non » du dénominateur",
+      "Des phrases vagues comptent presque comme des réussites",
+      "Plus une prédiction est large, plus tu peux la cocher « ça colle »",
+    ],
   );
-}
 
-function clearSession() {
-  localStorage.removeItem(SESSION_KEY);
-}
-
-/** @type {ReturnType<typeof setInterval> | null} */
-let subTimer = null;
-let subIndex = Math.floor(Math.random() * CLICKBAIT_SUBS.length);
-
-function renderBrandSub() {
-  if (el.brandSub) el.brandSub.textContent = CLICKBAIT_SUBS[subIndex % CLICKBAIT_SUBS.length];
-}
-
-function rotateBrandSub() {
-  subIndex = (subIndex + 1) % CLICKBAIT_SUBS.length;
-  renderBrandSub();
-}
-
-function startSubRotator() {
-  renderBrandSub();
-  if (subTimer != null) clearInterval(subTimer);
-  subTimer = setInterval(rotateBrandSub, SUB_ROTATE_MS);
-}
-
-function applyTestCopy() {
-  if (!activeTest) return;
-  if (el.testTitle) el.testTitle.textContent = activeTest.title;
-  if (el.testBlurb) el.testBlurb.textContent = activeTest.blurb;
-  if (el.meta) {
-    const n = activeTest.questions.length;
-    const packsN = activeTest.packIds?.length || 0;
-    el.meta.textContent =
-      packsN > 1
-        ? `${n} questions · ${packsN} thèmes mélangés · ~3 min`
-        : `${n} questions · ~3 min`;
+  if (el.revealExtra) {
+    el.revealExtra.innerHTML = `
+      <h3 class="reveal-sub">Le babillard complet</h3>
+      <p class="reveal-explain">
+        Score honnête : <strong>${s.honest}%</strong> de « ça colle » sur ${s.total} prédictions
+        (pas ${s.biased}%). Voici aussi ce que le bilan avait envie que tu oublies.
+      </p>
+      <div class="confirm-reveal-grid">
+        <div>
+          <p class="algo-card-kicker">mises en avant</p>
+          <ul class="reveal-board">${hitList.map((p) => `<li class="ok">${escapeHtml(p.text)}</li>`).join("") || "<li>—</li>"}</ul>
+        </div>
+        <div>
+          <p class="algo-card-kicker">écartées (« non »)</p>
+          <ul class="reveal-board">${missList.map((p) => `<li class="ko">${escapeHtml(p.text)}</li>`).join("") || "<li>—</li>"}</ul>
+        </div>
+        <div>
+          <p class="algo-card-kicker">filet « trop vague »</p>
+          <ul class="reveal-board">${vagueList.map((p) => `<li class="soft">${escapeHtml(p.text)}</li>`).join("") || "<li>—</li>"}</ul>
+        </div>
+      </div>
+      <p class="reveal-explain" style="margin-top:16px">
+        Astuce : une prédiction du type « tu seras en avance — ou en retard » gagne presque toujours.
+        Ce n’est pas de la voyance, c’est une phrase filet.
+      </p>`;
   }
 }
 
-function refreshSession() {
-  activeTest = buildSession();
-  applyTestCopy();
-}
+/* ——— Corrélation ——— */
 
-function showIdle() {
-  mode = "idle";
-  qIndex = 0;
-  answers = {};
-  answerOrder = [];
-  quizStartedAt = 0;
-  quizEndedAt = 0;
-  if (el.hint) el.hint.hidden = false;
-  if (el.progress) el.progress.hidden = true;
-  if (el.question) el.question.hidden = true;
-  if (el.choices) {
-    el.choices.hidden = true;
-    el.choices.innerHTML = "";
+function renderCorrDrinks() {
+  if (!el.corrDrinkChoices) return;
+  const drinks = activeExp?.drinks || [];
+  el.corrDrinkChoices.innerHTML = "";
+  for (const d of drinks) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "key";
+    btn.dataset.key = d.k;
+    btn.setAttribute("aria-label", `${d.k} : ${d.label}`);
+    btn.innerHTML = `<span class="key-glyph">${d.k}</span><span class="key-label">${escapeHtml(d.label)}</span>`;
+    el.corrDrinkChoices.appendChild(btn);
   }
-  if (el.startRow) el.startRow.hidden = false;
-  applyTestCopy();
-  if (el.stats) el.stats.textContent = "";
 }
 
-function renderChoices(question) {
-  el.choices.hidden = false;
+function inventCorrStory(drinkLabel, sign) {
+  const moods = activeExp?.moodBits || ["une drôle d’énergie"];
+  const templates = activeExp?.linkTemplates || ["{sign} explique {drink}."];
+  const mood = pick(moods);
+  const tpl = pick(templates);
+  return tpl.replace(/\{drink\}/g, drinkLabel).replace(/\{sign\}/g, sign).replace(/\{mood\}/g, mood);
+}
+
+function showCorrDay() {
+  if (stepIndex >= CORR_DAYS) {
+    showEnd();
+    return;
+  }
+  mode = "play";
+  corrPhase = "pick";
+  corrPending = null;
+  hidePlays();
+  if (el.hint) el.hint.hidden = true;
+  if (el.startRow) el.startRow.hidden = true;
+  if (el.playCorr) el.playCorr.hidden = false;
+  if (el.corrProgress) el.corrProgress.textContent = `Jour ${stepIndex + 1} / ${CORR_DAYS}`;
+  if (el.corrDay) el.corrDay.textContent = `Jour ${stepIndex + 1}`;
+  if (el.corrPrompt) {
+    el.corrPrompt.hidden = false;
+    el.corrPrompt.textContent = "Ta boisson du matin ?";
+  }
+  if (el.corrDrinkChoices) el.corrDrinkChoices.hidden = false;
+  if (el.corrPair) el.corrPair.hidden = true;
+  if (el.corrStory) el.corrStory.hidden = true;
+  if (el.corrRateChoices) el.corrRateChoices.hidden = true;
+  renderCorrDrinks();
+}
+
+function pickCorrDrink(key) {
+  if (corrPhase !== "pick") return;
+  const drinks = activeExp?.drinks || [];
+  const drink = drinks.find((d) => d.k === key);
+  if (!drink) return;
+  const signs = activeExp?.signs || ["Signe mystérieux"];
+  // Indépendant du choix boisson — c’est le cœur de la démo.
+  const sign = pick(shuffle(signs));
+  const story = inventCorrStory(drink.label, sign);
+  corrPending = { drink: key, drinkLabel: drink.label, sign, story };
+  corrPhase = "rate";
+  if (el.corrPrompt) el.corrPrompt.hidden = true;
+  if (el.corrDrinkChoices) el.corrDrinkChoices.hidden = true;
+  if (el.corrPair) el.corrPair.hidden = false;
+  if (el.corrDrink) el.corrDrink.textContent = drink.label;
+  if (el.corrSign) el.corrSign.textContent = sign;
+  if (el.corrStory) {
+    el.corrStory.hidden = false;
+    el.corrStory.textContent = story;
+  }
+  if (el.corrRateChoices) el.corrRateChoices.hidden = false;
+}
+
+function rateCorr(key) {
+  if (corrPhase !== "rate" || !corrPending) return;
+  if (!/^[1-3]$/.test(key)) return;
+  corrLog.push({ ...corrPending, rate: key });
+  answerOrder.push(key);
+  corrPending = null;
+  stepIndex += 1;
+  if (stepIndex >= CORR_DAYS) showEnd();
+  else showCorrDay();
+}
+
+function answerCorr(key) {
+  if (mode !== "play" || effect() !== "correlation") return;
+  if (corrPhase === "pick") pickCorrDrink(key);
+  else rateCorr(key);
+}
+
+function corrBiasedScore() {
+  const n = corrLog.length || 1;
+  const conv = corrLog.filter((x) => x.rate === "1").length;
+  const mid = corrLog.filter((x) => x.rate === "2").length;
+  // Score marketing : convaincant compte double, moyen compte 1, rejet 0 — normalisé haut.
+  const raw = (conv * 2 + mid) / (n * 2);
+  const biased = Math.round((0.55 + raw * 0.4) * 100); // plancher ~55%
+  const honestConv = Math.round((conv / n) * 100);
+  return { conv, mid, rej: n - conv - mid, biased, honestConv, n };
+}
+
+function renderCorrMatrix(log) {
+  return log
+    .map(
+      (row, i) => `
+      <div class="corr-row">
+        <span class="corr-row-n">J${i + 1}</span>
+        <span>${escapeHtml(row.drinkLabel)}</span>
+        <span class="corr-row-x">×</span>
+        <span>${escapeHtml(row.sign)}</span>
+      </div>`,
+    )
+    .join("");
+}
+
+function reshuffleCorrStories() {
+  const signs = shuffle([...(activeExp?.signs || [])]);
+  return corrLog.map((row, i) => {
+    const sign = signs[i % signs.length] || row.sign;
+    return {
+      ...row,
+      sign,
+      story: inventCorrStory(row.drinkLabel, sign),
+    };
+  });
+}
+
+function renderCorrEnd() {
+  const s = corrBiasedScore();
+  if (el.fakeRead) {
+    el.fakeRead.innerHTML = `
+      <header class="end-hero">
+        <p class="end-kicker">Café & Cosmic · rapport</p>
+        <h1 class="end-title">Corrélation ${s.biased}%</h1>
+        <p class="end-lead">Tes boissons et le ciel ne se croisent pas par hasard — enfin, c’est ce qu’on te vend.</p>
+        <p class="end-humor">${s.conv} jour${s.conv > 1 ? "s" : ""} jugé${s.conv > 1 ? "s" : ""} « convaincant${s.conv > 1 ? "s" : ""} ».</p>
+      </header>
+      <section class="corr-report">
+        <p class="end-kicker">paires observées</p>
+        <div class="corr-matrix">${renderCorrMatrix(corrLog)}</div>
+      </section>
+      <section class="real-stats">
+        <div class="stat-grid">
+          <div class="stat-card"><p class="stat-card-value">${s.biased}%</p><p class="stat-card-label">Score « synchronicité »</p></div>
+          <div class="stat-card"><p class="stat-card-value">${s.conv}</p><p class="stat-card-label">Convaincant</p></div>
+          <div class="stat-card"><p class="stat-card-value">${s.mid}</p><p class="stat-card-label">Moyen</p></div>
+          <div class="stat-card"><p class="stat-card-value">${s.rej}</p><p class="stat-card-label">N’importe quoi</p></div>
+        </div>
+      </section>`;
+  }
+
+  setReveal(
+    "Tu viens de subir l’illusion de corrélation",
+    "Deux colonnes indépendantes (ta boisson, un signe tiré au sort) ont été collées ensemble, puis habillées d’une histoire. Le cerveau adore les causes.",
+    [
+      "Le signe du ciel était tiré au sort sans regarder ta boisson",
+      "Une phrase de liaison crée l’impression de cause → effet",
+      "Le % « corrélation » était du marketing, pas de la statistique",
+      "Re-mélanger les paires produit des histoires tout aussi « évidentes »",
+    ],
+  );
+
+  const reshuffled = reshuffleCorrStories();
+  if (el.revealExtra) {
+    el.revealExtra.innerHTML = `
+      <h3 class="reveal-sub">Preuve visuelle : même boissons, autres signes</h3>
+      <p class="reveal-explain">
+        On garde tes choix de boisson. On re-tire les signes au hasard.
+        Les nouvelles histoires sonnent aussi juste — donc le lien n’existait pas.
+        (Taux « convaincant » réel : ${s.honestConv}% des jours.)
+      </p>
+      <div class="algo-compare">
+        <article class="algo-card">
+          <p class="algo-card-kicker">paires qu’on t’a vendues</p>
+          <div class="corr-matrix corr-matrix-dark">${renderCorrMatrix(corrLog)}</div>
+        </article>
+        <article class="algo-card algo-card-alt">
+          <p class="algo-card-kicker">re-mélange au hasard</p>
+          <div class="corr-matrix corr-matrix-dark" id="corrReshuffleMatrix">${renderCorrMatrix(reshuffled)}</div>
+        </article>
+      </div>
+      <button type="button" class="algo-reroll" data-action="reroll-corr">Re-mélanger encore</button>
+      <p class="reveal-explain" style="margin-top:14px">
+        En vrai : planète ⊥ café. Comme lune ⊥ accidents, ou « numéro porte-bonheur » ⊥ résultats du loto —
+        sauf quand on raconte une histoire par-dessus.
+      </p>`;
+  }
+}
+
+/* ——— Barnum end (DOM inject) ——— */
+
+function renderBarnumEnd() {
+  const real = computeRealStats(answers, answerOrder, barnumSession, quizStartedAt, quizEndedAt);
+  const reading = buildBarnumReading(answers);
+
+  if (el.fakeRead) {
+    el.fakeRead.innerHTML = `
+      <header class="end-hero">
+        <p class="end-kicker">profil personnalisé</p>
+        <h1 class="end-title">${escapeHtml(reading.title)}</h1>
+        <p class="end-lead">${escapeHtml(reading.lead)}</p>
+        <p class="end-humor">${escapeHtml(barnumSession?.title || "")}</p>
+      </header>
+      <section class="barnum-reading"><p class="barnum-body">${escapeHtml(reading.body)}</p></section>
+      <section class="real-stats">
+        <p class="end-kicker">données de session</p>
+        <h2 class="real-stats-title">Tes chiffres</h2>
+        <p class="real-stats-lead">${real.n} réponse${real.n > 1 ? "s" : ""} sur ${real.offered} · ${formatDuration(real.sec)}</p>
+        <div class="stat-grid">
+          <div class="stat-card"><p class="stat-card-value">${real.offered}</p><p class="stat-card-label">Questions posées</p></div>
+          <div class="stat-card"><p class="stat-card-value">${real.n}</p><p class="stat-card-label">Réponses</p></div>
+          <div class="stat-card"><p class="stat-card-value">${real.completion}%</p><p class="stat-card-label">Complétion</p></div>
+          <div class="stat-card"><p class="stat-card-value">${formatDuration(real.sec)}</p><p class="stat-card-label">Durée</p></div>
+          <div class="stat-card"><p class="stat-card-value">${real.perQ ? real.perQ + " s" : "—"}</p><p class="stat-card-label">Temps / question</p></div>
+          <div class="stat-card"><p class="stat-card-value">${real.dominant === "—" ? "—" : "touche " + real.dominant}</p><p class="stat-card-label">Choix dominant</p></div>
+        </div>
+        <div class="choice-bars">
+          ${[1, 2, 3]
+            .map((k) => {
+              const pct = real[`pct${k}`];
+              const n = real.counts[String(k)];
+              return `<div class="choice-bar-row"><span class="choice-bar-key">${k}</span><div class="choice-bar-track"><div class="choice-bar-fill" style="width:${pct}%"></div></div><span class="choice-bar-pct">${pct}% <em>(${n})</em></span></div>`;
+            })
+            .join("")}
+        </div>
+        <ul class="stat-list">
+          <li>Séquence : ${escapeHtml(real.sequence)}</li>
+          <li>Première : ${real.first} · dernière : ${real.last}</li>
+          <li>Changements : ${real.switches} · stabilité : ${real.stability}%</li>
+          <li>Plus longue série : ${real.longestStreak}× touche ${real.streakKey}</li>
+          <li>Moyenne (1–3) : ${real.avg || "—"}</li>
+          ${real.packLabels.length ? `<li>Thèmes : ${escapeHtml(real.packLabels.join(", "))}</li>` : ""}
+        </ul>
+      </section>
+      <section class="axes">
+        ${reading.metrics
+          .map(
+            (m) => `
+          <article class="axis">
+            <div class="axis-top"><h2>${escapeHtml(m.title)}</h2><span>${m.pct}%</span></div>
+            <p class="axis-desc">${escapeHtml(m.desc)}</p>
+            <div class="axis-track"><div class="axis-fill" style="width:${m.pct}%"></div></div>
+          </article>`,
+          )
+          .join("")}
+      </section>`;
+  }
+
+  setReveal(
+    "Tu viens de subir l’effet Barnum",
+    "Ce texte avait l’air écrit pour toi. Il marche sur presque n’importe qui. Astrologie, voyance, tests douteux : même mécanisme.",
+    [
+      "Déclarations doubles (A et non-A) : impossible d’être « faux »",
+      "Tout est positif : le cerveau accepte plus facilement",
+      "Désirs universels présentés comme diagnostics",
+      "Chiffres précis → illusion de science (sauf « Tes chiffres »)",
+      "Le sens des réponses est ignoré : seules les touches 1/2/3 nourrissent un hash",
+    ],
+  );
+
+  const keys = answerOrder.length ? answerOrder : Object.values(answers);
+  const randMap = {};
+  for (const q of barnumSession?.questions || []) {
+    randMap[q.id] = String(1 + Math.floor(Math.random() * 3));
+  }
+  const yours = reading;
+  const rand = buildBarnumReading(randMap);
+  const randKeys = (barnumSession?.questions || []).map((q) => randMap[q.id]);
+
+  if (el.revealExtra) {
+    el.revealExtra.innerHTML = `
+      <h3 class="reveal-sub">Les questions ne comptaient pas</h3>
+      <p class="reveal-explain">
+        Le profil ne lit jamais le sens de tes choix. Il ne voit que <code>1</code>, <code>2</code>, <code>3</code>,
+        hash → tirage dans de petites listes + % inventés. Seul <em>Tes chiffres</em> était honnête.
+      </p>
+      <div class="fake-algo">
+        <div class="fake-algo-step"><span class="fake-algo-n">1</span><p class="fake-algo-title">Tes réponses</p><p class="fake-algo-code">${escapeHtml(keys.join(" · ") || "—")}</p><p class="fake-algo-note">libellé jeté</p></div>
+        <div class="fake-algo-arrow">→</div>
+        <div class="fake-algo-step"><span class="fake-algo-n">2</span><p class="fake-algo-title">Hash bidon</p><p class="fake-algo-code">seed = ${yours.seed}</p><p class="fake-algo-note">aucun sens</p></div>
+        <div class="fake-algo-arrow">→</div>
+        <div class="fake-algo-step"><span class="fake-algo-n">3</span><p class="fake-algo-title">Tirage + %</p><p class="fake-algo-code">phrase[seed % 4]<br/>% = 61 + (seed % 29)</p><p class="fake-algo-note">listes génériques</p></div>
+        <div class="fake-algo-arrow">→</div>
+        <div class="fake-algo-step fake-algo-out"><span class="fake-algo-n">4</span><p class="fake-algo-title">« Portrait perso »</p><p class="fake-algo-note">impression de science</p></div>
+      </div>
+      <div class="algo-demo">
+        <p class="algo-demo-lead">Même machine, autres touches : le texte reste aussi vague et flatteur.</p>
+        <div class="algo-compare">
+          <article class="algo-card">
+            <p class="algo-card-kicker">avec tes réponses</p>
+            <p class="algo-card-keys">${escapeHtml(keys.join(" · "))}</p>
+            <p class="algo-card-title">${escapeHtml(yours.title)}</p>
+            <p class="algo-card-body">${escapeHtml(yours.body)}</p>
+          </article>
+          <article class="algo-card algo-card-alt" id="barnumRandCard">
+            <p class="algo-card-kicker">avec des réponses au hasard</p>
+            <p class="algo-card-keys">${escapeHtml(randKeys.join(" · "))}</p>
+            <p class="algo-card-title">${escapeHtml(rand.title)}</p>
+            <p class="algo-card-body">${escapeHtml(rand.body)}</p>
+          </article>
+        </div>
+        <button type="button" class="algo-reroll" data-action="reroll-barnum">Relancer le hasard</button>
+      </div>
+      <h3 class="reveal-sub">Autres biais</h3>
+      <ul class="reveal-biases">
+        <li><strong>Confirmation</strong> — tu retiens ce qui colle</li>
+        <li><strong>Corrélation illusoire</strong> — deux coïncidences deviennent une preuve</li>
+        <li><strong>Rétrospectif</strong> — « je le savais »</li>
+      </ul>`;
+  }
+}
+
+function rerollBarnumDemo() {
+  const card = document.getElementById("barnumRandCard");
+  if (!card || !barnumSession) return;
+  const randMap = {};
+  for (const q of barnumSession.questions) {
+    randMap[q.id] = String(1 + Math.floor(Math.random() * 3));
+  }
+  const rand = buildBarnumReading(randMap);
+  const randKeys = barnumSession.questions.map((q) => randMap[q.id]);
+  card.innerHTML = `
+    <p class="algo-card-kicker">avec des réponses au hasard</p>
+    <p class="algo-card-keys">${escapeHtml(randKeys.join(" · "))}</p>
+    <p class="algo-card-title">${escapeHtml(rand.title)}</p>
+    <p class="algo-card-body">${escapeHtml(rand.body)}</p>`;
+}
+
+function rerollCorrDemo() {
+  const host = document.getElementById("corrReshuffleMatrix");
+  if (!host) return;
+  host.innerHTML = renderCorrMatrix(reshuffleCorrStories());
+}
+
+/* ——— Barnum play ——— */
+
+function renderBarnumChoices(question) {
+  if (!el.choices) return;
   el.choices.innerHTML = "";
   for (const c of question.choices) {
     const btn = document.createElement("button");
@@ -663,54 +958,90 @@ function renderChoices(question) {
     btn.className = "key";
     btn.dataset.key = c.k;
     btn.setAttribute("aria-label", `${c.k} : ${c.label}`);
-    btn.innerHTML = `<span class="key-glyph">${c.k}</span><span class="key-label">${c.label}</span>`;
+    btn.innerHTML = `<span class="key-glyph">${c.k}</span><span class="key-label">${escapeHtml(c.label)}</span>`;
     el.choices.appendChild(btn);
   }
 }
 
-function showQuestion() {
-  if (!activeTest) return;
-  const total = activeTest.questions.length;
-  if (qIndex >= total) {
+function showBarnumQuestion() {
+  if (!barnumSession) return;
+  if (stepIndex >= barnumSession.questions.length) {
     showEnd();
     return;
   }
-  mode = "quiz";
-  const q = activeTest.questions[qIndex];
+  mode = "play";
+  hidePlays();
   if (el.hint) el.hint.hidden = true;
   if (el.startRow) el.startRow.hidden = true;
-  el.progress.hidden = false;
-  el.progress.textContent = `${qIndex + 1} / ${total}`;
-  el.question.hidden = false;
-  el.question.textContent = q.q;
-  renderChoices(q);
-  saveSession();
+  if (el.playBarnum) el.playBarnum.hidden = false;
+  const q = barnumSession.questions[stepIndex];
+  if (el.progress) el.progress.textContent = `${stepIndex + 1} / ${barnumSession.questions.length}`;
+  if (el.question) el.question.textContent = q.q;
+  renderBarnumChoices(q);
   rotateBrandSub();
 }
 
-function startQuiz() {
-  if (!activeTest) refreshSession();
-  if (!activeTest) return;
-  qIndex = 0;
-  answers = {};
-  answerOrder = [];
-  quizStartedAt = Date.now();
-  quizEndedAt = 0;
-  showQuestion();
-}
-
-function answerCurrent(key) {
-  if (mode !== "quiz" || !activeTest) return;
-  const q = activeTest.questions[qIndex];
-  if (!q) return;
-  const ok = q.choices.some((c) => c.k === key);
-  if (!ok) return;
+function answerBarnum(key) {
+  if (mode !== "play" || effect() !== "barnum" || !barnumSession) return;
+  const q = barnumSession.questions[stepIndex];
+  if (!q?.choices.some((c) => c.k === key)) return;
   answers[q.id] = key;
   answerOrder.push(key);
-  qIndex += 1;
-  saveSession();
-  if (qIndex >= activeTest.questions.length) showEnd();
-  else showQuestion();
+  stepIndex += 1;
+  if (stepIndex >= barnumSession.questions.length) showEnd();
+  else showBarnumQuestion();
+}
+
+/* ——— flow ——— */
+
+function refreshActiveContent() {
+  if (effect() === "barnum") {
+    barnumSession = buildBarnumSession();
+  } else if (effect() === "confirmation") {
+    confirmDeck = buildConfirmDeck();
+  }
+  applyHomeCopy();
+  clickbaitPool = activeExp?.clickbait?.length
+    ? activeExp.clickbait
+    : ["Une expérience On te lit", "Deux minutes. Zéro spoil.", "Commence quand tu veux"];
+  subIndex = Math.floor(Math.random() * clickbaitPool.length);
+  renderBrandSub();
+}
+
+function showIdle() {
+  mode = "idle";
+  stepIndex = 0;
+  answers = {};
+  answerOrder = [];
+  confirmMarks = {};
+  corrLog = [];
+  corrPhase = "pick";
+  corrPending = null;
+  quizStartedAt = 0;
+  quizEndedAt = 0;
+  hidePlays();
+  if (el.hint) el.hint.hidden = false;
+  if (el.startRow) el.startRow.hidden = false;
+  applyHomeCopy();
+  if (el.stats) el.stats.textContent = "";
+}
+
+function startPlay() {
+  quizStartedAt = Date.now();
+  stepIndex = 0;
+  answers = {};
+  answerOrder = [];
+  confirmMarks = {};
+  corrLog = [];
+  if (effect() === "barnum") {
+    if (!barnumSession) barnumSession = buildBarnumSession();
+    showBarnumQuestion();
+  } else if (effect() === "confirmation") {
+    if (!confirmDeck.length) confirmDeck = buildConfirmDeck();
+    showConfirmStep();
+  } else {
+    showCorrDay();
+  }
 }
 
 function showEnd() {
@@ -720,75 +1051,55 @@ function showEnd() {
   el.labView.hidden = true;
   el.endView.hidden = false;
 
-  if (activeTest?.questions?.length) {
-    saveSeen(activeTest.questions.map((q) => q.id));
-  }
-
-  const real = computeRealStats(answers, answerOrder, activeTest, quizStartedAt, quizEndedAt);
-  renderRealStats(real);
-
-  const reading = buildBarnumReading(answers);
-  el.endTitle.textContent = reading.title;
-  el.endLead.textContent = reading.lead;
-  el.endHumor.textContent = activeTest
-    ? activeTest.packIds?.length > 1
-      ? `${activeTest.title} · thèmes mélangés`
-      : activeTest.title
-    : "";
-  if (el.barnumBody) el.barnumBody.textContent = reading.body;
-
-  const titles = [el.axis1Title, el.axis2Title, el.axis3Title, el.axis4Title];
-  const descs = [el.axis1Desc, el.axis2Desc, el.axis3Desc, el.axis4Desc];
-  const fills = [el.axisParadox, el.axisImpossible, el.axisDaily, el.axisMeta];
-  const vals = [el.axisParadoxVal, el.axisImpossibleVal, el.axisDailyVal, el.axisMetaVal];
-  reading.metrics.forEach((m, i) => {
-    if (titles[i]) titles[i].textContent = m.title;
-    if (descs[i]) descs[i].textContent = m.desc;
-    setAxis(fills[i], vals[i], m.pct);
-  });
-
-  if (el.barnumLevers) {
-    el.barnumLevers.innerHTML = "";
-    for (const line of reading.levers) {
-      const li = document.createElement("li");
-      li.textContent = line;
-      el.barnumLevers.appendChild(li);
-    }
-  }
-
-  renderFakeAlgoDemo(answers, answerOrder);
-
-  el.newsError.hidden = true;
-  const saved = localStorage.getItem(NEWS_KEY);
-  if (saved) {
-    try {
-      const data = JSON.parse(saved);
-      el.newsEmail.value = data.email || "";
-      el.newsConsent.checked = true;
-      el.newsOk.hidden = false;
-    } catch {
-      el.newsOk.hidden = true;
-    }
+  if (activeExp) saveJsonSeen(SEEN_EXP_KEY, [activeExp.id], 12);
+  if (effect() === "barnum" && barnumSession) {
+    saveJsonSeen(
+      SEEN_Q_KEY,
+      barnumSession.questions.map((q) => q.id),
+    );
+    renderBarnumEnd();
+  } else if (effect() === "confirmation") {
+    renderConfirmEnd();
   } else {
-    el.newsOk.hidden = true;
+    renderCorrEnd();
   }
 
-  clearSession();
+  prepareNewsForm();
   window.scrollTo(0, 0);
 }
 
 function showLab() {
   el.endView.hidden = true;
   el.labView.hidden = false;
-  refreshSession();
+  // Nouvelle variante à chaque retour (sauf ?e= fixé)
+  if (!new URLSearchParams(location.search).get("e") && !new URLSearchParams(location.search).get("exp")) {
+    activeExp = pickExperience();
+  }
+  refreshActiveContent();
   showIdle();
   window.scrollTo(0, 0);
 }
 
 function resetAll() {
-  clearSession();
-  refreshSession();
+  localStorage.removeItem(SESSION_KEY);
   showLab();
+}
+
+function handleKey(raw) {
+  if (mode === "end") return;
+  const k = raw === " " || raw === "space" ? "space" : String(raw).toLowerCase();
+  if (k === "r") {
+    resetAll();
+    return;
+  }
+  if (k === "space" || k === "enter") {
+    if (mode === "idle") startPlay();
+    return;
+  }
+  if (mode !== "play" || !/^[1-3]$/.test(k)) return;
+  if (effect() === "barnum") answerBarnum(k);
+  else if (effect() === "confirmation") answerConfirm(k);
+  else answerCorr(k);
 }
 
 async function submitNewsletter(e) {
@@ -815,7 +1126,7 @@ async function submitNewsletter(e) {
       body: JSON.stringify({
         email,
         consent: true,
-        lastTestId: activeTest?.packIds?.join("+") || activeTest?.id || null,
+        lastTestId: newsletterTestId(),
       }),
     });
     const data = await res.json().catch(() => ({}));
@@ -831,29 +1142,11 @@ async function submitNewsletter(e) {
   }
 }
 
-function handleKey(raw) {
-  if (mode === "end") return;
-  const k = raw === " " || raw === "space" ? "space" : String(raw).toLowerCase();
-
-  if (k === "r") {
-    resetAll();
-    return;
-  }
-  if (k === "space" || k === "enter") {
-    if (mode === "idle") startQuiz();
-    return;
-  }
-  if (mode === "quiz" && /^[1-3]$/.test(k)) {
-    answerCurrent(k);
-  }
-}
-
 document.addEventListener("keydown", (e) => {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
   const t = e.target instanceof HTMLElement ? e.target : null;
   if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;
   if (mode === "end") return;
-
   const isSpace = e.code === "Space" || e.key === " ";
   const isEnter = e.key === "Enter";
   const single = e.key.length === 1 ? e.key.toLowerCase() : "";
@@ -869,7 +1162,8 @@ document.addEventListener("click", (e) => {
     const action = actionBtn.getAttribute("data-action");
     if (action === "finish") showEnd();
     if (action === "back") showLab();
-    if (action === "reroll-barnum") rerollFakeAlgoCompare();
+    if (action === "reroll-barnum") rerollBarnumDemo();
+    if (action === "reroll-corr") rerollCorrDemo();
     return;
   }
   if (mode === "end") return;
@@ -891,36 +1185,28 @@ if (el.resetBtn)
 async function boot() {
   if (el.brandLogo) el.brandLogo.textContent = BRAND;
   if (el.newsBrand) el.newsBrand.textContent = BRAND;
-  document.title = `${BRAND} — test de personnalité`;
-  startSubRotator();
 
   try {
-    const res = await fetch("./tests.json", { cache: "no-store" });
-    const data = await res.json();
-    sessionSize = Number(data.sessionSize) > 0 ? Number(data.sessionSize) : 10;
-    titlePool = Array.isArray(data.titles) ? data.titles : ["Quel type es-tu vraiment ?"];
-    blurbPool = Array.isArray(data.blurbs)
-      ? data.blurbs
-      : ["10 questions rapides. Réponds spontanément — ton profil t’attend à la fin."];
-    packs = Array.isArray(data.packs) ? data.packs : [];
-
-    // Compat anciennes versions : un seul test avec questions.
-    if (!packs.length && Array.isArray(data.tests) && data.tests[0]?.questions) {
-      packs = [
-        {
-          id: data.tests[0].id || "legacy",
-          label: "Général",
-          questions: data.tests[0].questions,
-        },
-      ];
-      if (data.tests[0].title) titlePool = [data.tests[0].title];
-      if (data.tests[0].blurb) blurbPool = [data.tests[0].blurb];
-    }
+    const [expRes, testRes] = await Promise.all([
+      fetch("./experiences.json", { cache: "no-store" }),
+      fetch("./tests.json", { cache: "no-store" }),
+    ]);
+    const expData = await expRes.json();
+    const testData = await testRes.json();
+    expCatalog = Array.isArray(expData.experiences) ? expData.experiences : [];
+    rotation = Array.isArray(expData.rotation) ? expData.rotation : rotation;
+    sessionSize = Number(testData.sessionSize) > 0 ? Number(testData.sessionSize) : 10;
+    titlePool = Array.isArray(testData.titles) ? testData.titles : [];
+    blurbPool = Array.isArray(testData.blurbs) ? testData.blurbs : [];
+    packs = Array.isArray(testData.packs) ? testData.packs : [];
   } catch {
-    packs = [];
+    expCatalog = [];
   }
 
-  refreshSession();
+  activeExp = pickExperience();
+  document.title = `${BRAND} — ${activeExp?.homeTitle || "expérience"}`;
+  refreshActiveContent();
+  startSubRotator();
   showIdle();
 }
 

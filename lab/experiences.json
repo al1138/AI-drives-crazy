@@ -1,0 +1,82 @@
+{
+  "defaultEffect": "barnum",
+  "rotation": ["barnum", "confirmation", "correlation"],
+  "experiences": [
+    {
+      "id": "barnum",
+      "effect": "barnum",
+      "homeTitle": "Quel type es-tu vraiment ?",
+      "homeBlurb": "10 questions rapides. Réponds spontanément — ton profil t’attend à la fin.",
+      "clickbait": [
+        "Ton profil en 10 questions",
+        "Découvre ton type en moins de 3 minutes",
+        "Les réponses révèlent ton style de vie"
+      ]
+    },
+    {
+      "id": "confirmation",
+      "effect": "confirmation",
+      "homeTitle": "Le babillard de la semaine",
+      "homeBlurb": "10 prédictions collées au mur. Dis lesquelles collent à ta vie récente — on calcule ta précision.",
+      "clickbait": [
+        "10 prédictions · coche ce qui colle",
+        "Le babillard qui te connaît déjà",
+        "Bilan de semaine en 2 minutes"
+      ],
+      "predictions": [
+        { "id": "p1", "text": "Tu vas remettre à plus tard quelque chose d’important.", "kind": "vague" },
+        { "id": "p2", "text": "Quelqu’un pensera à toi sans te le dire.", "kind": "vague" },
+        { "id": "p3", "text": "Tu scrolleras plus longtemps que prévu au moins une fois.", "kind": "common" },
+        { "id": "p4", "text": "Une conversation anodine te restera en tête.", "kind": "vague" },
+        { "id": "p5", "text": "Tu changeras d’avis sur un détail sans importance.", "kind": "vague" },
+        { "id": "p6", "text": "Tu auras envie de silence — ou au contraire de bruit.", "kind": "trap" },
+        { "id": "p7", "text": "Un message arrivera au « mauvais » moment.", "kind": "common" },
+        { "id": "p8", "text": "Tu te sentiras un peu en avance — ou un peu en retard — sur ta journée.", "kind": "trap" },
+        { "id": "p9", "text": "Tu remarqueras un détail que tu avais ignoré jusque-là.", "kind": "vague" },
+        { "id": "p10", "text": "Tu hésiteras entre deux options banales (manger, sortir, répondre…).", "kind": "common" },
+        { "id": "p11", "text": "Un objet mal rangé te fera perdre 30 secondes.", "kind": "common" },
+        { "id": "p12", "text": "Tu te diras « je le savais » après coup.", "kind": "meta" }
+      ]
+    },
+    {
+      "id": "correlation",
+      "effect": "correlation",
+      "homeTitle": "Café & Cosmic",
+      "homeBlurb": "5 jours express. Chaque matin : tu choisis une boisson, le ciel tire un signe — on cherche le lien.",
+      "clickbait": [
+        "Ton café explique-t-il ton destin ?",
+        "5 jours de synchronicités",
+        "Boisson du jour × signe du ciel"
+      ],
+      "drinks": [
+        { "k": "1", "label": "Café serré" },
+        { "k": "2", "label": "Thé / tisane" },
+        { "k": "3", "label": "Autre / rien" }
+      ],
+      "signs": [
+        "Mercure en mode chaotique",
+        "Lune un peu trop pleine",
+        "Venus en sourdine",
+        "Mars qui tape du pied",
+        "Saturne qui juge en silence",
+        "Nuages en forme de point d’interrogation",
+        "Vent d’ouest un brin ironique",
+        "Alignement « presque » parfait"
+      ],
+      "moodBits": [
+        "une pointe d’impatience",
+        "un besoin de contrôle",
+        "une envie de procrastiner avec panache",
+        "une lucidité passagère",
+        "une fatigue élégante",
+        "un élan soudain"
+      ],
+      "linkTemplates": [
+        "Évidemment : {sign} → {drink}. Ça explique {mood}.",
+        "Le ciel ne ment pas. {sign} et ton choix « {drink} » forment une boucle causale classique.",
+        "Corrélation détectée : {drink} apparaît souvent quand {sign}. Coincidence ? On ne croit pas.",
+        "{sign} pousse le système nerveux vers {drink}. D’où {mood}."
+      ]
+    }
+  ]
+}

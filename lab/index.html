@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>On te lit — test de personnalité</title>
+  <title>On te lit</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -26,15 +26,76 @@
             <div class="intro" id="hint">
               <p class="intro-hook" id="testTitle">Quel type es-tu vraiment ?</p>
               <p class="intro-lead" id="testBlurb">10 questions rapides. Réponds spontanément — on te dresse ton profil à la fin.</p>
-              <ol class="intro-steps">
-                <li><span>espace</span> — lancer le test</li>
-                <li><span>1 · 2 · 3</span> — choisir ta réponse</li>
-                <li><span>terminer</span> — obtenir ton profil</li>
+              <ol class="intro-steps" id="introSteps">
+                <li><span>espace</span> — commencer</li>
+                <li><span>1 · 2 · 3</span> — choisir</li>
+                <li><span>terminer</span> — bilan</li>
               </ol>
             </div>
-            <p class="progress" id="progress" hidden></p>
-            <p class="question" id="question" hidden></p>
-            <div class="key-row choices" id="choices" hidden></div>
+
+            <!-- Exp 1 — Barnum -->
+            <div id="playBarnum" hidden>
+              <p class="progress" id="progress"></p>
+              <p class="question" id="question"></p>
+              <div class="key-row choices" id="choices"></div>
+            </div>
+
+            <!-- Exp 2 — Confirmation -->
+            <div id="playConfirm" hidden>
+              <p class="progress" id="confirmProgress"></p>
+              <article class="sticky-note" id="confirmSticky">
+                <p class="sticky-label">prédiction</p>
+                <p class="sticky-text" id="confirmText"></p>
+              </article>
+              <div class="key-row choices" id="confirmChoices">
+                <button type="button" class="key" data-key="1" aria-label="1 : ça colle">
+                  <span class="key-glyph">1</span>
+                  <span class="key-label">ça colle</span>
+                </button>
+                <button type="button" class="key" data-key="2" aria-label="2 : non">
+                  <span class="key-glyph">2</span>
+                  <span class="key-label">non</span>
+                </button>
+                <button type="button" class="key" data-key="3" aria-label="3 : trop vague">
+                  <span class="key-glyph">3</span>
+                  <span class="key-label">trop vague</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Exp 3 — Corrélation illusoire -->
+            <div id="playCorr" hidden>
+              <p class="progress" id="corrProgress"></p>
+              <p class="corr-day" id="corrDay">Jour 1</p>
+              <p class="question" id="corrPrompt">Ta boisson du matin ?</p>
+              <div class="key-row choices" id="corrDrinkChoices"></div>
+              <div class="corr-pair" id="corrPair" hidden>
+                <div class="corr-col">
+                  <p class="corr-kicker">toi</p>
+                  <p class="corr-value" id="corrDrink"></p>
+                </div>
+                <p class="corr-times" aria-hidden="true">×</p>
+                <div class="corr-col">
+                  <p class="corr-kicker">ciel</p>
+                  <p class="corr-value" id="corrSign"></p>
+                </div>
+              </div>
+              <p class="corr-story" id="corrStory" hidden></p>
+              <div class="key-row choices" id="corrRateChoices" hidden>
+                <button type="button" class="key" data-key="1" aria-label="1 : convaincant">
+                  <span class="key-glyph">1</span>
+                  <span class="key-label">convaincant</span>
+                </button>
+                <button type="button" class="key" data-key="2" aria-label="2 : moyen">
+                  <span class="key-glyph">2</span>
+                  <span class="key-label">moyen</span>
+                </button>
+                <button type="button" class="key" data-key="3" aria-label="3 : n’importe quoi">
+                  <span class="key-glyph">3</span>
+                  <span class="key-label">n’importe quoi</span>
+                </button>
+              </div>
+            </div>
           </section>
 
           <div class="start-row" id="startRow">
@@ -47,7 +108,7 @@
           <div class="finish-row">
             <button type="button" class="key key-wide key-finish" data-action="finish" aria-label="Terminer">
               <span class="key-glyph">terminer</span>
-              <span class="key-label">voir mon profil</span>
+              <span class="key-label" id="finishLabel">voir le bilan</span>
             </button>
           </div>
         </div>
@@ -59,145 +120,15 @@
       </main>
 
       <section class="end" id="endView" hidden>
-        <div class="fake-read" id="fakeRead">
-          <header class="end-hero">
-            <p class="end-kicker">profil personnalisé</p>
-            <h1 class="end-title" id="endTitle">Ton profil</h1>
-            <p class="end-lead" id="endLead"></p>
-            <p class="end-humor" id="endHumor"></p>
-          </header>
-
-          <section class="barnum-reading" aria-label="Lecture personnalisée">
-            <p class="barnum-body" id="barnumBody"></p>
-          </section>
-
-          <section class="real-stats" aria-labelledby="realStatsTitle">
-            <p class="end-kicker">données de session</p>
-            <h2 class="real-stats-title" id="realStatsTitle">Tes chiffres</h2>
-            <p class="real-stats-lead" id="realStatsLead"></p>
-            <div class="stat-grid" id="statGrid"></div>
-            <div class="choice-bars" id="choiceBars" aria-label="Répartition des réponses"></div>
-            <ul class="stat-list" id="statList"></ul>
-          </section>
-
-          <section class="axes" aria-label="Indices" id="barnumAxes">
-            <article class="axis">
-              <div class="axis-top">
-                <h2 id="axis1Title">Indice A</h2>
-                <span id="axisParadoxVal">0%</span>
-              </div>
-              <p class="axis-desc" id="axis1Desc"></p>
-              <div class="axis-track"><div class="axis-fill" id="axisParadox" style="width:0%"></div></div>
-            </article>
-            <article class="axis">
-              <div class="axis-top">
-                <h2 id="axis2Title">Indice B</h2>
-                <span id="axisImpossibleVal">0%</span>
-              </div>
-              <p class="axis-desc" id="axis2Desc"></p>
-              <div class="axis-track"><div class="axis-fill" id="axisImpossible" style="width:0%"></div></div>
-            </article>
-            <article class="axis">
-              <div class="axis-top">
-                <h2 id="axis3Title">Indice C</h2>
-                <span id="axisDailyVal">0%</span>
-              </div>
-              <p class="axis-desc" id="axis3Desc"></p>
-              <div class="axis-track"><div class="axis-fill" id="axisDaily" style="width:0%"></div></div>
-            </article>
-            <article class="axis">
-              <div class="axis-top">
-                <h2 id="axis4Title">Indice D</h2>
-                <span id="axisMetaVal">0%</span>
-              </div>
-              <p class="axis-desc" id="axis4Desc"></p>
-              <div class="axis-track"><div class="axis-fill" id="axisMeta" style="width:0%"></div></div>
-            </article>
-          </section>
-        </div>
+        <!-- Rempli selon l’expérience -->
+        <div class="fake-read" id="fakeRead"></div>
 
         <section class="reveal" aria-labelledby="revealTitle">
           <p class="reveal-kicker">après la surprise</p>
-          <h2 class="reveal-title" id="revealTitle">Tu viens de subir l’effet Barnum</h2>
-          <p class="reveal-lead">
-            Ce texte avait l’air écrit pour toi. Il marche sur presque n’importe qui.
-            Astrologie, voyance, tests douteux : même mécanisme.
-          </p>
-          <ul class="reveal-levers" id="barnumLevers"></ul>
-
-          <h3 class="reveal-sub">Les questions ne comptaient pas</h3>
-          <p class="reveal-explain" id="revealExplain">
-            Le « profil » n’a jamais lu le sens de tes choix (chat, coucher tôt, etc.).
-            Il ne voit que des touches <code>1</code>, <code>2</code> ou <code>3</code>.
-            Ces chiffres servent uniquement à tirer au sort des phrases toutes faites
-            dans de toutes petites listes — et à inventer des pourcentages qui ont l’air précis.
-            Seule la section <em>Tes chiffres</em> était honnête (comptages, durée, etc.).
-          </p>
-
-          <div class="fake-algo" aria-label="Schéma du faux algorithme">
-            <div class="fake-algo-step">
-              <span class="fake-algo-n">1</span>
-              <p class="fake-algo-title">Tes réponses</p>
-              <p class="fake-algo-code" id="algoKeys">1 · 2 · 3 · …</p>
-              <p class="fake-algo-note">le libellé est jeté</p>
-            </div>
-            <div class="fake-algo-arrow" aria-hidden="true">→</div>
-            <div class="fake-algo-step">
-              <span class="fake-algo-n">2</span>
-              <p class="fake-algo-title">Hash bidon</p>
-              <p class="fake-algo-code" id="algoSeed">seed = …</p>
-              <p class="fake-algo-note">aucun « sens » ici</p>
-            </div>
-            <div class="fake-algo-arrow" aria-hidden="true">→</div>
-            <div class="fake-algo-step">
-              <span class="fake-algo-n">3</span>
-              <p class="fake-algo-title">Tirage + %</p>
-              <p class="fake-algo-code">phrase[seed % 4]<br />% = 61 + (seed % 29)</p>
-              <p class="fake-algo-note">listes génériques</p>
-            </div>
-            <div class="fake-algo-arrow" aria-hidden="true">→</div>
-            <div class="fake-algo-step fake-algo-out">
-              <span class="fake-algo-n">4</span>
-              <p class="fake-algo-title">« Portrait perso »</p>
-              <p class="fake-algo-note">impression de science</p>
-            </div>
-          </div>
-
-          <div class="algo-demo">
-            <p class="algo-demo-lead">
-              Preuve visuelle : on garde la même machine, on change seulement les touches.
-              Le texte bouge un peu (autre tirage dans la liste), mais il reste aussi vague,
-              aussi flatteur, aussi « juste » — pour n’importe qui.
-            </p>
-            <div class="algo-compare">
-              <article class="algo-card">
-                <p class="algo-card-kicker">avec tes réponses</p>
-                <p class="algo-card-keys" id="demoKeysYours"></p>
-                <p class="algo-card-title" id="demoTitleYours"></p>
-                <p class="algo-card-body" id="demoBodyYours"></p>
-                <p class="algo-card-pcts" id="demoPctsYours"></p>
-              </article>
-              <article class="algo-card algo-card-alt">
-                <p class="algo-card-kicker">avec des réponses au hasard</p>
-                <p class="algo-card-keys" id="demoKeysRand"></p>
-                <p class="algo-card-title" id="demoTitleRand"></p>
-                <p class="algo-card-body" id="demoBodyRand"></p>
-                <p class="algo-card-pcts" id="demoPctsRand"></p>
-              </article>
-            </div>
-            <button type="button" class="algo-reroll" data-action="reroll-barnum">
-              Relancer le hasard — autre personne fictive
-            </button>
-          </div>
-
-          <h3 class="reveal-sub">Autres biais qui trompent</h3>
-          <ul class="reveal-biases">
-            <li><strong>Confirmation</strong> — tu retiens ce qui colle, tu oublies le reste</li>
-            <li><strong>Corrélation illusoire</strong> — deux coïncidences deviennent une « preuve »</li>
-            <li><strong>Rétrospectif</strong> — « je le savais depuis le début »</li>
-            <li><strong>Dunning–Kruger</strong> — mal calibrer sa compétence</li>
-            <li><strong>Illusion de transparence</strong> — croire qu’on te lit comme un livre</li>
-          </ul>
+          <h2 class="reveal-title" id="revealTitle"></h2>
+          <p class="reveal-lead" id="revealLead"></p>
+          <ul class="reveal-levers" id="revealLevers"></ul>
+          <div id="revealExtra"></div>
           <p class="reveal-refs">
             <a href="./info.html">Références · Hygiène Mentale</a>
             <span>(cette expérience n’est pas la leur)</span>
@@ -206,9 +137,9 @@
 
         <section class="news" aria-labelledby="newsTitle">
           <p class="news-brand">On te lit</p>
-          <h2 class="news-title" id="newsTitle">Un autre test, une autre semaine.</h2>
+          <h2 class="news-title" id="newsTitle">Une autre expérience, une autre semaine.</h2>
           <p class="news-copy">
-            Inscris-toi : on t’envoie le prochain — jamais deux fois le même.
+            Inscris-toi : on t’envoie la suivante — jamais deux fois la même.
           </p>
           <ul class="news-points">
             <li>1 email / semaine · 0 €</li>
@@ -227,14 +158,14 @@
               <span>J’accepte de recevoir cet email. Pas d’autre usage.</span>
             </label>
             <p class="news-error" id="newsError" hidden></p>
-            <p class="news-ok" id="newsOk" hidden>C’est noté. Prochain test par mail — sans doublon.</p>
+            <p class="news-ok" id="newsOk" hidden>C’est noté. Prochaine expérience par mail — sans doublon.</p>
           </form>
         </section>
 
         <div class="end-actions">
           <button type="button" class="key key-wide" data-action="back">
             <span class="key-glyph">retour</span>
-            <span class="key-label">refaire ce test</span>
+            <span class="key-label">refaire</span>
           </button>
         </div>
       </section>

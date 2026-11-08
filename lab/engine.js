@@ -1047,12 +1047,12 @@ function renderConfirmEnd() {
 
   setReveal(
     "Tu viens de subir le biais de confirmation",
-    "On a mis en lumière ce qui collait, et on a presque oublié le reste. C’est exactement ce que font horoscopes, « preuves » anecdotiques et souvenirs sélectifs.",
+    "Tu as coché ce qui te parlait. Le bilan a grossi ces cases-là et a presque caché les autres. Résultat : l’expérience a l’air juste — surtout parce qu’on ne te montre plus ce qui n’a pas collé. Même réflexe dans la vraie vie : horoscope, anecdote « qui prouve », souvenir qui ne garde que les réussites.",
     [
-      "Les réussites sont affichées en grand ; les échecs sont relégués",
-      "Le % « précision » excluait les « non » du dénominateur",
-      "Des phrases vagues comptent presque comme des réussites",
-      "Plus une prédiction est large, plus tu peux la cocher « ça colle »",
+      "Tu retiens surtout ce qui confirme ton impression",
+      "Ce qui contredit (les « non ») passe à l’arrière-plan",
+      "Le % affiché ignorait les échecs dans le calcul",
+      "Une phrase vague est facile à cocher « ça colle » — elle couvre presque tous les cas",
     ],
   );
 

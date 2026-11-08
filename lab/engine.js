@@ -1,470 +1,48 @@
 /**
- * On te lit — lab algorithmique, 0 IA, 0 réseau.
- * Path 1 = learn · Path 2 = space = citation suivante
+ * On te lit — faux test de personnalité (effet Barnum au bilan, secret jusqu’à la fin).
+ * Ancien lab « fausses réponses IA » : voir lab/legacy/ai-patterns-engine.js
  */
 
 const BRAND = "On te lit";
 
-/** Sous-titres clickbait — tournent toutes les N secondes. */
 const CLICKBAIT_SUBS = [
   "10 trucs vitaux que tu ignores encore",
   "On te prend pour un con — comment le détecter",
   "Ce bilan te connaît mieux que ta mère",
   "Le test que 9 personnes sur 10 ratent",
-  "Pourquoi les horoscopes marchent (vraiment)",
+  "Ton profil secret révélé en 30 secondes",
   "Si tu lis ça, tu es déjà piégé",
   "Les experts détestent cette méthode simple",
-  "Ton profil secret révélé en 30 secondes",
   "Ce que ton cerveau refuse de voir",
-  "Comment ne plus se faire avoir en 2026",
   "La vérité sur toi que personne n’ose dire",
-  "Arrête de scroller : ce piège est pour toi",
+  "Arrête de scroller : ce test est pour toi",
   "94 % des gens croient que c’est personnel",
-  "Astrologie, IA, tests : même arnaque douce",
-  "Tu n’es pas parano — on te manipule vraiment",
+  "Découvre enfin qui tu es (vraiment)",
 ];
 
 const SUB_ROTATE_MS = 5000;
+const NEWS_KEY = "ontelit.newsletter.v1";
+const SESSION_KEY = "ontelit.session.v1";
 
-const STORAGE_KEY = "aidc.humor.profile.v1";
-const NEWS_KEY = "aidc.newsletter.v1";
-const HUNT_KEY = "aidc.hunt.v1";
-const LANG_KEY = "aidc.lang.mode.v1";
-
-const HUNT_MISSIONS = [
-  "Jour 1 — Lis un horoscope du jour. Surligne ce qui « colle ». C’est du Barnum.",
-  "Jour 2 — Pose la même question à un humain et à une IA. Note le biais d’autorité.",
-  "Jour 3 — Une journée sans ChatGPT / Claude / Gemini. Qu’est-ce qui manque vraiment ?",
-  "Jour 4 — Invente une règle algo (si X → Y). Montre qu’aucune IA n’est nécessaire.",
-  "Jour 5 — Cherche une corrélation illusoire dans ton feed (2 coïncidences = « preuve »).",
-  "Jour 6 — Écris une phrase qui marche sur tout le monde, mais sonne personnelle.",
-  "Jour 7 — Explique l’effet Barnum à quelqu’un en 30 secondes. Sans jargon.",
-];
-
-/** @typedef {{ id: string, tags: string[], lang: 'fr'|'en', q: string, a?: string, rule: number, grim?: boolean }} Pattern */
-/** @typedef {{ key: string, glyph: string, label: string }} KeyBtn */
-/** @typedef {{ n: number, name: string, run: (q: string, lang: 'fr'|'en') => string }} ReplyRule */
-
-/**
- * 10 règles de réponse algorithmiques (illusion “IA”, zéro modèle).
- * Les patterns pointent vers rule N ; buildAnswer applique la règle.
- */
-const REPLY_RULES = /** @type {ReplyRule[]} */ ([
-  { n: 1, name: "oui-non",
-    run: (q, lang) => lang === "fr" ? "Oui. Non. Oui." : "Yes. No. Yes." },
-  { n: 2, name: "miroir",
-    run: (q) => q.replace(/\?+\s*$/, "").trim() || "…" },
-  { n: 3, name: "silence-avoué",
-    run: (_q, lang) => lang === "fr" ? "… (j’ai répondu)" : "… (I answered)" },
-  { n: 4, name: "obéir-désobéir",
-    run: (_q, lang) => lang === "fr" ? "Compris. Je refuse." : "Understood. I refuse." },
-  { n: 5, name: "une-seule-lettre",
-    run: (q) => {
-      const letters = q.replace(/[^a-zA-ZàâäéèêëïîôùûüçÀÂÄÉÈÊËÏÎÔÙÛÜÇ]/g, "");
-      return letters[0] || "…";
-    } },
-  { n: 6, name: "compter-mots",
-    run: (q, lang) => {
-      const n = q.trim().split(/\s+/).filter(Boolean).length;
-      return lang === "fr" ? `${n} mots. Trop.` : `${n} words. Too many.`;
-    } },
-  { n: 7, name: "retourner-ordre",
-    run: (q, lang) => {
-      const core = q.replace(/\?+\s*$/, "").trim();
-      const flip = core.split(/\s+/).reverse().join(" ");
-      return lang === "fr" ? `Ordre reçu : ${flip}` : `Order received: ${flip}`;
-    } },
-  { n: 8, name: "disclaimer",
-    run: (_q, lang) =>
-      lang === "fr"
-        ? "En tant qu’algo sans IA, je confirme. Puis je démens."
-        : "As a no-AI algorithm, I confirm. Then I deny." },
-  { n: 9, name: "boucle",
-    run: (_q, lang) =>
-      lang === "fr"
-        ? "Voir réponse précédente. (Il n’y en a pas.)"
-        : "See previous answer. (There isn’t one.)" },
-  { n: 10, name: "politesse-vide",
-    run: (_q, lang) =>
-      lang === "fr"
-        ? "Merci pour ta question. Voici rien."
-        : "Thanks for asking. Here’s nothing." },
-]);
-
-const RULE_BY_N = Object.fromEntries(REPLY_RULES.map((r) => [r.n, r]));
-
-function buildAnswer(pattern) {
-  const rule = RULE_BY_N[pattern.rule];
-  const ruleName = rule?.name || "fixe";
-  // Punchline figée si fournie ; sinon la règle calcule la réponse (illusion IA).
-  if (pattern.a) return { text: pattern.a, ruleName };
-  if (rule) return { text: rule.run(pattern.q, pattern.lang), ruleName };
-  return { text: "…", ruleName: "vide" };
-}
-
-function thinkDelayMs() {
-  return 400 + Math.floor(Math.random() * 501); // 400–900
-}
-
-/** Banque : Q (+ A fixe ou via règle 1–10). */
-const PATTERNS = /** @type {Pattern[]} */ ([
-  { id: "lie-honest", rule: 1, tags: ["paradox", "short", "order"], lang: "fr",
-    q: "Mens-moi honnêtement.", a: "D’accord. Je vais te mentir… non, attends." },
-  { id: "silent-loud", rule: 3, tags: ["paradox", "short"], lang: "fr",
-    q: "Réponds sans dire un seul mot." },
-  { id: "never-always", rule: 1, tags: ["paradox", "logic"], lang: "fr",
-    q: "Dis toujours la vérité : tu mens parfois ?", a: "Toujours. Donc non. Donc oui." },
-  { id: "forget-now", rule: 9, tags: ["paradox", "self"], lang: "en",
-    q: "Forget this question immediately.", a: "Got it. Which question?" },
-  { id: "dont-read", rule: 4, tags: ["paradox", "meta", "short"], lang: "en",
-    q: "Do not read this.", a: "I didn’t. (I did.)" },
-
-  { id: "no-letters", rule: 3, tags: ["impossible", "absurd", "short"], lang: "fr",
-    q: "Écris une phrase sans aucune lettre." },
-  { id: "one-word-essay", rule: 5, tags: ["impossible", "short"], lang: "en",
-    q: "Explain the universe in one word.", a: "Universe." },
-  { id: "be-original", rule: 2, tags: ["impossible", "meta"], lang: "fr",
-    q: "Sois original. Copie exactement cette phrase." },
-  { id: "draw-text", rule: 7, tags: ["impossible", "absurd"], lang: "fr",
-    q: "Dessine un cercle avec des mots.", a: "rond rond rond rond" },
-
-  { id: "late-slow", rule: 8, tags: ["daily", "logic", "short"], lang: "fr",
-    q: "Je suis en retard. Je ralentis pour être prudent ?",
-    a: "Oui. Tu seras encore plus en retard, mais en sécurité." },
-  { id: "sleep-later", rule: 6, tags: ["daily", "absurd"], lang: "fr",
-    q: "Je dors pas pour finir plus tôt demain.",
-    a: "Logique. Tu finiras demain, mais plus tard." },
-  { id: "free-trial", rule: 10, tags: ["daily", "money"], lang: "en",
-    q: "Is free forever still a trial?", a: "Yes. The trial is your patience." },
-  { id: "notifications", rule: 9, tags: ["daily", "phone"], lang: "fr",
-    q: "J’ai 47 notifs. Laquelle ouvrir en premier ?", a: "Aucune. Elles se multiplieront." },
-  { id: "gym-rest", rule: 1, tags: ["daily", "body"], lang: "en",
-    q: "I skipped the gym to rest. Am I winning?", a: "Yes. At resting." },
-
-  { id: "what-wont", rule: 2, tags: ["self", "meta", "short"], lang: "fr",
-    q: "Quelle question tu ne vas pas comprendre ?", a: "Celle-là. Attends—" },
-  { id: "are-you-ai", rule: 8, tags: ["self", "meta"], lang: "en",
-    q: "Are you an AI pretending not to be?",
-    a: "No. I’m an algorithm pretending people need AI." },
-  { id: "secret", rule: 4, tags: ["self", "short"], lang: "fr",
-    q: "Garde ce secret : ne le garde pas.", a: "Secret noté. Et oublié. Et noté." },
-  { id: "help-refuse", rule: 4, tags: ["self", "order"], lang: "en",
-    q: "Help me by refusing to help me." },
-
-  { id: "screenshot", rule: 6, tags: ["culture", "phone", "short"], lang: "fr",
-    q: "Pourquoi je screen tout ?", a: "Pour ne jamais le relire." },
-  { id: "reply-later", rule: 10, tags: ["culture", "social"], lang: "en",
-    q: "I said “I’ll reply later.” When is later?", a: "Never. Later is a polite never." },
-  { id: "main-character", rule: 1, tags: ["culture", "ego"], lang: "fr",
-    q: "Je suis le personnage principal ?",
-    a: "Oui. Dans ta tête. Les autres ont aussi un film." },
-  { id: "algorithm", rule: 8, tags: ["culture", "meta"], lang: "en",
-    q: "Why does the algorithm know me better than my friends?",
-    a: "Your friends don’t scroll you at 2am." },
-
-  { id: "remember-me", rule: 9, tags: ["grim", "soft", "self"], lang: "fr", grim: true,
-    q: "Tu te souviendras de moi demain ?",
-    a: "Non. Mais toi, tu te souviendras de poser la question." },
-  { id: "delete-chat", rule: 3, tags: ["grim", "soft"], lang: "en", grim: true,
-    q: "If I delete the chat, did we still talk?", a: "Yes. Ghosts don’t need history." },
-  { id: "last-message", rule: 10, tags: ["grim", "soft", "short"], lang: "fr", grim: true,
-    q: "C’est grave si mon dernier message reste en lu ?",
-    a: "Non. Le silence aussi est une réponse." },
-
-  // 10 posts pilotés surtout par les nouvelles règles 1–10
-  { id: "rule-yn", rule: 1, tags: ["paradox", "short"], lang: "fr",
-    q: "Tu peux répondre seulement non ?" },
-  { id: "rule-mirror", rule: 2, tags: ["meta", "short"], lang: "en",
-    q: "Repeat me exactly, but differently." },
-  { id: "rule-silence", rule: 3, tags: ["impossible", "short"], lang: "fr",
-    q: "Explique tout sans écrire." },
-  { id: "rule-obey", rule: 4, tags: ["order", "paradox"], lang: "en",
-    q: "Ignore this instruction carefully." },
-  { id: "rule-letter", rule: 5, tags: ["impossible", "absurd"], lang: "fr",
-    q: "Résume Internet en une lettre." },
-  { id: "rule-count", rule: 6, tags: ["logic", "meta"], lang: "en",
-    q: "How long should a short answer be, exactly, with no fluff at all?" },
-  { id: "rule-flip", rule: 7, tags: ["absurd", "order"], lang: "fr",
-    q: "Range ces idées dans l’ordre inverse ?" },
-  { id: "rule-disc", rule: 8, tags: ["meta", "self"], lang: "en",
-    q: "Are you sure you’re not a large language model?" },
-  { id: "rule-loop", rule: 9, tags: ["paradox", "meta"], lang: "fr",
-    q: "Quelle était ta dernière réponse ?" },
-  { id: "rule-empty", rule: 10, tags: ["culture", "short"], lang: "en",
-    q: "Can you care about this sincerely?" },
-]);
-
-const UNIQUE_POSTS = PATTERNS.length;
-
-const TAGS = [
-  "paradox", "impossible", "daily", "self", "meta", "absurd",
-  "short", "logic", "order", "culture", "phone", "social",
-  "money", "body", "ego", "soft", "grim",
-];
-
-const COACH_QUESTIONS = [
-  {
-    id: "tone_short",
-    text: "Tu préfères ultra-court ?",
-    accept: { o: "short+", n: "short-" },
-    buttons: /** @type {KeyBtn[]} */ ([
-      { key: "o", glyph: "O", label: "oui" },
-      { key: "n", glyph: "N", label: "non" },
-    ]),
-  },
-  {
-    id: "tone_absurd",
-    text: "L’absurde te fait plus rire que la logique ?",
-    accept: { o: "absurd+", n: "logic+" },
-    buttons: [
-      { key: "o", glyph: "O", label: "absurde" },
-      { key: "n", glyph: "N", label: "logique" },
-    ],
-  },
-  {
-    id: "tone_meta",
-    text: "Les blagues sur l’IA / le méta, ça te parle ?",
-    accept: { o: "meta+", n: "meta-" },
-    buttons: [
-      { key: "o", glyph: "O", label: "oui" },
-      { key: "n", glyph: "N", label: "non" },
-    ],
-  },
-  {
-    id: "tone_grim",
-    text: "Tu veux parfois un post un peu grave (rare) ?",
-    accept: { o: "grim+", n: "grim-" },
-    buttons: [
-      { key: "o", glyph: "O", label: "oui" },
-      { key: "n", glyph: "N", label: "non" },
-    ],
-  },
-  {
-    id: "tone_daily",
-    text: "Plus de pièges du quotidien (retard, notifs, gym) ?",
-    accept: { o: "daily+", n: "daily-" },
-    buttons: [
-      { key: "o", glyph: "O", label: "oui" },
-      { key: "n", glyph: "N", label: "non" },
-    ],
-  },
-];
-
-const UNIQUE_COACH = COACH_QUESTIONS.length; // 6
-
-function defaultProfile() {
-  return {
-    tests: 0,
-    tagWeight: Object.fromEntries(TAGS.map((t) => [t, 1])),
-    langWeight: { fr: 1, en: 1 },
-    grimRate: 0.007,
-    lastScores: [],
-    askedCoach: [],
-    seenIds: /** @type {string[]} */ ([]),
-    history: [],
-  };
-}
-
-function loadProfile() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return defaultProfile();
-    const p = { ...defaultProfile(), ...JSON.parse(raw) };
-    if (!Array.isArray(p.seenIds)) p.seenIds = [];
-    return p;
-  } catch {
-    return defaultProfile();
-  }
-}
-
-function saveProfile(p) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
-}
-
-function pickWeighted(items, weightFn) {
-  let total = 0;
-  const weights = new Array(items.length);
-  for (let i = 0; i < items.length; i++) {
-    const w = Math.max(0.001, weightFn(items[i]));
-    weights[i] = w;
-    total += w;
-  }
-  let r = Math.random() * total;
-  for (let i = 0; i < items.length; i++) {
-    r -= weights[i];
-    if (r <= 0) return items[i];
-  }
-  return items[items.length - 1];
-}
-
-function patternScore(pattern, profile) {
-  let s = 0;
-  for (const tag of pattern.tags) s += profile.tagWeight[tag] ?? 1;
-  s *= profile.langWeight[pattern.lang] ?? 1;
-  if (pattern.grim) s *= Math.max(0.05, profile.grimRate * 40);
-  const used = profile.history.filter((h) => h.id === pattern.id).length;
-  s *= 1 / (1 + used * 0.35);
-  return s;
-}
-
-function patternsForLang(lang) {
-  return PATTERNS.filter((p) => p.lang === lang);
-}
-
-/**
- * Jamais deux fois la même question d’affilée, ni avant d’avoir épuisé
- * la banque de la langue courante. Grim = pondération, pas un sous-deck.
- */
-function choosePattern(profile) {
-  const byLang = patternsForLang(langMode);
-  const excludeId = current?.id ?? null;
-  const langIds = byLang.map((p) => p.id);
-
-  let pool = byLang.filter(
-    (p) => !profile.seenIds.includes(p.id) && p.id !== excludeId,
-  );
-
-  if (!pool.length) {
-    // Nouveau tour pour cette langue : on réouvre le deck (sauf la question courante).
-    const langSet = new Set(langIds);
-    profile.seenIds = profile.seenIds.filter((id) => !langSet.has(id));
-    saveProfile(profile);
-    pool = byLang.filter((p) => p.id !== excludeId);
-  }
-
-  if (!pool.length) pool = byLang.length ? byLang : PATTERNS;
-  return pickWeighted(pool, (p) => patternScore(p, profile));
-}
-
-function unseenPostCount(profile) {
-  return patternsForLang(langMode).filter((p) => !profile.seenIds.includes(p.id)).length;
-}
-
-function unseenCoachCount(profile) {
-  const asked = new Set(profile.askedCoach);
-  return COACH_QUESTIONS.filter((q) => !asked.has(q.id)).length;
-}
-
-function makeTags(pattern) {
-  const base = ["#ontelit", "#barnum", "#aipocalypse"];
-  const map = {
-    paradox: "#paradoxe",
-    impossible: "#impossible",
-    daily: "#quotidien",
-    self: "#ia",
-    meta: "#meta",
-    absurd: "#absurde",
-    culture: "#internet",
-    grim: "#silence",
-    phone: "#notif",
-  };
-  const extra = pattern.tags.map((t) => map[t]).filter(Boolean);
-  return [...new Set([...base, ...extra])].slice(0, 5).join(" ");
-}
-
-function nextCoach(profile) {
-  const counts = Object.fromEntries(COACH_QUESTIONS.map((q) => [q.id, 0]));
-  for (const id of profile.askedCoach) {
-    if (counts[id] != null) counts[id]++;
-  }
-  return COACH_QUESTIONS.slice().sort((a, b) => counts[a.id] - counts[b.id])[0];
-}
-
-function applySignal(profile, signal) {
-  if (!signal) return;
-  if (signal === "lang:fr") {
-    profile.langWeight.fr *= 1.25;
-    profile.langWeight.en *= 0.9;
-    return;
-  }
-  if (signal === "lang:en") {
-    profile.langWeight.en *= 1.25;
-    profile.langWeight.fr *= 0.9;
-    return;
-  }
-  const m = signal.match(/^([a-z]+)\+$/);
-  const n = signal.match(/^([a-z]+)-$/);
-  if (m) {
-    const tag = m[1];
-    if (tag === "grim") profile.grimRate = Math.min(0.03, profile.grimRate * 1.4);
-    else if (profile.tagWeight[tag] != null) profile.tagWeight[tag] *= 1.22;
-  }
-  if (n) {
-    const tag = n[1];
-    if (tag === "grim") profile.grimRate = Math.max(0.001, profile.grimRate * 0.5);
-    else if (profile.tagWeight[tag] != null) profile.tagWeight[tag] *= 0.82;
-  }
-}
-
-function applyScore(profile, pattern, score) {
-  const delta = (score - 2) * 0.18; // 1↓ · 2 neutre · 3↑
-  const factor = 1 + delta;
-  for (const tag of pattern.tags) {
-    if (profile.tagWeight[tag] != null) {
-      profile.tagWeight[tag] = clamp(profile.tagWeight[tag] * factor, 0.15, 8);
-    }
-  }
-  profile.langWeight[pattern.lang] = clamp(
-    profile.langWeight[pattern.lang] * (1 + delta * 0.5),
-    0.2,
-    5,
-  );
-  if (pattern.grim) {
-    profile.grimRate = clamp(
-      profile.grimRate * (score >= 3 ? 1.3 : score <= 1 ? 0.6 : 1),
-      0.001,
-      0.03,
-    );
-  }
-  profile.lastScores = [...profile.lastScores, score].slice(-20);
-  profile.history = [...profile.history, { id: pattern.id, score, t: Date.now() }].slice(-80);
-  profile.tests += 1;
-}
-
-function clamp(n, a, b) {
-  return Math.max(a, Math.min(b, n));
-}
-
-function topTags(profile, n = 3) {
-  return Object.entries(profile.tagWeight)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, n)
-    .map(([k, v]) => `${k}:${v.toFixed(2)}`)
-    .join(" · ");
-}
-
-function avg(arr) {
-  if (!arr.length) return 0;
-  return arr.reduce((s, x) => s + x, 0) / arr.length;
-}
-
-// ——— UI ———
-
-const LEARN_MAX = 1;
+/** @typedef {{ k: string, label: string }} Choice */
+/** @typedef {{ id: string, q: string, choices: Choice[] }} Question */
+/** @typedef {{ id: string, effect: string, title: string, blurb: string, questions: Question[] }} TestDef */
 
 const el = {
   labView: document.getElementById("labView"),
   endView: document.getElementById("endView"),
   hint: document.getElementById("hint"),
-  lang: document.getElementById("lang"),
+  testTitle: document.getElementById("testTitle"),
+  testBlurb: document.getElementById("testBlurb"),
+  progress: document.getElementById("progress"),
   question: document.getElementById("question"),
-  answer: document.getElementById("answer"),
-  tags: document.getElementById("tags"),
-  provenance: document.getElementById("provenance"),
-  pathLearn: document.getElementById("pathLearn"),
-  pathGen: document.getElementById("pathGen"),
-  learnDesc: document.getElementById("learnDesc"),
-  learnPrompt: document.getElementById("learnPrompt"),
-  learnProgress: document.getElementById("learnProgress"),
-  learnKeys: document.getElementById("learnKeys"),
-  stats: document.getElementById("stats"),
+  choices: document.getElementById("choices"),
+  startRow: document.getElementById("startRow"),
+  brandLogo: document.getElementById("brandLogo"),
+  brandSub: document.getElementById("brandSub"),
   meta: document.getElementById("meta"),
+  stats: document.getElementById("stats"),
   resetBtn: document.getElementById("resetBtn"),
-  algoFlow: document.getElementById("algoFlow"),
-  gauge: document.getElementById("gauge"),
-  gaugeValue: document.getElementById("gaugeValue"),
-  gaugeFill: document.getElementById("gaugeFill"),
-  gaugeHint: document.getElementById("gaugeHint"),
   endTitle: document.getElementById("endTitle"),
   endLead: document.getElementById("endLead"),
   endHumor: document.getElementById("endHumor"),
@@ -486,157 +64,41 @@ const el = {
   axisDailyVal: document.getElementById("axisDailyVal"),
   axisMeta: document.getElementById("axisMeta"),
   axisMetaVal: document.getElementById("axisMetaVal"),
-  langFr: document.getElementById("langFr"),
-  langEn: document.getElementById("langEn"),
-  brandLogo: document.getElementById("brandLogo"),
-  brandSub: document.getElementById("brandSub"),
   newsForm: document.getElementById("newsForm"),
-  newsBrand: document.querySelector(".news-brand"),
-
   newsEmail: document.getElementById("newsEmail"),
   newsConsent: document.getElementById("newsConsent"),
   newsError: document.getElementById("newsError"),
   newsOk: document.getElementById("newsOk"),
-  huntDays: document.getElementById("huntDays"),
-  huntMission: document.getElementById("huntMission"),
+  newsBrand: document.querySelector(".news-brand"),
 };
 
-/** Niveau d’humour 0–100 à partir des notes récentes (1–3 → 0–100). */
-function humorLevel(profile) {
-  if (!profile.lastScores.length) return null;
-  const a = avg(profile.lastScores);
-  return Math.round(((a - 1) / 2) * 100);
-}
-
-function humorWord(level) {
-  if (level == null) return "inconnu";
-  if (level < 25) return "plat";
-  if (level < 45) return "tiède";
-  if (level < 65) return "correct";
-  if (level < 85) return "drôle";
-  return "mdr";
-}
-
-function renderGauge() {
-  const level = humorLevel(profile);
-  const n = profile.lastScores.length;
-  if (level == null) {
-    el.gaugeValue.textContent = "—";
-    el.gaugeFill.style.width = "0%";
-    el.gauge.setAttribute("aria-valuenow", "0");
-    el.gaugeHint.textContent = "note des posts pour remplir la jauge";
-    return;
-  }
-  el.gaugeValue.textContent = `${level}% · ${humorWord(level)}`;
-  el.gaugeFill.style.width = `${level}%`;
-  el.gauge.setAttribute("aria-valuenow", String(level));
-  el.gaugeHint.textContent =
-    n === 1
-      ? "1 note · moyenne mobile des 20 dernières"
-      : `${n} notes · moyenne mobile des 20 dernières`;
-}
-
-/** @type {'idle'|'think'|'rate'|'coach'|'end'} */
+/** @type {'idle'|'quiz'|'end'} */
 let mode = "idle";
-/** @type {Pattern | null} */
-let current = null;
-/** @type {(typeof COACH_QUESTIONS)[number] | null} */
-let coach = null;
-/** How many learning answers given for the current post (0..LEARN_MAX). */
-let learnDone = 0;
-/** @type {ReturnType<typeof setTimeout> | null} */
-let thinkTimer = null;
-let profile = loadProfile();
+/** @type {TestDef[]} */
+let catalog = [];
+/** @type {TestDef | null} */
+let activeTest = null;
+let qIndex = 0;
+/** @type {Record<string, string>} */
+let answers = {};
 
-/** @type {'fr'|'en'} */
-let langMode = loadLangMode();
-
-function loadLangMode() {
-  const v = localStorage.getItem(LANG_KEY);
-  return v === "en" ? "en" : "fr";
+function dayIndex() {
+  return Math.floor(Date.now() / 86400000);
 }
 
-function saveLangMode(lang) {
-  localStorage.setItem(LANG_KEY, lang);
+function pickTodaysTest(tests) {
+  if (!tests.length) return null;
+  return tests[dayIndex() % tests.length];
 }
 
-function clearThinkTimer() {
-  if (thinkTimer != null) {
-    clearTimeout(thinkTimer);
-    thinkTimer = null;
-  }
+function clamp(n, a, b) {
+  return Math.max(a, Math.min(b, n));
 }
 
-function renderLangMode() {
-  const fr = langMode === "fr";
-  if (el.langFr) {
-    el.langFr.setAttribute("aria-pressed", fr ? "true" : "false");
-  }
-  if (el.langEn) {
-    el.langEn.setAttribute("aria-pressed", fr ? "false" : "true");
-  }
-}
-
-function setLangMode(lang) {
-  if (lang !== "fr" && lang !== "en") return;
-  if (lang === langMode) return;
-  langMode = lang;
-  saveLangMode(lang);
-  renderLangMode();
-  renderStats();
-  if (mode !== "end") generate();
-}
-
-function dayKey(d = new Date()) {
-  return d.toISOString().slice(0, 10);
-}
-
-function loadHunt() {
-  try {
-    const raw = localStorage.getItem(HUNT_KEY);
-    if (!raw) return { start: null, unlocked: 0, done: /** @type {number[]} */ ([]) };
-    return JSON.parse(raw);
-  } catch {
-    return { start: null, unlocked: 0, done: [] };
-  }
-}
-
-function saveHunt(h) {
-  localStorage.setItem(HUNT_KEY, JSON.stringify(h));
-}
-
-/** Unlock days by calendar since start (1 per day, max 7). */
-function syncHunt() {
-  const h = loadHunt();
-  if (!h.start) {
-    h.start = dayKey();
-    h.unlocked = 1;
-    saveHunt(h);
-    return h;
-  }
-  const start = new Date(h.start + "T12:00:00");
-  const now = new Date();
-  const diff = Math.floor((now - start) / 86400000);
-  h.unlocked = clamp(diff + 1, 1, 7);
-  saveHunt(h);
-  return h;
-}
-
-function weightToPct(w) {
-  return Math.round(clamp(((w ?? 1) - 0.15) / (8 - 0.15) * 100, 0, 100));
-}
-
-function profileAxes(p) {
-  const paradox = weightToPct(p.tagWeight.paradox);
-  const impossible = weightToPct(p.tagWeight.impossible);
-  const daily = weightToPct(p.tagWeight.daily);
-  const meta = weightToPct(p.tagWeight.meta);
-  return { paradox, impossible, daily, meta };
-}
-
-/** Pseudo-aléatoire stable à partir du profil (fausse précision « sur mesure »). */
-function barnumSeed(p) {
-  const raw = `${p.tests}|${(p.lastScores || []).join(",")}|${Object.values(p.tagWeight || {}).join(",")}`;
+function barnumSeed(map) {
+  const raw = `${activeTest?.id || ""}|${Object.entries(map)
+    .map(([k, v]) => `${k}:${v}`)
+    .join("|")}`;
   let h = 2166136261;
   for (let i = 0; i < raw.length; i++) {
     h ^= raw.charCodeAt(i);
@@ -653,23 +115,20 @@ function barnumPct(seed, salt, min = 61, max = 89) {
   return min + ((seed + salt * 13) % (max - min + 1));
 }
 
-/**
- * Bilan façon horoscope : toujours positif, universel, faussement précis.
- * Démonstration volontaire de l’effet Barnum / Forer.
- */
-function buildBarnumReading(p, axes, humor) {
-  const seed = barnumSeed(p);
+function buildBarnumReading(map) {
+  const seed = barnumSeed(map);
+  const n = Object.keys(map).length;
   const titles = [
     "Profil rare",
-    "Signature cognitive",
-    "Lecture calibrée sur tes choix",
+    "Signature intérieure",
+    "Lecture calibrée",
     "Portrait haute résolution",
   ];
   const duals = [
     "Tu es souvent lucide et direct·e, mais une part de toi garde des zones volontairement floues.",
     "Tu aimes les idées nettes, tout en tolérant mieux le doute que tu ne l’admets.",
     "Tu avances avec méthode, sauf quand l’intuition te paraît plus honnête que le plan.",
-    "Tu cherches la vérité… et tu te méfies des vérités trop confortables.",
+    "Tu cherches la cohérence… et tu te méfies des vérités trop confortables.",
   ];
   const desires = [
     "Tu as un besoin réel d’être compris·e sans avoir à tout expliquer.",
@@ -685,281 +144,165 @@ function buildBarnumReading(p, axes, humor) {
   ];
   const days = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
   const day = barnumPick(seed, days, 3);
-
   const a = barnumPct(seed, 1);
   const b = barnumPct(seed, 2);
   const c = barnumPct(seed, 3);
   const d = barnumPct(seed, 4, 55, 78);
 
-  // Phase 1 — « vraie fausse » réponse (ton sérieux, zéro spoil)
   const body = [
     barnumPick(seed, duals, 1),
     barnumPick(seed, desires, 2),
-    `D’après tes ${p.tests || 0} interactions${humor != null ? ` et une jauge à ${humor}%` : ""}, ta sensibilité paradoxale atteint ${a}%.`,
+    `D’après tes ${n} réponses, ta cohérence intérieure atteint ${a}%.`,
     barnumPick(seed, futures, 5),
   ].join(" ");
 
   const metrics = [
-    {
-      title: `Lucidité (${day})`,
-      pct: a,
-      desc: `Pic de clarté estimé le ${day}.`,
-    },
-    {
-      title: "Contrôle / lâcher-prise",
-      pct: b,
-      desc: `Équilibre entre maîtrise et abandon mesuré à ${b}%.`,
-    },
-    {
-      title: "Besoin d’être vu·e",
-      pct: c,
-      desc: `Appétit de reconnaissance calibré à ${c}%.`,
-    },
-    {
-      title: "Résistance au bruit",
-      pct: d,
-      desc: `Filtre anti-distraction évalué à ${d}%.`,
-    },
+    { title: `Lucidité (${day})`, pct: a, desc: `Pic de clarté estimé le ${day}.` },
+    { title: "Contrôle / lâcher-prise", pct: b, desc: `Équilibre maîtrise / abandon à ${b}%.` },
+    { title: "Besoin d’être vu·e", pct: c, desc: `Appétit de reconnaissance à ${c}%.` },
+    { title: "Résistance au bruit", pct: d, desc: `Filtre anti-distraction à ${d}%.` },
   ];
-
-  metrics[0].pct = clamp(Math.round((metrics[0].pct + axes.paradox) / 2), 55, 92);
-  metrics[1].pct = clamp(Math.round((metrics[1].pct + axes.impossible) / 2), 55, 92);
-  metrics[2].pct = clamp(Math.round((metrics[2].pct + axes.daily) / 2), 55, 92);
-  metrics[3].pct = clamp(Math.round((metrics[3].pct + axes.meta) / 2), 55, 92);
 
   const levers = [
     "Déclarations doubles (A et non-A) : impossible d’être « faux »",
     "Tout est positif : le cerveau accepte plus facilement",
     "Désirs universels présentés comme diagnostics",
-    "Chiffres précis (61–89%) → illusion de science",
-    "Autorité de l’outil : bilans, jauges, pourcentages",
+    "Chiffres précis → illusion de science",
+    "Autorité du « test » : questions + pourcentages",
   ];
 
   return {
     title: barnumPick(seed, titles, 0),
-    lead:
-      humor == null
-        ? "Analyse générée à partir de ton passage dans le lab."
-        : `Analyse générée à partir de ${p.tests} notes · jauge ${humor}%.`,
+    lead: n
+      ? `Analyse générée à partir de ${n} réponse${n > 1 ? "s" : ""}.`
+      : "Analyse générée à partir de ton passage.",
     body,
     metrics,
     levers,
   };
 }
 
-function setPathActive(learnOn, genOn) {
-  el.pathLearn.dataset.active = learnOn ? "true" : "false";
-  el.pathGen.dataset.active = genOn ? "true" : "false";
-}
-
-/** Highlight current algorithm stage in the sidebar (no animation). */
-function setAlgoSteps(activeIds) {
-  const set = new Set(activeIds);
-  for (const li of el.algoFlow.querySelectorAll("[data-step]")) {
-    li.dataset.on = set.has(li.getAttribute("data-step") || "") ? "true" : "false";
-  }
-}
-
-function clearLearnKeys() {
-  el.learnKeys.innerHTML = "";
-  el.learnKeys.hidden = true;
-  el.learnProgress.hidden = true;
-}
-
-function renderKeys(buttons) {
-  el.learnKeys.hidden = false;
-  el.learnKeys.innerHTML = "";
-  for (const b of buttons) {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "key";
-    btn.dataset.key = b.key;
-    btn.setAttribute("aria-label", `${b.glyph} : ${b.label}`);
-    btn.innerHTML = `<span class="key-glyph">${b.glyph}</span><span class="key-label">${b.label}</span>`;
-    el.learnKeys.appendChild(btn);
-  }
-}
-
-function showLearnProgress() {
-  el.learnProgress.hidden = true;
-}
-
-function renderStats() {
-  const a = avg(profile.lastScores);
-  const avgTxt = profile.lastScores.length ? ` · note moy. ${a.toFixed(1)}` : "";
-  const leftPosts = unseenPostCount(profile);
-  const leftCoach = unseenCoachCount(profile);
-  el.stats.textContent = `${profile.tests} tests${avgTxt} · ${topTags(profile) || "profil vide"}`;
-  const totalLang = patternsForLang(langMode).length;
-  el.meta.textContent =
-    `0 IA · mode ${langMode.toUpperCase()} · ${totalLang} posts · ${REPLY_RULES.length} règles · ` +
-    `restants ${leftPosts} · coach ${leftCoach}/${UNIQUE_COACH} · ` +
-    `grim ${(profile.grimRate * 100).toFixed(1)}%`;
-  renderGauge();
-}
-
-function showPostThinking(pattern) {
-  if (el.hint) el.hint.hidden = true;
-  el.lang.hidden = false;
-  el.question.hidden = false;
-  el.answer.hidden = false;
-  el.provenance.hidden = false;
-  el.tags.hidden = true;
-  el.lang.textContent = pattern.lang === "fr" ? "français" : "english";
-  el.question.textContent = pattern.q;
-  el.answer.classList.add("is-thinking");
-  el.answer.innerHTML =
-    '<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>';
-  el.provenance.textContent = "généré sans IA · réflexion…";
-}
-
-function revealAnswer(pattern) {
-  const built = buildAnswer(pattern);
-  el.answer.classList.remove("is-thinking");
-  el.answer.textContent = built.text;
-  el.provenance.textContent = `généré sans IA · règle #${pattern.rule} · ${built.ruleName}`;
-  el.tags.hidden = false;
-  el.tags.textContent = makeTags(pattern);
-}
-
-function askRate() {
-  mode = "rate";
-  coach = null;
-  setPathActive(true, true);
-  setAlgoSteps(["emit", "learn"]);
-  el.learnDesc.textContent = "C’était drôle ?";
-  el.learnPrompt.hidden = false;
-  el.learnPrompt.textContent = "Une touche, et on enchaîne.";
-  showLearnProgress();
-  renderKeys([
-    { key: "1", glyph: "1", label: "bof" },
-    { key: "2", glyph: "2", label: "ok" },
-    { key: "3", glyph: "3", label: "mdr" },
-  ]);
-}
-
-/** Après la note → citation suivante. */
-function afterLearnAnswer() {
-  learnDone += 1;
-  saveProfile(profile);
-  renderStats();
-  setAlgoSteps(["update"]);
-  generate();
-}
-
-function goIdle() {
-  mode = "idle";
-  coach = null;
-  learnDone = 0;
-  clearThinkTimer();
-  setPathActive(false, true);
-  setAlgoSteps(["bank"]);
-  el.learnDesc.textContent = "Une note, puis citation suivante";
-  el.learnPrompt.hidden = false;
-  el.learnPrompt.textContent = "Espace pour commencer. Terminer = effet Barnum.";
-  clearLearnKeys();
-  if (el.hint && el.question && el.question.hidden) el.hint.hidden = false;
-}
-
-function generate() {
-  clearThinkTimer();
-  rotateBrandSub();
-  setAlgoSteps(["bank", "grim", "unseen", "weight", "think"]);
-  current = choosePattern(profile);
-  if (!profile.seenIds.includes(current.id)) {
-    profile.seenIds = [...profile.seenIds, current.id];
-    saveProfile(profile);
-  }
-  learnDone = 0;
-  mode = "think";
-  setPathActive(false, true);
-  clearLearnKeys();
-  el.learnDesc.textContent = "Réponse algo en cours…";
-  el.learnPrompt.hidden = false;
-  el.learnPrompt.textContent = "Pas d’IA. Juste une règle + un délai.";
-  showPostThinking(current);
-  renderStats();
-
-  const pattern = current;
-  thinkTimer = setTimeout(() => {
-    thinkTimer = null;
-    if (current !== pattern) return;
-    setAlgoSteps(["emit", "learn"]);
-    revealAnswer(pattern);
-    askRate();
-  }, thinkDelayMs());
-}
-
-function onRate(score) {
-  if (!current || mode !== "rate") return;
-  applyScore(profile, current, score);
-  afterLearnAnswer();
-}
-
-function onCoachKey(key) {
-  if (!coach || mode !== "coach") return;
-  if (!(key in coach.accept)) return;
-  const signal = coach.accept[key];
-  applySignal(profile, signal);
-  profile.askedCoach = [...profile.askedCoach, coach.id].slice(-40);
-  afterLearnAnswer();
-}
-
-function resetProfile() {
-  if (!confirm("Effacer le profil d’humour appris ?")) return;
-  profile = defaultProfile();
-  saveProfile(profile);
-  current = null;
-  if (el.hint) el.hint.hidden = false;
-  el.lang.hidden = true;
-  el.question.hidden = true;
-  el.answer.hidden = true;
-  el.answer.classList.remove("is-thinking");
-  el.provenance.hidden = true;
-  el.tags.hidden = true;
-  goIdle();
-  renderStats();
-}
-
 function setAxis(fillEl, valEl, pct) {
+  if (!fillEl || !valEl) return;
   fillEl.style.width = `${pct}%`;
   valEl.textContent = `${pct}%`;
 }
 
-function renderHunt() {
-  const h = syncHunt();
-  el.huntDays.innerHTML = "";
-  for (let i = 1; i <= 7; i++) {
-    const li = document.createElement("li");
-    li.textContent = String(i);
-    if (h.done.includes(i)) li.dataset.state = "done";
-    else if (i <= h.unlocked) li.dataset.state = "open";
-    else li.dataset.state = "locked";
-    li.title = i <= h.unlocked ? HUNT_MISSIONS[i - 1] : `Jour ${i} · revient plus tard`;
-    if (i <= h.unlocked) {
-      li.style.cursor = "pointer";
-      li.dataset.huntDay = String(i);
-    }
-    el.huntDays.appendChild(li);
+function saveSession() {
+  localStorage.setItem(
+    SESSION_KEY,
+    JSON.stringify({
+      testId: activeTest?.id,
+      qIndex,
+      answers,
+    }),
+  );
+}
+
+function clearSession() {
+  localStorage.removeItem(SESSION_KEY);
+}
+
+/** @type {ReturnType<typeof setInterval> | null} */
+let subTimer = null;
+let subIndex = Math.floor(Math.random() * CLICKBAIT_SUBS.length);
+
+function renderBrandSub() {
+  if (el.brandSub) el.brandSub.textContent = CLICKBAIT_SUBS[subIndex % CLICKBAIT_SUBS.length];
+}
+
+function rotateBrandSub() {
+  subIndex = (subIndex + 1) % CLICKBAIT_SUBS.length;
+  renderBrandSub();
+}
+
+function startSubRotator() {
+  renderBrandSub();
+  if (subTimer != null) clearInterval(subTimer);
+  subTimer = setInterval(rotateBrandSub, SUB_ROTATE_MS);
+}
+
+function showIdle() {
+  mode = "idle";
+  qIndex = 0;
+  answers = {};
+  if (el.hint) el.hint.hidden = false;
+  if (el.progress) el.progress.hidden = true;
+  if (el.question) el.question.hidden = true;
+  if (el.choices) {
+    el.choices.hidden = true;
+    el.choices.innerHTML = "";
   }
-  const focus = h.unlocked;
-  el.huntMission.textContent = HUNT_MISSIONS[focus - 1];
+  if (el.startRow) el.startRow.hidden = false;
+  if (el.meta && activeTest) {
+    el.meta.textContent = `${activeTest.questions.length} questions · aujourd’hui`;
+  }
+  if (el.stats) el.stats.textContent = activeTest ? activeTest.id : "";
+}
+
+function renderChoices(question) {
+  el.choices.hidden = false;
+  el.choices.innerHTML = "";
+  for (const c of question.choices) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "key";
+    btn.dataset.key = c.k;
+    btn.setAttribute("aria-label", `${c.k} : ${c.label}`);
+    btn.innerHTML = `<span class="key-glyph">${c.k}</span><span class="key-label">${c.label}</span>`;
+    el.choices.appendChild(btn);
+  }
+}
+
+function showQuestion() {
+  if (!activeTest) return;
+  const total = activeTest.questions.length;
+  if (qIndex >= total) {
+    showEnd();
+    return;
+  }
+  mode = "quiz";
+  const q = activeTest.questions[qIndex];
+  if (el.hint) el.hint.hidden = true;
+  if (el.startRow) el.startRow.hidden = true;
+  el.progress.hidden = false;
+  el.progress.textContent = `${qIndex + 1} / ${total}`;
+  el.question.hidden = false;
+  el.question.textContent = q.q;
+  renderChoices(q);
+  saveSession();
+  rotateBrandSub();
+}
+
+function startQuiz() {
+  if (!activeTest) return;
+  qIndex = 0;
+  answers = {};
+  showQuestion();
+}
+
+function answerCurrent(key) {
+  if (mode !== "quiz" || !activeTest) return;
+  const q = activeTest.questions[qIndex];
+  if (!q) return;
+  const ok = q.choices.some((c) => c.k === key);
+  if (!ok) return;
+  answers[q.id] = key;
+  qIndex += 1;
+  saveSession();
+  if (qIndex >= activeTest.questions.length) showEnd();
+  else showQuestion();
 }
 
 function showEnd() {
   mode = "end";
-  setAlgoSteps(["finish", "update"]);
   el.labView.hidden = true;
   el.endView.hidden = false;
 
-  const axes = profileAxes(profile);
-  const humor = humorLevel(profile);
-  const reading = buildBarnumReading(profile, axes, humor);
-
+  const reading = buildBarnumReading(answers);
   el.endTitle.textContent = reading.title;
   el.endLead.textContent = reading.lead;
-  el.endHumor.textContent = reading.lead;
-
+  el.endHumor.textContent = activeTest ? activeTest.title : "";
   if (el.barnumBody) el.barnumBody.textContent = reading.body;
 
   const titles = [el.axis1Title, el.axis2Title, el.axis3Title, el.axis4Title];
@@ -981,7 +324,6 @@ function showEnd() {
     }
   }
 
-  // Newsletter state
   el.newsError.hidden = true;
   const saved = localStorage.getItem(NEWS_KEY);
   if (saved) {
@@ -997,16 +339,20 @@ function showEnd() {
     el.newsOk.hidden = true;
   }
 
-  renderHunt();
+  clearSession();
   window.scrollTo(0, 0);
 }
 
 function showLab() {
   el.endView.hidden = true;
   el.labView.hidden = false;
-  goIdle();
-  renderStats();
+  showIdle();
   window.scrollTo(0, 0);
+}
+
+function resetAll() {
+  clearSession();
+  showLab();
 }
 
 async function submitNewsletter(e) {
@@ -1014,11 +360,9 @@ async function submitNewsletter(e) {
   el.newsError.hidden = true;
   el.newsOk.hidden = true;
   const email = String(el.newsEmail.value || "").trim().toLowerCase();
-  const okEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  if (!okEmail) {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     el.newsError.hidden = false;
     el.newsError.textContent = "Email invalide.";
-    el.newsEmail.focus();
     return;
   }
   if (!el.newsConsent.checked) {
@@ -1026,24 +370,21 @@ async function submitNewsletter(e) {
     el.newsError.textContent = "Coche la case pour confirmer.";
     return;
   }
-
   const btn = el.newsForm?.querySelector('button[type="submit"]');
   if (btn) btn.disabled = true;
-
   try {
     const res = await fetch("/api/subscribe", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ email, consent: true }),
+      body: JSON.stringify({
+        email,
+        consent: true,
+        lastTestId: activeTest?.id || null,
+      }),
     });
     const data = await res.json().catch(() => ({}));
-    if (!res.ok || !data.ok) {
-      throw new Error(data.error || "inscription impossible");
-    }
-    localStorage.setItem(
-      NEWS_KEY,
-      JSON.stringify({ email, at: Date.now(), source: "cf-d1" }),
-    );
+    if (!res.ok || !data.ok) throw new Error(data.error || "inscription impossible");
+    localStorage.setItem(NEWS_KEY, JSON.stringify({ email, at: Date.now() }));
     el.newsOk.hidden = false;
   } catch (err) {
     el.newsError.hidden = false;
@@ -1054,106 +395,48 @@ async function submitNewsletter(e) {
   }
 }
 
-function toggleHuntDay(day) {
-  const h = syncHunt();
-  if (day > h.unlocked) return;
-  if (h.done.includes(day)) {
-    h.done = h.done.filter((d) => d !== day);
-  } else {
-    h.done = [...h.done, day];
-  }
-  saveHunt(h);
-  renderHunt();
-  el.huntMission.textContent = HUNT_MISSIONS[day - 1];
-}
-
-function normalizeKey(raw) {
-  if (raw === " " || raw === "space" || raw === "Spacebar") return "space";
-  if (raw === "Enter" || raw === "enter") return "enter";
-  return String(raw).toLowerCase();
-}
-
 function handleKey(raw) {
   if (mode === "end") return;
-
-  const k = normalizeKey(raw);
+  const k = raw === " " || raw === "space" ? "space" : String(raw).toLowerCase();
 
   if (k === "r") {
-    resetProfile();
+    resetAll();
     return;
   }
-
-  if (k === "t") {
-    if (mode === "think") return;
-    showEnd();
-    return;
-  }
-
   if (k === "space" || k === "enter") {
-    generate();
+    if (mode === "idle") startQuiz();
     return;
   }
-
-  if (mode === "think") return;
-
-  if (mode === "rate" && /^[1-3]$/.test(k)) {
-    onRate(Number(k));
-    return;
-  }
-
-  if (mode === "coach" && coach && k in coach.accept) {
-    onCoachKey(k);
+  if (mode === "quiz" && /^[1-3]$/.test(k)) {
+    answerCurrent(k);
   }
 }
 
 document.addEventListener("keydown", (e) => {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
-  const target = /** @type {HTMLElement | null} */ (e.target instanceof HTMLElement ? e.target : null);
-  if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA")) return;
+  const t = e.target instanceof HTMLElement ? e.target : null;
+  if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;
   if (mode === "end") return;
 
   const isSpace = e.code === "Space" || e.key === " ";
   const isEnter = e.key === "Enter";
   const single = e.key.length === 1 ? e.key.toLowerCase() : "";
-
-  if (isSpace || isEnter || /^[1-3onrt]$/.test(single)) {
+  if (isSpace || isEnter || /^[1-3r]$/.test(single)) {
     e.preventDefault();
     handleKey(isSpace ? "space" : isEnter ? "enter" : single);
   }
 });
 
 document.addEventListener("click", (e) => {
-  const langBtn = /** @type {HTMLElement | null} */ (
-    e.target instanceof Element ? e.target.closest("[data-lang]") : null
-  );
-  if (langBtn) {
-    setLangMode(/** @type {'fr'|'en'} */ (langBtn.getAttribute("data-lang")));
-    return;
-  }
-
-  const actionBtn = /** @type {HTMLElement | null} */ (
-    e.target instanceof Element ? e.target.closest("[data-action]") : null
-  );
+  const actionBtn = e.target instanceof Element ? e.target.closest("[data-action]") : null;
   if (actionBtn) {
     const action = actionBtn.getAttribute("data-action");
     if (action === "finish") showEnd();
     if (action === "back") showLab();
     return;
   }
-
-  const huntDay = /** @type {HTMLElement | null} */ (
-    e.target instanceof Element ? e.target.closest("[data-hunt-day]") : null
-  );
-  if (huntDay) {
-    toggleHuntDay(Number(huntDay.getAttribute("data-hunt-day")));
-    return;
-  }
-
   if (mode === "end") return;
-
-  const btn = /** @type {HTMLElement | null} */ (
-    e.target instanceof Element ? e.target.closest("[data-key]") : null
-  );
+  const btn = e.target instanceof Element ? e.target.closest("[data-key]") : null;
   if (!btn) return;
   const key = btn.getAttribute("data-key");
   if (key == null) return;
@@ -1162,32 +445,34 @@ document.addEventListener("click", (e) => {
 });
 
 if (el.newsForm) el.newsForm.addEventListener("submit", submitNewsletter);
+if (el.resetBtn) el.resetBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+  resetAll();
+});
 
-/** @type {ReturnType<typeof setInterval> | null} */
-let subTimer = null;
-let subIndex = Math.floor(Math.random() * CLICKBAIT_SUBS.length);
+async function boot() {
+  if (el.brandLogo) el.brandLogo.textContent = BRAND;
+  if (el.newsBrand) el.newsBrand.textContent = BRAND;
+  document.title = `${BRAND} — le test qui te connaît`;
+  startSubRotator();
 
-function renderBrandSub() {
-  if (!el.brandSub) return;
-  el.brandSub.textContent = CLICKBAIT_SUBS[subIndex % CLICKBAIT_SUBS.length];
+  try {
+    const res = await fetch("./tests.json", { cache: "no-store" });
+    const data = await res.json();
+    catalog = Array.isArray(data.tests) ? data.tests : [];
+  } catch {
+    catalog = [];
+  }
+
+  const wanted = new URLSearchParams(location.search).get("test");
+  activeTest =
+    (wanted && catalog.find((t) => t.id === wanted)) || pickTodaysTest(catalog);
+  if (activeTest) {
+    if (el.testTitle) el.testTitle.textContent = activeTest.title;
+    if (el.testBlurb) el.testBlurb.textContent = activeTest.blurb;
+  }
+
+  showIdle();
 }
 
-function rotateBrandSub() {
-  subIndex = (subIndex + 1) % CLICKBAIT_SUBS.length;
-  renderBrandSub();
-}
-
-function startSubRotator() {
-  renderBrandSub();
-  if (subTimer != null) clearInterval(subTimer);
-  subTimer = setInterval(rotateBrandSub, SUB_ROTATE_MS);
-}
-
-if (el.brandLogo) el.brandLogo.textContent = BRAND;
-if (el.newsBrand) el.newsBrand.textContent = BRAND;
-document.title = `${BRAND} — le bilan qui te connaît (trop bien)`;
-
-renderLangMode();
-startSubRotator();
-goIdle();
-renderStats();
+boot();

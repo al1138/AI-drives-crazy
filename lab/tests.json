@@ -1,0 +1,102 @@
+{
+  "tests": [
+    {
+      "id": "barnum-v1",
+      "effect": "barnum",
+      "title": "Quel type es-tu vraiment ?",
+      "blurb": "10 questions. Réponds au feeling. On te dresse un profil.",
+      "questions": [
+        {
+          "id": "sleep",
+          "q": "Quel genre de dormeur es-tu ?",
+          "choices": [
+            { "k": "1", "label": "Coucher tôt" },
+            { "k": "2", "label": "Coucher tard" },
+            { "k": "3", "label": "Ça dépend" }
+          ]
+        },
+        {
+          "id": "pet",
+          "q": "Chat ou chien ?",
+          "choices": [
+            { "k": "1", "label": "Chat" },
+            { "k": "2", "label": "Chien" },
+            { "k": "3", "label": "Les deux / ni l’un ni l’autre" }
+          ]
+        },
+        {
+          "id": "morning",
+          "q": "Le matin, tu es plutôt…",
+          "choices": [
+            { "k": "1", "label": "Opérationnel direct" },
+            { "k": "2", "label": "Café d’abord" },
+            { "k": "3", "label": "Invisible jusqu’à midi" }
+          ]
+        },
+        {
+          "id": "plan",
+          "q": "Face à un week-end libre ?",
+          "choices": [
+            { "k": "1", "label": "Tout planifier" },
+            { "k": "2", "label": "Zéro plan" },
+            { "k": "3", "label": "Un plan B toujours prêt" }
+          ]
+        },
+        {
+          "id": "message",
+          "q": "Un message laissé en « lu » ?",
+          "choices": [
+            { "k": "1", "label": "Je réponds vite" },
+            { "k": "2", "label": "Je laisse murir" },
+            { "k": "3", "label": "J’oublie souvent" }
+          ]
+        },
+        {
+          "id": "crowd",
+          "q": "En groupe, tu es plutôt…",
+          "choices": [
+            { "k": "1", "label": "Au centre" },
+            { "k": "2", "label": "En retrait" },
+            { "k": "3", "label": "Selon les gens" }
+          ]
+        },
+        {
+          "id": "risk",
+          "q": "Devant un choix risqué ?",
+          "choices": [
+            { "k": "1", "label": "Je saute" },
+            { "k": "2", "label": "Je calcule" },
+            { "k": "3", "label": "Je demande un avis" }
+          ]
+        },
+        {
+          "id": "home",
+          "q": "Ton idéal de soirée ?",
+          "choices": [
+            { "k": "1", "label": "Sortir" },
+            { "k": "2", "label": "Rester chez moi" },
+            { "k": "3", "label": "Petit cercle" }
+          ]
+        },
+        {
+          "id": "conflict",
+          "q": "En cas de désaccord ?",
+          "choices": [
+            { "k": "1", "label": "Je dis les choses" },
+            { "k": "2", "label": "J’évite un moment" },
+            { "k": "3", "label": "Je cherche le compromis" }
+          ]
+        },
+        {
+          "id": "future",
+          "q": "Dans 5 ans, tu te vois…",
+          "choices": [
+            { "k": "1", "label": "Très différent" },
+            { "k": "2", "label": "À peu près pareil" },
+            { "k": "3", "label": "Aucune idée — et ok" }
+          ]
+        }
+      ]
+    }
+  ]
+}

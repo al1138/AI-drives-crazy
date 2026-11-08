@@ -1,53 +1,39 @@
 # On te lit
 
-Marque clickbait + déconstruction de l’**effet Barnum**. **0 IA · 0 token.**
+Faux tests de personnalité → bilan « personnalisé » → reveal (effet Barnum, etc.).  
+**0 IA.** Un test différent peut être présenté selon le jour / le mail.
 
 ## Lab
 
 ```bash
-npm run db:migrate:local
-npm run dev
+cd lab && python3 -m http.server 8787
 # → http://localhost:8787
 ```
 
-## Mailing list (Cloudflare + GitHub uniquement)
+Flux : **espace** → questions **1 / 2 / 3** (×10) → **terminer** (ou fin auto) → profil puis reveal.
 
-| Pièce | Rôle |
-|--------|------|
-| **D1** `ontelit-mail` | stocke emails + token désinscription |
-| **Pages Function** `POST /api/subscribe` | inscription |
-| **Pages Function** `GET /api/unsubscribe?t=` | désinscription |
-| **Pages Function** `POST /api/digest` | envoi hebdo (secret) |
-| **GitHub Action** `weekly-digest.yml` | chaque lundi appelle `/api/digest` |
+Catalogue : `lab/tests.json` (aujourd’hui `barnum-v1`).  
+Ancien lab fausses réponses IA : `lab/legacy/ai-patterns-engine.js`.
 
-### Setup une fois
+## Multi-tests + mailing (Cloudflare + GitHub)
+
+| Table D1 | Rôle |
+|----------|------|
+| `subscribers` | emails |
+| `tests` | catalogue des tests |
+| `subscriber_sends` | tests déjà envoyés (pas de doublon) |
 
 ```bash
-# 1. Schéma D1 distant (déjà créé : ontelit-mail)
-npm run db:migrate
-
-# 2. Secret partagé GitHub ↔ Cloudflare (génère une longue chaîne)
-openssl rand -hex 32
-npx wrangler pages secret put DIGEST_SECRET --project-name=ai-drives-crazy
-# même valeur → GitHub → Settings → Secrets → DIGEST_SECRET
-
-# 3. (Optionnel) vrais emails via Cloudflare Email Sending
-npx wrangler email sending enable cgclan.ovh
-# puis dans wrangler.jsonc ajoute : "send_email": [{ "name": "EMAIL" }]
-npx wrangler pages secret put MAIL_FROM --project-name=ai-drives-crazy
-# valeur ex. : hello@cgclan.ovh
+npm run db:migrate          # 0001
+npx wrangler d1 execute ontelit-mail --remote --file=migrations/0002_tests_sends.sql
 ```
 
-Sans `EMAIL` / `MAIL_FROM`, les inscriptions marchent ; le digest répond en **dry-run** (contenu généré, 0 envoi).  
-Note Cloudflare : Email Sending = surtout **transactionnel** ; pour du gros volume marketing, prévoir un outil dédié plus tard.
+Digest hebdo (`POST /api/digest`) : pour chaque abonné, premier test **pas encore servi**.
 
-### Déployer
+## Deploy
 
 ```bash
-npx wrangler login
 npx wrangler pages deploy lab --project-name=ai-drives-crazy --commit-dirty=true
 ```
 
-Ou push sur `main` (dossier `lab/**` + `functions/**`).
-
-Site : https://ai-drives-crazy.pages.dev
+https://ai-drives-crazy.pages.dev

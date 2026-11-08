@@ -40,6 +40,10 @@ body {
   flex-direction: column;
 }
 
+.shell-solo .content {
+  width: 100%;
+}
+
 .content {
   min-width: 0;
   order: 1;
@@ -47,6 +51,28 @@ body {
 
 .algo {
   order: 2;
+  display: none;
+}
+
+.shell-solo .algo {
+  display: none;
+}
+
+.start-row {
+  margin-top: 0;
+}
+
+.progress {
+  margin: 0;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.choices {
+  margin-top: 4px;
 }
 
 .brand-tools {

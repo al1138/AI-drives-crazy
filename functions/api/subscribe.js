@@ -50,6 +50,8 @@ export async function onRequestPost(context) {
 
   const t = token();
 
+  const lastTestId = body?.lastTestId ? String(body.lastTestId).slice(0, 64) : null;
+
   try {
     await env.DB.prepare(
       `INSERT INTO subscribers (email, token, confirmed, unsubscribed_at)
@@ -61,11 +63,19 @@ export async function onRequestPost(context) {
     )
       .bind(email, t)
       .run();
+
+    // Si la personne vient de finir un test, on ne le renverra pas par mail
+    if (lastTestId) {
+      await env.DB.prepare(
+        `INSERT OR IGNORE INTO subscriber_sends (email, test_id) VALUES (?, ?)`,
+      )
+        .bind(email, lastTestId)
+        .run();
+    }
   } catch (err) {
     return json({ ok: false, error: "enregistrement impossible" }, 500);
   }
 
-  // Accusé optionnel (transactionnel) si Email Sending est branché
   const from = env.MAIL_FROM;
   if (env.EMAIL && from) {
     const origin = new URL(request.url).origin;
@@ -78,14 +88,14 @@ export async function onRequestPost(context) {
         text: [
           "Bienvenue.",
           "",
-          "Tu recevras ~1 mail / semaine : une contradiction, zéro IA.",
+          "Tu recevras ~1 test / semaine — jamais deux fois le même.",
           `Désinscription : ${unsub}`,
           "",
           "— On te lit",
         ].join("\n"),
       });
     } catch {
-      // L’inscription reste valide même si l’envoi échoue
+      /* ignore */
     }
   }
 

@@ -1,7 +1,7 @@
 # On te lit
 
 Faux tests de personnalité → bilan « personnalisé » → reveal (effet Barnum, etc.).  
-**0 IA.** Un test différent peut être présenté selon le jour / le mail.
+Un test différent peut être présenté selon le jour / le mail.
 
 ## Lab
 
@@ -12,8 +12,7 @@ cd lab && python3 -m http.server 8787
 
 Flux : **espace** → questions **1 / 2 / 3** (×10) → **terminer** (ou fin auto) → profil puis reveal.
 
-Catalogue : `lab/tests.json` (aujourd’hui `barnum-v1`).  
-Ancien lab fausses réponses IA : `lab/legacy/ai-patterns-engine.js`.
+Catalogue : `lab/tests.json` (aujourd’hui `barnum-v1`).
 
 ## Multi-tests + mailing (Cloudflare + GitHub)
 

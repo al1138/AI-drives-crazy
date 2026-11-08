@@ -187,18 +187,6 @@ body {
   letter-spacing: -0.03em;
 }
 
-.badge-zero {
-  margin: 0;
-  border: 1px solid #111;
-  padding: 6px 10px;
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
 .lang-mode {
   display: inline-flex;
   gap: 0;
@@ -1026,11 +1014,6 @@ body {
 
   .brand .logo {
     font-size: 22px;
-  }
-
-  .badge-zero {
-    padding: 4px 7px;
-    font-size: 10px;
   }
 
   .lang-btn {

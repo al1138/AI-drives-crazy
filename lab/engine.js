@@ -1,6 +1,5 @@
 /**
  * On te lit — faux test de personnalité (effet Barnum au bilan, secret jusqu’à la fin).
- * Ancien lab « fausses réponses IA » : voir lab/legacy/ai-patterns-engine.js
  */
 
 const BRAND = "On te lit";

@@ -921,7 +921,7 @@ function renderProofPanel(runs) {
               : eff === "exposure"
                 ? "L’antenne répète : les messages les plus vus restent souvent préférés."
                 : eff === "halo"
-                  ? "Tes jugements de détail suivent (ou non) l’impression — comme en 1977."
+                  ? "Tes jugements hors liste suivent (ou non) le trait central — comme chez Asch (1946)."
                   : eff === "anchor"
                     ? "Le premier chiffre continue d’attirer les estimations."
                     : "Compare tes passages pour voir le même mécanisme.";

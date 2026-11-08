@@ -2222,6 +2222,42 @@ body {
   gap: 8px;
 }
 
+.halo-traits {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.halo-traits li {
+  margin: 0;
+  padding: 6px 10px;
+  background: #fff;
+  border: 1px solid var(--line);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+
+.halo-traits li.halo-trait-focus {
+  border-color: #111;
+  font-weight: 500;
+}
+
+.halo-compare {
+  display: grid;
+  gap: 10px;
+  margin: 14px 0;
+}
+
+@media (min-width: 700px) {
+  .halo-compare {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 .anchor-poll {
   padding: 18px 16px;
   background: var(--soft);

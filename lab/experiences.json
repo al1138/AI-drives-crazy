@@ -1,6 +1,15 @@
 {
   "defaultEffect": "barnum",
-  "rotation": ["barnum", "confirmation", "correlation", "exposure", "halo", "anchor", "science", "choice"],
+  "rotation": [
+    "barnum",
+    "confirmation",
+    "correlation",
+    "exposure",
+    "halo",
+    "anchor",
+    "science",
+    "choice"
+  ],
   "experiences": [
     {
       "id": "barnum",
@@ -24,18 +33,66 @@
         "Bilan de semaine en 2 minutes"
       ],
       "predictions": [
-        { "id": "p1", "text": "Tu vas remettre à plus tard quelque chose d’important.", "kind": "vague" },
-        { "id": "p2", "text": "Quelqu’un pensera à toi sans te le dire.", "kind": "vague" },
-        { "id": "p3", "text": "Tu scrolleras plus longtemps que prévu au moins une fois.", "kind": "common" },
-        { "id": "p4", "text": "Une conversation anodine te restera en tête.", "kind": "vague" },
-        { "id": "p5", "text": "Tu changeras d’avis sur un détail sans importance.", "kind": "vague" },
-        { "id": "p6", "text": "Tu auras envie de silence — ou au contraire de bruit.", "kind": "trap" },
-        { "id": "p7", "text": "Un message arrivera au « mauvais » moment.", "kind": "common" },
-        { "id": "p8", "text": "Tu te sentiras un peu en avance — ou un peu en retard — sur ta journée.", "kind": "trap" },
-        { "id": "p9", "text": "Tu remarqueras un détail que tu avais ignoré jusque-là.", "kind": "vague" },
-        { "id": "p10", "text": "Tu hésiteras entre deux options banales (manger, sortir, répondre…).", "kind": "common" },
-        { "id": "p11", "text": "Un objet mal rangé te fera perdre 30 secondes.", "kind": "common" },
-        { "id": "p12", "text": "Tu te diras « je le savais » après coup.", "kind": "meta" }
+        {
+          "id": "p1",
+          "text": "Tu vas remettre à plus tard quelque chose d’important.",
+          "kind": "vague"
+        },
+        {
+          "id": "p2",
+          "text": "Quelqu’un pensera à toi sans te le dire.",
+          "kind": "vague"
+        },
+        {
+          "id": "p3",
+          "text": "Tu scrolleras plus longtemps que prévu au moins une fois.",
+          "kind": "common"
+        },
+        {
+          "id": "p4",
+          "text": "Une conversation anodine te restera en tête.",
+          "kind": "vague"
+        },
+        {
+          "id": "p5",
+          "text": "Tu changeras d’avis sur un détail sans importance.",
+          "kind": "vague"
+        },
+        {
+          "id": "p6",
+          "text": "Tu auras envie de silence — ou au contraire de bruit.",
+          "kind": "trap"
+        },
+        {
+          "id": "p7",
+          "text": "Un message arrivera au « mauvais » moment.",
+          "kind": "common"
+        },
+        {
+          "id": "p8",
+          "text": "Tu te sentiras un peu en avance — ou un peu en retard — sur ta journée.",
+          "kind": "trap"
+        },
+        {
+          "id": "p9",
+          "text": "Tu remarqueras un détail que tu avais ignoré jusque-là.",
+          "kind": "vague"
+        },
+        {
+          "id": "p10",
+          "text": "Tu hésiteras entre deux options banales (manger, sortir, répondre…).",
+          "kind": "common"
+        },
+        {
+          "id": "p11",
+          "text": "Un objet mal rangé te fera perdre 30 secondes.",
+          "kind": "common"
+        },
+        {
+          "id": "p12",
+          "text": "Tu te diras « je le savais » après coup.",
+          "kind": "meta"
+        }
       ]
     },
     {
@@ -56,9 +113,21 @@
           "id": "ox_fortune_2025",
           "q": "Selon Oxfam (rapport 2026), la fortune cumulée des milliardaires dans le monde a atteint en 2025 un record d’environ…",
           "choices": [
-            { "k": "1", "label": "18 300 milliards de dollars", "correct": true },
-            { "k": "2", "label": "12 500 milliards de dollars", "correct": false },
-            { "k": "3", "label": "25 000 milliards de dollars", "correct": false }
+            {
+              "k": "1",
+              "label": "18 300 milliards de dollars",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "12 500 milliards de dollars",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "25 000 milliards de dollars",
+              "correct": false
+            }
           ],
           "explain": "Oxfam chiffre ce record à 18 300 milliards de dollars en 2025.",
           "sources": [
@@ -72,9 +141,21 @@
           "id": "ox_vitesse_2025",
           "q": "En 2025, d’après Oxfam, la fortune des milliardaires a augmenté… par rapport à la moyenne des cinq années précédentes.",
           "choices": [
-            { "k": "1", "label": "environ 3 fois plus vite", "correct": true },
-            { "k": "2", "label": "à peu près au même rythme", "correct": false },
-            { "k": "3", "label": "deux fois moins vite", "correct": false }
+            {
+              "k": "1",
+              "label": "environ 3 fois plus vite",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "à peu près au même rythme",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "deux fois moins vite",
+              "correct": false
+            }
           ],
           "explain": "Oxfam : hausse d’environ 16 % en 2025, soit ~3× plus vite que la moyenne des 5 années précédentes.",
           "sources": [
@@ -88,9 +169,21 @@
           "id": "ox_3000",
           "q": "Toujours selon Oxfam, en 2025 le monde a franchi pour la première fois la barre de…",
           "choices": [
-            { "k": "1", "label": "3 000 milliardaires", "correct": true },
-            { "k": "2", "label": "2 000 milliardaires", "correct": false },
-            { "k": "3", "label": "5 000 milliardaires", "correct": false }
+            {
+              "k": "1",
+              "label": "3 000 milliardaires",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "2 000 milliardaires",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "5 000 milliardaires",
+              "correct": false
+            }
           ],
           "explain": "La barre des 3 000 milliardaires a été franchie pour la première fois en 2025 (Oxfam).",
           "sources": [
@@ -104,9 +197,21 @@
           "id": "ox_depuis_2020",
           "q": "Depuis 2020, Oxfam estime que la fortune des milliardaires a augmenté d’environ…",
           "choices": [
-            { "k": "1", "label": "81 %", "correct": true },
-            { "k": "2", "label": "45 %", "correct": false },
-            { "k": "3", "label": "120 %", "correct": false }
+            {
+              "k": "1",
+              "label": "81 %",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "45 %",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "120 %",
+              "correct": false
+            }
           ],
           "explain": "Oxfam : +81 % depuis 2020.",
           "sources": [
@@ -120,9 +225,21 @@
           "id": "ox_fr_53",
           "q": "En France, Oxfam indique que les milliardaires sont plus riches que plus de 32 millions de personnes réunies. Combien de milliardaires cite le rapport ?",
           "choices": [
-            { "k": "1", "label": "53", "correct": true },
-            { "k": "2", "label": "28", "correct": false },
-            { "k": "3", "label": "97", "correct": false }
+            {
+              "k": "1",
+              "label": "53",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "28",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "97",
+              "correct": false
+            }
           ],
           "explain": "Oxfam France : 53 milliardaires, plus riches que >32 millions de personnes (près de la moitié de la population).",
           "sources": [
@@ -136,9 +253,21 @@
           "id": "ox_24_min",
           "q": "Selon Oxfam France, en combien de temps un milliardaire gagne-t-il en moyenne l’équivalent du revenu annuel moyen d’un·e Français·e (≈ 42 438 €) ?",
           "choices": [
-            { "k": "1", "label": "24 minutes", "correct": true },
-            { "k": "2", "label": "environ 1 heure", "correct": false },
-            { "k": "3", "label": "environ 4 heures", "correct": false }
+            {
+              "k": "1",
+              "label": "24 minutes",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "environ 1 heure",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "environ 4 heures",
+              "correct": false
+            }
           ],
           "explain": "Oxfam France : 24 minutes en moyenne pour l’équivalent de 42 438 €.",
           "sources": [
@@ -156,9 +285,21 @@
           "id": "ox_depuis_2017",
           "q": "Depuis 2017, Oxfam France estime que la fortune des milliardaires français a…",
           "choices": [
-            { "k": "1", "label": "doublé (+ de 220 Md€, concentrés sur ~32 personnes)", "correct": true },
-            { "k": "2", "label": "légèrement baissé", "correct": false },
-            { "k": "3", "label": "augmenté d’environ 10 %", "correct": false }
+            {
+              "k": "1",
+              "label": "doublé (+ de 220 Md€, concentrés sur ~32 personnes)",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "légèrement baissé",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "augmenté d’environ 10 %",
+              "correct": false
+            }
           ],
           "explain": "Oxfam : fortune doublée depuis 2017, gain >220 Md€ concentré sur ~32 personnes.",
           "sources": [
@@ -172,9 +313,21 @@
           "id": "insee_pauvrete_2023",
           "q": "Selon l’Insee, le taux de pauvreté monétaire en France métropolitaine en 2023 s’établit à…",
           "choices": [
-            { "k": "1", "label": "15,4 %", "correct": true },
-            { "k": "2", "label": "12,8 %", "correct": false },
-            { "k": "3", "label": "18,9 %", "correct": false }
+            {
+              "k": "1",
+              "label": "15,4 %",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "12,8 %",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "18,9 %",
+              "correct": false
+            }
           ],
           "explain": "Insee Première n°2063 : 15,4 % en 2023 (plus haut depuis 1996 sur la série).",
           "sources": [
@@ -188,9 +341,21 @@
           "id": "insee_ratio_20",
           "q": "Toujours selon l’Insee (2023), la somme des niveaux de vie des 20 % les plus aisés est environ… celle des 20 % les plus modestes.",
           "choices": [
-            { "k": "1", "label": "4,5 fois plus élevée", "correct": true },
-            { "k": "2", "label": "3,2 fois plus élevée", "correct": false },
-            { "k": "3", "label": "7 fois plus élevée", "correct": false }
+            {
+              "k": "1",
+              "label": "4,5 fois plus élevée",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "3,2 fois plus élevée",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "7 fois plus élevée",
+              "correct": false
+            }
           ],
           "explain": "Insee : ratio (100−S80)/S20 ≈ 4,5 en 2023 (maximum depuis 1996 sur la série).",
           "sources": [
@@ -204,9 +369,21 @@
           "id": "ox_pouvoir_4000",
           "q": "Oxfam affirme que les milliardaires ont… plus de chances d’occuper un poste politique que les citoyen·nes ordinaires.",
           "choices": [
-            { "k": "1", "label": "4 000 fois", "correct": true },
-            { "k": "2", "label": "400 fois", "correct": false },
-            { "k": "3", "label": "40 000 fois", "correct": false }
+            {
+              "k": "1",
+              "label": "4 000 fois",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "400 fois",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "40 000 fois",
+              "correct": false
+            }
           ],
           "explain": "Chiffre Oxfam du rapport 2026 : 4 000 fois plus de chances.",
           "sources": [
@@ -220,9 +397,21 @@
           "id": "ox_hausse_16",
           "q": "Toujours selon Oxfam, la fortune cumulée des milliardaires a bondi d’environ… en 2025.",
           "choices": [
-            { "k": "1", "label": "16 % (+ ≈ 2 500 milliards de dollars)", "correct": true },
-            { "k": "2", "label": "6 % (+ ≈ 800 milliards de dollars)", "correct": false },
-            { "k": "3", "label": "30 % (+ ≈ 5 000 milliards de dollars)", "correct": false }
+            {
+              "k": "1",
+              "label": "16 % (+ ≈ 2 500 milliards de dollars)",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "6 % (+ ≈ 800 milliards de dollars)",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "30 % (+ ≈ 5 000 milliards de dollars)",
+              "correct": false
+            }
           ],
           "explain": "Oxfam : +16 % en 2025, soit ≈ 2 500 milliards de dollars d’augmentation.",
           "sources": [
@@ -240,9 +429,21 @@
           "id": "ox_fisc_zucman",
           "q": "Parmi les mesures de justice fiscale défendues par Oxfam France, la « taxe Zucman » (impôt-plancher de 2 % sur les patrimoines de plus de 100 millions d’euros) est estimée à environ… de recettes par an.",
           "choices": [
-            { "k": "1", "label": "entre 15 et 25 milliards d’euros", "correct": true },
-            { "k": "2", "label": "environ 3 milliards d’euros", "correct": false },
-            { "k": "3", "label": "environ 80 milliards d’euros", "correct": false }
+            {
+              "k": "1",
+              "label": "entre 15 et 25 milliards d’euros",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "environ 3 milliards d’euros",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "environ 80 milliards d’euros",
+              "correct": false
+            }
           ],
           "explain": "Oxfam France : taxe Zucman = 2 % sur patrimoines > 100 millions €, gain estimé 15–25 Md€/an.",
           "sources": [
@@ -260,9 +461,21 @@
           "id": "ox_fem_28",
           "q": "Selon l’Index de féminisation du pouvoir d’Oxfam France (2025), le taux global de féminisation du pouvoir en France est d’environ…",
           "choices": [
-            { "k": "1", "label": "28 %", "correct": true },
-            { "k": "2", "label": "42 %", "correct": false },
-            { "k": "3", "label": "51 %", "correct": false }
+            {
+              "k": "1",
+              "label": "28 %",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "42 %",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "51 %",
+              "correct": false
+            }
           ],
           "explain": "Index Oxfam 2025 : 28 % de femmes aux postes clefs du pouvoir public et politique.",
           "sources": [
@@ -280,9 +493,21 @@
           "id": "ox_fem_regaliens",
           "q": "Toujours selon cet index (2025), alors que le gouvernement est à ~50 % de femmes, quelle part des postes ministériels régaliens est occupée par des femmes ?",
           "choices": [
-            { "k": "1", "label": "0 %", "correct": true },
-            { "k": "2", "label": "environ 25 %", "correct": false },
-            { "k": "3", "label": "environ 50 %", "correct": false }
+            {
+              "k": "1",
+              "label": "0 %",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "environ 25 %",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "environ 50 %",
+              "correct": false
+            }
           ],
           "explain": "Oxfam : 50 % de femmes au gouvernement, mais 0 % aux postes régaliens en 2025.",
           "sources": [
@@ -300,9 +525,21 @@
           "id": "ox_fem_maires",
           "q": "D’après Oxfam (Index 2025), environ quelle part des maires en France sont des femmes ?",
           "choices": [
-            { "k": "1", "label": "environ 21 %", "correct": true },
-            { "k": "2", "label": "environ 35 %", "correct": false },
-            { "k": "3", "label": "environ 48 %", "correct": false }
+            {
+              "k": "1",
+              "label": "environ 21 %",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "environ 35 %",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "environ 48 %",
+              "correct": false
+            }
           ],
           "explain": "Index Oxfam : ~20,8–21 % de femmes maires (pouvoir local ~25 % au total).",
           "sources": [
@@ -316,9 +553,21 @@
           "id": "ox_fem_juridictions",
           "q": "Toujours selon Oxfam (2025), quelle part des plus hautes juridictions françaises (Conseil constitutionnel, Conseil d’État, Cour de cassation, etc.) est présidée par une femme ?",
           "choices": [
-            { "k": "1", "label": "0 %", "correct": true },
-            { "k": "2", "label": "environ 20 %", "correct": false },
-            { "k": "3", "label": "environ 40 %", "correct": false }
+            {
+              "k": "1",
+              "label": "0 %",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "environ 20 %",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "environ 40 %",
+              "correct": false
+            }
           ],
           "explain": "Oxfam : 0 % des hautes juridictions présidées par des femmes en 2025.",
           "sources": [
@@ -332,9 +581,21 @@
           "id": "ox_mig_voisins",
           "q": "Selon l’ebook Oxfam « Migration et personnes réfugiées », environ quelle part des réfugié·e·s dans le monde est accueillie dans des pays voisins du leur ?",
           "choices": [
-            { "k": "1", "label": "environ 80 %", "correct": true },
-            { "k": "2", "label": "environ 30 %", "correct": false },
-            { "k": "3", "label": "environ 50 %", "correct": false }
+            {
+              "k": "1",
+              "label": "environ 80 %",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "environ 30 %",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "environ 50 %",
+              "correct": false
+            }
           ],
           "explain": "Ebook Oxfam : ~80 % des réfugié·e·s sont hébergé·e·s dans des pays avoisinants (pas « tous en Europe »).",
           "sources": [
@@ -352,9 +613,21 @@
           "id": "ox_mig_ue",
           "q": "Toujours d’après cet ebook Oxfam, les personnes réfugiées représentent environ… de la population totale de l’Union européenne.",
           "choices": [
-            { "k": "1", "label": "moins de 0,2 %", "correct": true },
-            { "k": "2", "label": "environ 5 %", "correct": false },
-            { "k": "3", "label": "environ 12 %", "correct": false }
+            {
+              "k": "1",
+              "label": "moins de 0,2 %",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "environ 5 %",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "environ 12 %",
+              "correct": false
+            }
           ],
           "explain": "Ebook Oxfam : ~2 millions de réfugié·e·s dans l’UE ≈ moins de 0,2 % de la population.",
           "sources": [
@@ -372,9 +645,21 @@
           "id": "ox_mig_fr_part",
           "q": "Dans le même ebook, Oxfam estime qu’en France les réfugié·e·s représentaient environ… de la population (ordre de grandeur cité pour contrer l’idée d’« invasion »).",
           "choices": [
-            { "k": "1", "label": "0,5 %", "correct": true },
-            { "k": "2", "label": "5 %", "correct": false },
-            { "k": "3", "label": "15 %", "correct": false }
+            {
+              "k": "1",
+              "label": "0,5 %",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "5 %",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "15 %",
+              "correct": false
+            }
           ],
           "explain": "Ebook Oxfam : ~337 000 réfugié·e·s ≈ 0,5 % de la population française (chiffre de l’ebook).",
           "sources": [
@@ -392,9 +677,21 @@
           "id": "ox_mig_monde_2024",
           "q": "Selon Oxfam France (chiffres HCR relayés), fin 2024 le monde comptait environ… de personnes réfugiées, dont plus de 70 % dans des pays à revenu faible ou intermédiaire.",
           "choices": [
-            { "k": "1", "label": "42,7 millions", "correct": true },
-            { "k": "2", "label": "12 millions", "correct": false },
-            { "k": "3", "label": "120 millions", "correct": false }
+            {
+              "k": "1",
+              "label": "42,7 millions",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "12 millions",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "120 millions",
+              "correct": false
+            }
           ],
           "explain": "Oxfam / HCR : 42,7 millions de réfugié·e·s fin 2024 ; >70 % dans des pays à revenu faible ou intermédiaire.",
           "sources": [
@@ -413,24 +710,69 @@
           "kind": "spurious",
           "q": "Ces deux courbes (margarine et divorces dans le Maine) se suivent presque parfaitement. Que conclure ?",
           "choices": [
-            { "k": "1", "label": "Hasard : les courbes se ressemblent, mais l’un ne cause pas l’autre", "correct": true },
-            { "k": "2", "label": "La margarine provoque les divorces dans le Maine", "correct": false },
-            { "k": "3", "label": "Les divorces font baisser la consommation de margarine aux USA", "correct": false }
+            {
+              "k": "1",
+              "label": "Hasard : les courbes se ressemblent, mais l’un ne cause pas l’autre",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "La margarine provoque les divorces dans le Maine",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "Les divorces font baisser la consommation de margarine aux USA",
+              "correct": false
+            }
           ],
           "explain": "Exemple célèbre de Tyler Vigen. Les deux courbes se suivent, mais il n’y a aucun lien de cause entre elles — juste une coïncidence.",
           "chart": {
             "title": "Margarine (USA) et divorces (Maine)",
             "r": "0,99",
             "credit": "Données : Tyler Vigen / Spurious Correlations (attribution libre)",
-            "years": [2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009],
+            "years": [
+              2000,
+              2001,
+              2002,
+              2003,
+              2004,
+              2005,
+              2006,
+              2007,
+              2008,
+              2009
+            ],
             "a": {
               "label": "margarine (livres / personne)",
-              "values": [8.2, 7.0, 6.5, 5.3, 5.2, 4.0, 4.6, 4.5, 4.2, 3.7],
+              "values": [
+                8.2,
+                7.0,
+                6.5,
+                5.3,
+                5.2,
+                4.0,
+                4.6,
+                4.5,
+                4.2,
+                3.7
+              ],
               "color": "#e8a838"
             },
             "b": {
               "label": "divorces Maine (pour 1000)",
-              "values": [5.0, 4.7, 4.6, 4.4, 4.3, 4.1, 4.2, 4.2, 4.2, 4.1],
+              "values": [
+                5.0,
+                4.7,
+                4.6,
+                4.4,
+                4.3,
+                4.1,
+                4.2,
+                4.2,
+                4.2,
+                4.1
+              ],
               "color": "#6aa8ff"
             }
           },
@@ -450,24 +792,72 @@
           "kind": "spurious",
           "q": "Films de Nicolas Cage et noyades en piscine (USA, 1999–2009) : les courbes se suivent. Quelle lecture est juste ?",
           "choices": [
-            { "k": "1", "label": "Hasard : si on compare assez de séries, certaines finissent par se ressembler", "correct": true },
-            { "k": "2", "label": "Les films de Cage causent les noyades", "correct": false },
-            { "k": "3", "label": "Si les courbes se suivent, la preuve est faite", "correct": false }
+            {
+              "k": "1",
+              "label": "Hasard : si on compare assez de séries, certaines finissent par se ressembler",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "Les films de Cage causent les noyades",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "Si les courbes se suivent, la preuve est faite",
+              "correct": false
+            }
           ],
           "explain": "Exemple célèbre de Tyler Vigen. Aucun lien réel entre les films et les noyades : en croisant assez de données, on trouve toujours des coïncidences.",
           "chart": {
             "title": "Cage × noyades piscine (USA)",
             "r": "0,67",
             "credit": "Données : Tyler Vigen / Spurious Correlations (attribution libre)",
-            "years": [1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009],
+            "years": [
+              1999,
+              2000,
+              2001,
+              2002,
+              2003,
+              2004,
+              2005,
+              2006,
+              2007,
+              2008,
+              2009
+            ],
             "a": {
               "label": "films Cage",
-              "values": [2, 2, 2, 3, 1, 1, 2, 3, 4, 1, 4],
+              "values": [
+                2,
+                2,
+                2,
+                3,
+                1,
+                1,
+                2,
+                3,
+                4,
+                1,
+                4
+              ],
               "color": "#e07070"
             },
             "b": {
               "label": "noyades piscine",
-              "values": [109, 102, 102, 98, 85, 95, 96, 98, 123, 94, 102],
+              "values": [
+                109,
+                102,
+                102,
+                98,
+                85,
+                95,
+                96,
+                98,
+                123,
+                94,
+                102
+              ],
               "color": "#6aa8ff"
             }
           },
@@ -487,24 +877,69 @@
           "kind": "spurious",
           "q": "Diplômes de maths (USA) et lait produit par vache : les courbes montent ensemble. Que conclure ?",
           "choices": [
-            { "k": "1", "label": "Elles montent en même temps par hasard — l’une ne cause pas l’autre", "correct": true },
-            { "k": "2", "label": "Plus de maths fait produire plus de lait", "correct": false },
-            { "k": "3", "label": "Les vaches productives poussent aux études de maths", "correct": false }
+            {
+              "k": "1",
+              "label": "Elles montent en même temps par hasard — l’une ne cause pas l’autre",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "Plus de maths fait produire plus de lait",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "Les vaches productives poussent aux études de maths",
+              "correct": false
+            }
           ],
           "explain": "Encore Vigen. Deux choses qui montent avec les années, sans que l’une explique l’autre.",
           "chart": {
             "title": "Diplômes maths et lait par vache",
             "r": "0,99",
             "credit": "Données : Tyler Vigen (NCES × USDA)",
-            "years": [2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021],
+            "years": [
+              2012,
+              2013,
+              2014,
+              2015,
+              2016,
+              2017,
+              2018,
+              2019,
+              2020,
+              2021
+            ],
             "a": {
               "label": "diplômes maths",
-              "values": [18841, 20449, 20987, 21854, 22778, 24075, 25253, 26155, 27227, 27092],
+              "values": [
+                18841,
+                20449,
+                20987,
+                21854,
+                22778,
+                24075,
+                25253,
+                26155,
+                27227,
+                27092
+              ],
               "color": "#7ec8a0"
             },
             "b": {
               "label": "lait par vache",
-              "values": [21722, 21819, 22249, 22372, 22761, 22914, 23150, 23395, 23777, 23949],
+              "values": [
+                21722,
+                21819,
+                22249,
+                22372,
+                22761,
+                22914,
+                23150,
+                23395,
+                23777,
+                23949
+              ],
               "color": "#c9a0ff"
             }
           },
@@ -520,24 +955,75 @@
           "kind": "spurious",
           "q": "Ventes de glaces et noyades montent souvent ensemble l’été. Quelle lecture est la plus juste ?",
           "choices": [
-            { "k": "1", "label": "C’est la chaleur : on mange plus de glaces et on se baigne plus", "correct": true },
-            { "k": "2", "label": "Les glaces provoquent les noyades", "correct": false },
-            { "k": "3", "label": "Les noyades font augmenter les ventes de glaces", "correct": false }
+            {
+              "k": "1",
+              "label": "C’est la chaleur : on mange plus de glaces et on se baigne plus",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "Les glaces provoquent les noyades",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "Les noyades font augmenter les ventes de glaces",
+              "correct": false
+            }
           ],
           "explain": "Les deux montent vraiment en été, mais ce n’est pas la glace qui noie. C’est la chaleur qui pousse aux deux.",
           "chart": {
             "title": "Glaces et noyades (exemple classique)",
             "r": "élevé l’été",
             "credit": "Schéma illustratif du cas classique des manuels",
-            "years": ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"],
+            "years": [
+              "J",
+              "F",
+              "M",
+              "A",
+              "M",
+              "J",
+              "J",
+              "A",
+              "S",
+              "O",
+              "N",
+              "D"
+            ],
             "a": {
               "label": "glaces",
-              "values": [22, 24, 35, 48, 62, 88, 100, 96, 70, 42, 28, 24],
+              "values": [
+                22,
+                24,
+                35,
+                48,
+                62,
+                88,
+                100,
+                96,
+                70,
+                42,
+                28,
+                24
+              ],
               "color": "#e8a838"
             },
             "b": {
               "label": "noyades",
-              "values": [18, 20, 30, 45, 58, 82, 100, 94, 66, 38, 24, 20],
+              "values": [
+                18,
+                20,
+                30,
+                45,
+                58,
+                82,
+                100,
+                94,
+                66,
+                38,
+                24,
+                20
+              ],
               "color": "#6aa8ff"
             }
           },
@@ -557,9 +1043,21 @@
           "kind": "spurious",
           "q": "On a observé plus de naissances là où il y a des cigognes. Que conclure ?",
           "choices": [
-            { "k": "1", "label": "Les cigognes vivent surtout à la campagne, où il y a aussi plus de naissances", "correct": true },
-            { "k": "2", "label": "Les cigognes apportent les bébés", "correct": false },
-            { "k": "3", "label": "Les naissances attirent forcément les cigognes", "correct": false }
+            {
+              "k": "1",
+              "label": "Les cigognes vivent surtout à la campagne, où il y a aussi plus de naissances",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "Les cigognes apportent les bébés",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "Les naissances attirent forcément les cigognes",
+              "correct": false
+            }
           ],
           "explain": "Les deux vont ensemble, mais ce n’est pas la cigogne. C’est la campagne qui explique les deux.",
           "sources": [
@@ -574,9 +1072,21 @@
           "kind": "spurious",
           "q": "Chez les enfants, plus la pointure est grande, plus le vocabulaire est riche. Pourquoi ?",
           "choices": [
-            { "k": "1", "label": "Parce qu’ils grandissent : les pieds et le vocabulaire progressent avec l’âge", "correct": true },
-            { "k": "2", "label": "Avoir de grands pieds fait apprendre plus de mots", "correct": false },
-            { "k": "3", "label": "Apprendre des mots fait grandir les pieds", "correct": false }
+            {
+              "k": "1",
+              "label": "Parce qu’ils grandissent : les pieds et le vocabulaire progressent avec l’âge",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "Avoir de grands pieds fait apprendre plus de mots",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "Apprendre des mots fait grandir les pieds",
+              "correct": false
+            }
           ],
           "explain": "Les deux augmentent parce que l’enfant grandit. Ce n’est pas la pointure qui enrichit le vocabulaire.",
           "sources": [
@@ -591,9 +1101,21 @@
           "kind": "spurious",
           "q": "On a trouvé un lien entre chocolat mangé et prix Nobel par pays. Quelle lecture est la plus juste ?",
           "choices": [
-            { "k": "1", "label": "Les pays riches mangent plus de chocolat et financent aussi plus la recherche", "correct": true },
-            { "k": "2", "label": "Manger du chocolat produit des Nobel", "correct": false },
-            { "k": "3", "label": "Les Nobel font augmenter les ventes de chocolat partout", "correct": false }
+            {
+              "k": "1",
+              "label": "Les pays riches mangent plus de chocolat et financent aussi plus la recherche",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "Manger du chocolat produit des Nobel",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "Les Nobel font augmenter les ventes de chocolat partout",
+              "correct": false
+            }
           ],
           "explain": "Ce n’est probablement pas le cacao. La richesse du pays peut expliquer les deux à la fois.",
           "sources": [
@@ -612,9 +1134,21 @@
           "kind": "meta",
           "q": "En résumé : deux courbes montent ensemble. Quelle règle garder ?",
           "choices": [
-            { "k": "1", "label": "Se ressembler ne prouve pas que l’un cause l’autre : il faut chercher pourquoi", "correct": true },
-            { "k": "2", "label": "Si ça monte ensemble, le premier cause forcément le second", "correct": false },
-            { "k": "3", "label": "Une belle courbe suffit toujours pour décider", "correct": false }
+            {
+              "k": "1",
+              "label": "Se ressembler ne prouve pas que l’un cause l’autre : il faut chercher pourquoi",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "Si ça monte ensemble, le premier cause forcément le second",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "Une belle courbe suffit toujours pour décider",
+              "correct": false
+            }
           ],
           "explain": "Deux courbes qui se suivent, ce n’est qu’un début. Ensuite on cherche : même cause cachée ? sens inverse ? ou simple hasard ?",
           "sources": [
@@ -645,89 +1179,156 @@
         "2 minutes d’antenne"
       ],
       "slogans": [
-        { "id": "s1", "text": "Remettre le pays en mouvement, sans attendre.", "repeats": 4 },
-        { "id": "s2", "text": "La sécurité d’abord, partout et pour tous.", "repeats": 4 },
-        { "id": "s3", "text": "Un plan climat crédible, chiffré, daté.", "repeats": 1 },
-        { "id": "s4", "text": "L’école comme priorité budgétaire n°1.", "repeats": 1 },
-        { "id": "s5", "text": "Moins de jargon, plus de résultats.", "repeats": 3 },
-        { "id": "s6", "text": "Protéger le pouvoir d’achat dès le premier mois.", "repeats": 1 }
+        {
+          "id": "s1",
+          "text": "Remettre le pays en mouvement, sans attendre.",
+          "repeats": 4
+        },
+        {
+          "id": "s2",
+          "text": "La sécurité d’abord, partout et pour tous.",
+          "repeats": 4
+        },
+        {
+          "id": "s3",
+          "text": "Un plan climat crédible, chiffré, daté.",
+          "repeats": 1
+        },
+        {
+          "id": "s4",
+          "text": "L’école comme priorité budgétaire n°1.",
+          "repeats": 1
+        },
+        {
+          "id": "s5",
+          "text": "Moins de jargon, plus de résultats.",
+          "repeats": 3
+        },
+        {
+          "id": "s6",
+          "text": "Protéger le pouvoir d’achat dès le premier mois.",
+          "repeats": 1
+        }
       ],
       "pickRounds": [
         {
           "prompt": "Lequel te paraît le plus crédible ?",
-          "options": ["s1", "s3", "s4"]
+          "options": [
+            "s1",
+            "s3",
+            "s4"
+          ]
         },
         {
           "prompt": "Lequel ferais-tu passer en une phrase à un ami ?",
-          "options": ["s2", "s6", "s3"]
+          "options": [
+            "s2",
+            "s6",
+            "s3"
+          ]
         },
         {
           "prompt": "Lequel sonne le plus « présidentiel » ?",
-          "options": ["s5", "s4", "s1"]
+          "options": [
+            "s5",
+            "s4",
+            "s1"
+          ]
         }
       ]
     },
     {
       "id": "halo",
       "effect": "halo",
-      "homeTitle": "Le prof en vidéo",
-      "homeBlurb": "Tu vois un extrait. Tu juges. On compare à une vraie expérience de 1977.",
+      "homeTitle": "Un portrait en 7 mots",
+      "homeBlurb": "Tu lis une liste de traits. Tu juges. On compare à l’expérience d’Asch (1946).",
       "clickbait": [
-        "Même prof · deux versions",
-        "Expérience Nisbett & Wilson",
+        "7 traits · un mot clé",
+        "Expérience Asch 1946",
         "Juge sans spoiler"
       ],
       "experiment": {
-        "title": "Nisbett & Wilson, 1977",
-        "blurb": "Deux groupes voient le même professeur (même apparence, mêmes gestes, même accent). Seule change l’attitude : chaleureux ou froid. Puis on demande si l’apparence, les manières et l’accent sont agréables ou irritants.",
-        "finding": "Quand le prof est chaleureux, les traits inchangés sont jugés agréables. Quand il est froid, les mêmes traits sont jugés irritants. Les participant·e·s ne se rendaient pas compte de ce glissement.",
-        "url": "https://deepblue.lib.umich.edu/bitstream/handle/2027.42/92158/TheHaloEffect.pdf",
-        "urlLabel": "Article original (Nisbett & Wilson, 1977)"
+        "title": "Asch, 1946 — Forming impressions of personality",
+        "blurb": "Deux groupes reçoivent la même liste de traits pour décrire une personne. Un seul adjectif change : « chaleureux » ou « froid ». On demande ensuite d’autres jugements (généreux, heureux, etc.) qui ne figuraient pas dans la liste.",
+        "finding": "Ce seul mot bascule l’impression globale. Le groupe « chaleureux » juge la personne bien plus généreuse, heureuse, sociable… que le groupe « froid », à liste égale. Asch appelle ça un trait central : il colore le reste.",
+        "url": "https://pure.mpg.de/rest/items/item_2453264_3/component/file_2453263/content",
+        "urlLabel": "Asch 1946 (PDF)"
       },
-      "sharedNote": "Apparence, gestes et accent restent les mêmes dans les deux versions. Seule change l’attitude (chaleureux ou froid).",
+      "sharedNote": "Lis la liste. Un seul mot différencie les deux groupes de l’expérience — tu ne sais pas lequel tu as.",
       "conditions": [
         {
           "id": "warm",
           "valence": 1,
-          "kicker": "extrait · version A",
-          "title": "Marc, professeur",
-          "body": "Marc parle avec un léger accent européen. Il sourit, écoute les questions, encourage. Il dit : « Si quelque chose n’est pas clair, on reprend ensemble. » Même costume, mêmes gestes, même voix qu’en version B."
+          "kicker": "portrait · liste A",
+          "title": "Cette personne est…",
+          "focusTrait": "chaleureuse",
+          "otherTrait": "froide",
+          "traits": [
+            "intelligente",
+            "habile",
+            "industrieuse",
+            "chaleureuse",
+            "déterminée",
+            "pratique",
+            "prudente"
+          ]
         },
         {
           "id": "cold",
           "valence": -1,
-          "kicker": "extrait · version B",
-          "title": "Marc, professeur",
-          "body": "Marc parle avec un léger accent européen. Il coupe court, regarde peu, reste distant. Il dit : « C’était clair. On passe à la suite. » Même costume, mêmes gestes, même voix qu’en version A."
+          "kicker": "portrait · liste B",
+          "title": "Cette personne est…",
+          "focusTrait": "froide",
+          "otherTrait": "chaleureuse",
+          "traits": [
+            "intelligente",
+            "habile",
+            "industrieuse",
+            "froide",
+            "déterminée",
+            "pratique",
+            "prudente"
+          ]
         }
-      ],
-      "globalQuestion": "Impression générale sur Marc ?",
-      "globalChoices": [
-        { "k": "1", "label": "plutôt sympathique", "valence": 1 },
-        { "k": "2", "label": "mitigé", "valence": 0 },
-        { "k": "3", "label": "plutôt antipathique", "valence": -1 }
       ],
       "ratings": [
         {
-          "id": "appearance",
-          "q": "Son apparence te paraît…",
-          "note": "Rappel : le costume et le physique sont les mêmes dans les deux versions."
+          "id": "generous",
+          "q": "Cette personne te paraît généreuse ?",
+          "note": "Ce trait n’est pas dans la liste — tu extrapolés."
         },
         {
-          "id": "manner",
-          "q": "Ses manières / gestes te paraissent…",
-          "note": "Rappel : les gestes filmés sont les mêmes ; seule l’attitude change."
+          "id": "happy",
+          "q": "Cette personne te paraît heureuse ?",
+          "note": "Toujours hors liste."
         },
         {
-          "id": "accent",
-          "q": "Son accent te paraît…",
-          "note": "Rappel : c’est le même accent dans les deux versions."
+          "id": "goodnatured",
+          "q": "Cette personne te paraît de nature agréable / bonne ?",
+          "note": "Toujours hors liste."
+        },
+        {
+          "id": "workwith",
+          "q": "Tu aimerais travailler avec elle ?",
+          "note": "Jugement global — hors liste."
         }
       ],
       "ratingChoices": [
-        { "k": "1", "label": "agréable", "valence": 1 },
-        { "k": "2", "label": "neutre", "valence": 0 },
-        { "k": "3", "label": "irritant", "valence": -1 }
+        {
+          "k": "1",
+          "label": "plutôt oui",
+          "valence": 1
+        },
+        {
+          "k": "2",
+          "label": "mitigé",
+          "valence": 0
+        },
+        {
+          "k": "3",
+          "label": "plutôt non",
+          "valence": -1
+        }
       ]
     },
     {
@@ -747,9 +1348,24 @@
           "anchorContext": "Publié ce matin, très repris.",
           "prompt": "Selon toi, son score final sera plutôt…",
           "options": [
-            { "k": "1", "label": "vers 20–24 %", "value": 22, "pulled": true },
-            { "k": "2", "label": "vers 12–15 %", "value": 14, "pulled": false },
-            { "k": "3", "label": "vers 30 %+", "value": 32, "pulled": false }
+            {
+              "k": "1",
+              "label": "vers 20–24 %",
+              "value": 22,
+              "pulled": true
+            },
+            {
+              "k": "2",
+              "label": "vers 12–15 %",
+              "value": 14,
+              "pulled": false
+            },
+            {
+              "k": "3",
+              "label": "vers 30 %+",
+              "value": 32,
+              "pulled": false
+            }
           ]
         },
         {
@@ -758,9 +1374,24 @@
           "anchorContext": "« Seul capable d’atteindre le second tour » à gauche, dit le plateau.",
           "prompt": "Pour un vote « utile » à gauche, tu te rangerais plutôt…",
           "options": [
-            { "k": "1", "label": "derrière ce candidat à 18 %", "value": 18, "pulled": true },
-            { "k": "2", "label": "sur un autre à ~7 %", "value": 7, "pulled": false },
-            { "k": "3", "label": "sur un autre à ~5 %", "value": 5, "pulled": false }
+            {
+              "k": "1",
+              "label": "derrière ce candidat à 18 %",
+              "value": 18,
+              "pulled": true
+            },
+            {
+              "k": "2",
+              "label": "sur un autre à ~7 %",
+              "value": 7,
+              "pulled": false
+            },
+            {
+              "k": "3",
+              "label": "sur un autre à ~5 %",
+              "value": 5,
+              "pulled": false
+            }
           ]
         },
         {
@@ -769,9 +1400,24 @@
           "anchorContext": "Second tour « déjà joué » entre deux noms (affiché comme évidence).",
           "prompt": "Tu anticipes le second tour…",
           "options": [
-            { "k": "1", "label": "comme le scénario annoncé", "value": 2, "pulled": true },
-            { "k": "2", "label": "avec une surprise possible", "value": 0, "pulled": false },
-            { "k": "3", "label": "complètement ouvert", "value": 0, "pulled": false }
+            {
+              "k": "1",
+              "label": "comme le scénario annoncé",
+              "value": 2,
+              "pulled": true
+            },
+            {
+              "k": "2",
+              "label": "avec une surprise possible",
+              "value": 0,
+              "pulled": false
+            },
+            {
+              "k": "3",
+              "label": "complètement ouvert",
+              "value": 0,
+              "pulled": false
+            }
           ]
         },
         {
@@ -780,9 +1426,24 @@
           "anchorContext": "Premier chiffre bas, répété en boucle.",
           "prompt": "Ce candidat…",
           "options": [
-            { "k": "1", "label": "reste autour de 8–10 %", "value": 9, "pulled": true },
-            { "k": "2", "label": "peut monter vers 16–18 %", "value": 17, "pulled": false },
-            { "k": "3", "label": "peut s’effondrer sous 5 %", "value": 4, "pulled": false }
+            {
+              "k": "1",
+              "label": "reste autour de 8–10 %",
+              "value": 9,
+              "pulled": true
+            },
+            {
+              "k": "2",
+              "label": "peut monter vers 16–18 %",
+              "value": 17,
+              "pulled": false
+            },
+            {
+              "k": "3",
+              "label": "peut s’effondrer sous 5 %",
+              "value": 4,
+              "pulled": false
+            }
           ]
         }
       ]
@@ -803,9 +1464,21 @@
           "id": "sci_obs",
           "q": "En science, par quoi commence-t-on le plus souvent ?",
           "choices": [
-            { "k": "1", "label": "Par regarder le monde et poser une question claire", "correct": true },
-            { "k": "2", "label": "Par affirmer d’abord ce qu’on a envie de croire", "correct": false },
-            { "k": "3", "label": "Par demander à une célébrité son avis", "correct": false }
+            {
+              "k": "1",
+              "label": "Par regarder le monde et poser une question claire",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "Par affirmer d’abord ce qu’on a envie de croire",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "Par demander à une célébrité son avis",
+              "correct": false
+            }
           ],
           "explain": "On part d’une observation ou d’un problème, puis on formule une idée à tester — pas l’inverse.",
           "sources": [
@@ -819,9 +1492,21 @@
           "id": "sci_hyp",
           "q": "Une bonne idée scientifique doit pouvoir…",
           "choices": [
-            { "k": "1", "label": "être mise à l’épreuve (et éventuellement se révéler fausse)", "correct": true },
-            { "k": "2", "label": "rester vraie quoi qu’il arrive", "correct": false },
-            { "k": "3", "label": "séduire le plus grand nombre d’abord", "correct": false }
+            {
+              "k": "1",
+              "label": "être mise à l’épreuve (et éventuellement se révéler fausse)",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "rester vraie quoi qu’il arrive",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "séduire le plus grand nombre d’abord",
+              "correct": false
+            }
           ],
           "explain": "Si rien ne peut montrer qu’on a tort, ce n’est pas une hypothèse scientifique : c’est une croyance blindée.",
           "sources": [
@@ -835,9 +1520,21 @@
           "id": "sci_test",
           "q": "Pour trancher entre deux explications, le mieux est…",
           "choices": [
-            { "k": "1", "label": "de comparer : changer une chose, garder le reste égal autant que possible", "correct": true },
-            { "k": "2", "label": "de choisir celle qui « sonne juste »", "correct": false },
-            { "k": "3", "label": "de garder la première idée venue", "correct": false }
+            {
+              "k": "1",
+              "label": "de comparer : changer une chose, garder le reste égal autant que possible",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "de choisir celle qui « sonne juste »",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "de garder la première idée venue",
+              "correct": false
+            }
           ],
           "explain": "Comparer (groupe A / groupe B, avant / après…) limite les histoires inventées. C’est le cœur des expériences.",
           "sources": [
@@ -851,9 +1548,21 @@
           "id": "sci_contra",
           "q": "Une nouvelle étude contredit une étude plus ancienne. Que dit la méthode ?",
           "choices": [
-            { "k": "1", "label": "C’est normal : on corrige, on précise, on avance", "correct": true },
-            { "k": "2", "label": "La science s’effondre : tout était faux", "correct": false },
-            { "k": "3", "label": "Il faut ignorer la nouvelle étude", "correct": false }
+            {
+              "k": "1",
+              "label": "C’est normal : on corrige, on précise, on avance",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "La science s’effondre : tout était faux",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "Il faut ignorer la nouvelle étude",
+              "correct": false
+            }
           ],
           "explain": "Se tromper et se corriger publiquement est une force. Une opinion figée ne se corrige pas ; une science digne de ce nom, si.",
           "sources": [
@@ -867,9 +1576,21 @@
           "id": "sci_repro",
           "q": "Pourquoi refaire une expérience ailleurs, avec d’autres personnes ?",
           "choices": [
-            { "k": "1", "label": "Pour voir si le résultat tient encore (et n’était pas un coup de chance)", "correct": true },
-            { "k": "2", "label": "Parce que la première fois suffit toujours", "correct": false },
-            { "k": "3", "label": "Pour prouver qu’on avait raison dès le départ", "correct": false }
+            {
+              "k": "1",
+              "label": "Pour voir si le résultat tient encore (et n’était pas un coup de chance)",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "Parce que la première fois suffit toujours",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "Pour prouver qu’on avait raison dès le départ",
+              "correct": false
+            }
           ],
           "explain": "La reproduction (ou réplication) protège contre le hasard et les biais d’un seul labo.",
           "sources": [
@@ -883,9 +1604,21 @@
           "id": "sci_method",
           "q": "Qu’est-ce qui donne plus de valeur à une étude qu’à une anecdote ?",
           "choices": [
-            { "k": "1", "label": "La méthode est dite clairement : d’autres peuvent vérifier ou contredire", "correct": true },
-            { "k": "2", "label": "Elle est racontée avec confiance", "correct": false },
-            { "k": "3", "label": "Elle vient d’une personne célèbre", "correct": false }
+            {
+              "k": "1",
+              "label": "La méthode est dite clairement : d’autres peuvent vérifier ou contredire",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "Elle est racontée avec confiance",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "Elle vient d’une personne célèbre",
+              "correct": false
+            }
           ],
           "explain": "La transparence de la méthode permet le contrôle. L’anecdote, elle, ne se laisse pas facilement tester.",
           "sources": [
@@ -899,9 +1632,21 @@
           "id": "sci_provisoire",
           "q": "En science, une conclusion est surtout…",
           "choices": [
-            { "k": "1", "label": "provisoire : meilleure à ce jour, ouverte à mieux demain", "correct": true },
-            { "k": "2", "label": "définitive une fois publiée", "correct": false },
-            { "k": "3", "label": "vraie si elle plaît au public", "correct": false }
+            {
+              "k": "1",
+              "label": "provisoire : meilleure à ce jour, ouverte à mieux demain",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "définitive une fois publiée",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "vraie si elle plaît au public",
+              "correct": false
+            }
           ],
           "explain": "Les meilleures théories sont celles qui résistent le mieux aux tests — jusqu’à ce qu’une meilleure arrive.",
           "sources": [
@@ -915,9 +1660,21 @@
           "id": "sci_force",
           "q": "Pourquoi la contradiction entre études peut-elle être une bonne nouvelle ?",
           "choices": [
-            { "k": "1", "label": "Parce qu’elle force à préciser : dans quelles conditions ça marche vraiment ?", "correct": true },
-            { "k": "2", "label": "Parce qu’elle prouve qu’il ne faut plus rien lire", "correct": false },
-            { "k": "3", "label": "Parce que la plus ancienne a toujours raison", "correct": false }
+            {
+              "k": "1",
+              "label": "Parce qu’elle force à préciser : dans quelles conditions ça marche vraiment ?",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "Parce qu’elle prouve qu’il ne faut plus rien lire",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "Parce que la plus ancienne a toujours raison",
+              "correct": false
+            }
           ],
           "explain": "Deux résultats qui s’opposent poussent à mieux définir le problème. C’est ainsi que la connaissance gagne en solidité.",
           "sources": [
@@ -945,9 +1702,21 @@
           "id": "ch_major",
           "q": "En scrutin majoritaire simple (un tour), qui est élu ?",
           "choices": [
-            { "k": "1", "label": "Celui ou celle qui a le plus de voix, même sans dépasser 50 %", "correct": true },
-            { "k": "2", "label": "Toujours celui ou celle qui a plus de 50 % dès le premier tour", "correct": false },
-            { "k": "3", "label": "Toutes les listes, au prorata des voix", "correct": false }
+            {
+              "k": "1",
+              "label": "Celui ou celle qui a le plus de voix, même sans dépasser 50 %",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "Toujours celui ou celle qui a plus de 50 % dès le premier tour",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "Toutes les listes, au prorata des voix",
+              "correct": false
+            }
           ],
           "explain": "Au majoritaire, le plus haut score l’emporte. On peut gagner avec bien moins de la moitié des voix si le reste est éclaté.",
           "sources": [
@@ -961,9 +1730,21 @@
           "id": "ch_prop",
           "q": "En scrutin proportionnel, que fait-on des sièges ?",
           "choices": [
-            { "k": "1", "label": "On les répartit selon la part de voix de chaque liste", "correct": true },
-            { "k": "2", "label": "On les donne tous à la liste arrivée en tête", "correct": false },
-            { "k": "3", "label": "On tire les élus au sort parmi les candidats", "correct": false }
+            {
+              "k": "1",
+              "label": "On les répartit selon la part de voix de chaque liste",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "On les donne tous à la liste arrivée en tête",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "On tire les élus au sort parmi les candidats",
+              "correct": false
+            }
           ],
           "explain": "La proportionnelle vise à coller au poids des voix. En France : européennes, et une part des régionales / municipales (selon les cas).",
           "sources": [
@@ -981,9 +1762,21 @@
           "id": "ch_tradeoff",
           "q": "Majoritaire ou proportionnel : quel effet typique ?",
           "choices": [
-            { "k": "1", "label": "Majoritaire : majorités plus nettes ; proportionnel : représentation plus fidèle des voix", "correct": true },
-            { "k": "2", "label": "Les deux donnent toujours exactement le même parlement", "correct": false },
-            { "k": "3", "label": "La proportionnelle donne toujours un seul vainqueur clair", "correct": false }
+            {
+              "k": "1",
+              "label": "Majoritaire : majorités plus nettes ; proportionnel : représentation plus fidèle des voix",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "Les deux donnent toujours exactement le même parlement",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "La proportionnelle donne toujours un seul vainqueur clair",
+              "correct": false
+            }
           ],
           "explain": "Chaque règle a un prix : stabilité d’un côté, fidélité aux scores de l’autre. Ce n’est pas « neutre ».",
           "sources": [
@@ -997,9 +1790,21 @@
           "id": "ch_sortition",
           "q": "À quoi sert surtout le tirage au sort (sortition) dans une démocratie ?",
           "choices": [
-            { "k": "1", "label": "Choisir des citoyen·nes au hasard pour délibérer (jury, convention…)", "correct": true },
-            { "k": "2", "label": "Remplacer toutes les élections présidentielles", "correct": false },
-            { "k": "3", "label": "Donner le pouvoir au plus riche", "correct": false }
+            {
+              "k": "1",
+              "label": "Choisir des citoyen·nes au hasard pour délibérer (jury, convention…)",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "Remplacer toutes les élections présidentielles",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "Donner le pouvoir au plus riche",
+              "correct": false
+            }
           ],
           "explain": "Le hasard donne une chance égale d’être tiré·e. On l’utilise pour des jurys ou des conventions citoyennes — pas pour « tout décider à pile ou face ».",
           "sources": [
@@ -1013,9 +1818,21 @@
           "id": "ch_scenario",
           "q": "Trois options A, B, C. Scores : A 40 %, B 35 %, C 25 %. Au majoritaire à un tour, qui gagne ?",
           "choices": [
-            { "k": "1", "label": "A (le plus haut score)", "correct": true },
-            { "k": "2", "label": "Personne : il faut 50 %", "correct": false },
-            { "k": "3", "label": "B et C à égalité", "correct": false }
+            {
+              "k": "1",
+              "label": "A (le plus haut score)",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "Personne : il faut 50 %",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "B et C à égalité",
+              "correct": false
+            }
           ],
           "explain": "A gagne sans majorité absolue. Si B et C s’étaient unis, le résultat aurait pu changer — d’où l’intérêt des règles à deux tours ou d’autres méthodes.",
           "sources": [
@@ -1029,9 +1846,21 @@
           "id": "ch_tworound",
           "q": "Au majoritaire à deux tours (ex. présidentielle française), à quoi sert surtout le 2ᵉ tour ?",
           "choices": [
-            { "k": "1", "label": "À départager pour viser une majorité plus large entre finalistes", "correct": true },
-            { "k": "2", "label": "À tirer au sort entre les deux premiers", "correct": false },
-            { "k": "3", "label": "À donner des sièges à toutes les listes", "correct": false }
+            {
+              "k": "1",
+              "label": "À départager pour viser une majorité plus large entre finalistes",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "À tirer au sort entre les deux premiers",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "À donner des sièges à toutes les listes",
+              "correct": false
+            }
           ],
           "explain": "Le second tour concentre le choix. Des alliances et des reports de voix deviennent décisifs.",
           "sources": [
@@ -1045,9 +1874,21 @@
           "id": "ch_jm",
           "q": "Dans le jugement majoritaire, que fait chaque votant·e ?",
           "choices": [
-            { "k": "1", "label": "Donne une mention à chaque option (excellent, bien, passable…)", "correct": true },
-            { "k": "2", "label": "Ne choisit qu’un seul nom, sans noter les autres", "correct": false },
-            { "k": "3", "label": "Classe les options par tirage au sort", "correct": false }
+            {
+              "k": "1",
+              "label": "Donne une mention à chaque option (excellent, bien, passable…)",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "Ne choisit qu’un seul nom, sans noter les autres",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "Classe les options par tirage au sort",
+              "correct": false
+            }
           ],
           "explain": "On évalue toutes les options. On retient ensuite la mention « du milieu » (majoritaire) — utile pour comparer plusieurs propositions.",
           "sources": [
@@ -1061,9 +1902,21 @@
           "id": "ch_meta",
           "q": "Quelle règle d’or garder sur les méthodes de choix ?",
           "choices": [
-            { "k": "1", "label": "La règle n’est jamais neutre : elle peut changer qui gagne et qui est représenté", "correct": true },
-            { "k": "2", "label": "Toutes les méthodes donnent toujours le même vainqueur", "correct": false },
-            { "k": "3", "label": "Seule l’opinion des expert·e·s compte, jamais la règle", "correct": false }
+            {
+              "k": "1",
+              "label": "La règle n’est jamais neutre : elle peut changer qui gagne et qui est représenté",
+              "correct": true
+            },
+            {
+              "k": "2",
+              "label": "Toutes les méthodes donnent toujours le même vainqueur",
+              "correct": false
+            },
+            {
+              "k": "3",
+              "label": "Seule l’opinion des expert·e·s compte, jamais la règle",
+              "correct": false
+            }
           ],
           "explain": "Choisir comment on décide, c’est déjà décider. Majorité, proportionnelle, tirage au sort ou mentions : chaque outil a des effets.",
           "sources": [

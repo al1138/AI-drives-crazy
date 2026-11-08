@@ -1,9 +1,17 @@
-# AI drives crazy
+# On te lit
 
-On dirait une IA. Ce n’est qu’un algo. **0 IA · 0 token.**  
-Le bilan final démonte l’**effet Barnum** (horoscope qui marche sur tout le monde).
+Ex-« AI drives crazy ». Marque clickbait : **On te lit**.  
+On dirait que ça te connaît. C’est faux — déconstruction de l’**effet Barnum**. **0 IA · 0 token.**
 
-## Humor Lab (`lab/`)
+## Autres noms envisagés
+- **On te lit** ← choisi (court, menaçant, Barnum)
+- **94 %** (chiffre mystique)
+- **Pris pour con** (agressif / viral)
+- **Faux positif**
+- **Unique\***
+- **Le bilan qui ment**
+
+## Lab (`lab/`)
 
 ```bash
 cd lab && python3 -m http.server 8787
@@ -15,12 +23,12 @@ cd lab && python3 -m http.server 8787
 | `espace` | citation suivante |
 | `1` / `2` / `3` | bof · ok · mdr |
 | `FR` / `EN` | mode langue |
-| `t` | terminer → bilan |
+| `t` | terminer → faux bilan puis reveal Barnum |
 | `r` | reset profil |
 
 ## Déployer sur Cloudflare Pages
 
-Dossier servi : **`lab/`** (statique). Projet Pages : `ai-drives-crazy` → `https://ai-drives-crazy.pages.dev`
+Projet technique (URL inchangée) : `ai-drives-crazy` → https://ai-drives-crazy.pages.dev
 
 ### 3 commandes (1ʳᵉ fois)
 
@@ -30,13 +38,5 @@ npx wrangler pages project create ai-drives-crazy
 npx wrangler pages deploy lab --project-name=ai-drives-crazy
 ```
 
-### Déploiement auto à chaque modif
-
-1. Crée un **API Token** Cloudflare : *Workers Pages Write* + *Account read*
-2. Dans GitHub → repo → **Settings → Secrets and variables → Actions** :
-   - `CLOUDFLARE_API_TOKEN`
-   - `CLOUDFLARE_ACCOUNT_ID` (dashboard → overview, à droite)
-3. Push sur `main` (fichiers sous `lab/**`) → le workflow `.github/workflows/deploy-pages.yml` publie tout seul
-
-Alternative sans secrets GitHub : dashboard Cloudflare → **Workers & Pages** → Create → **Connect to Git** → repo `AI-drives-crazy` → Root directory `lab` → Build command vide → Deploy. Chaque push sur `main` redéploie.
-
+### Auto-deploy
+Secrets GitHub `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` → push sur `lab/**` déploie.

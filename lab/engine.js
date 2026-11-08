@@ -1,7 +1,30 @@
 /**
- * Humor Lab v1 — pure algorithm, 0 IA, 0 réseau.
+ * On te lit — lab algorithmique, 0 IA, 0 réseau.
  * Path 1 = learn · Path 2 = space = citation suivante
  */
+
+const BRAND = "On te lit";
+
+/** Sous-titres clickbait — tournent toutes les N secondes. */
+const CLICKBAIT_SUBS = [
+  "10 trucs vitaux que tu ignores encore",
+  "On te prend pour un con — comment le détecter",
+  "Ce bilan te connaît mieux que ta mère",
+  "Le test que 9 personnes sur 10 ratent",
+  "Pourquoi les horoscopes marchent (vraiment)",
+  "Si tu lis ça, tu es déjà piégé",
+  "Les experts détestent cette méthode simple",
+  "Ton profil secret révélé en 30 secondes",
+  "Ce que ton cerveau refuse de voir",
+  "Comment ne plus se faire avoir en 2026",
+  "La vérité sur toi que personne n’ose dire",
+  "Arrête de scroller : ce piège est pour toi",
+  "94 % des gens croient que c’est personnel",
+  "Astrologie, IA, tests : même arnaque douce",
+  "Tu n’es pas parano — on te manipule vraiment",
+];
+
+const SUB_ROTATE_MS = 5000;
 
 const STORAGE_KEY = "aidc.humor.profile.v1";
 const NEWS_KEY = "aidc.newsletter.v1";
@@ -323,7 +346,7 @@ function unseenCoachCount(profile) {
 }
 
 function makeTags(pattern) {
-  const base = ["#aipocalypse", "#AIdrivescrazy"];
+  const base = ["#ontelit", "#barnum", "#aipocalypse"];
   const map = {
     paradox: "#paradoxe",
     impossible: "#impossible",
@@ -465,7 +488,11 @@ const el = {
   axisMetaVal: document.getElementById("axisMetaVal"),
   langFr: document.getElementById("langFr"),
   langEn: document.getElementById("langEn"),
+  brandLogo: document.getElementById("brandLogo"),
+  brandSub: document.getElementById("brandSub"),
   newsForm: document.getElementById("newsForm"),
+  newsBrand: document.querySelector(".news-brand"),
+
   newsEmail: document.getElementById("newsEmail"),
   newsConsent: document.getElementById("newsConsent"),
   newsError: document.getElementById("newsError"),
@@ -836,6 +863,7 @@ function goIdle() {
 
 function generate() {
   clearThinkTimer();
+  rotateBrandSub();
   setAlgoSteps(["bank", "grim", "unseen", "weight", "think"]);
   current = choosePattern(profile);
   if (!profile.seenIds.includes(current.id)) {
@@ -1113,6 +1141,31 @@ document.addEventListener("click", (e) => {
 
 if (el.newsForm) el.newsForm.addEventListener("submit", submitNewsletter);
 
+/** @type {ReturnType<typeof setInterval> | null} */
+let subTimer = null;
+let subIndex = Math.floor(Math.random() * CLICKBAIT_SUBS.length);
+
+function renderBrandSub() {
+  if (!el.brandSub) return;
+  el.brandSub.textContent = CLICKBAIT_SUBS[subIndex % CLICKBAIT_SUBS.length];
+}
+
+function rotateBrandSub() {
+  subIndex = (subIndex + 1) % CLICKBAIT_SUBS.length;
+  renderBrandSub();
+}
+
+function startSubRotator() {
+  renderBrandSub();
+  if (subTimer != null) clearInterval(subTimer);
+  subTimer = setInterval(rotateBrandSub, SUB_ROTATE_MS);
+}
+
+if (el.brandLogo) el.brandLogo.textContent = BRAND;
+if (el.newsBrand) el.newsBrand.textContent = BRAND;
+document.title = `${BRAND} — le bilan qui te connaît (trop bien)`;
+
 renderLangMode();
+startSubRotator();
 goIdle();
 renderStats();

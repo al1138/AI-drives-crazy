@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>AI drives crazy — humor lab v1</title>
+  <title>On te lit — le bilan qui te connaît (trop bien)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -59,7 +59,7 @@
         <div class="lab-screen">
           <header class="brand">
             <div class="brand-row">
-              <p class="logo">AI drives crazy</p>
+              <p class="logo" id="brandLogo">On te lit</p>
               <div class="brand-tools">
                 <div class="lang-mode" role="group" aria-label="Langue des citations">
                   <button type="button" class="lang-btn" id="langFr" data-lang="fr" aria-pressed="true">FR</button>
@@ -68,6 +68,7 @@
                 <p class="badge-zero" title="Aucune intelligence artificielle">0 IA</p>
               </div>
             </div>
+            <p class="brand-sub" id="brandSub" aria-live="polite"></p>
             <p class="meta" id="meta">lab v1 · algorithmique · 0 € · 0 token</p>
             <div class="gauge" id="gauge" role="meter" aria-label="Niveau d’humour" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
               <div class="gauge-top">
@@ -214,7 +215,7 @@
         </section>
 
         <section class="news" aria-labelledby="newsTitle">
-          <p class="news-brand">AI drives crazy</p>
+          <p class="news-brand">On te lit</p>
           <h2 class="news-title" id="newsTitle">Moins se faire avoir. Une contradiction / semaine.</h2>
           <p class="news-copy">
             Pas d’horoscope. Pas de modèle. Juste des pièges cognitifs décortiqués —

@@ -1,10 +1,21 @@
 {
-  "tests": [
+  "sessionSize": 10,
+  "titles": [
+    "Quel type es-tu vraiment ?",
+    "Ton mode de fonctionnement",
+    "Portrait en 10 choix",
+    "Ce que tes habitudes disent de toi"
+  ],
+  "blurbs": [
+    "10 questions rapides. Réponds spontanément — ton profil t’attend à la fin.",
+    "Dix situations du quotidien. Une seule réponse par question.",
+    "Pas de bonne ou mauvaise réponse. Juste ton instinct.",
+    "Réponds au feeling. On calcule ton profil à partir de tes choix."
+  ],
+  "packs": [
     {
-      "id": "barnum-v1",
-      "effect": "barnum",
-      "title": "Quel type es-tu vraiment ?",
-      "blurb": "10 questions rapides. Réponds spontanément — ton profil t’attend à la fin.",
+      "id": "rythme",
+      "label": "Rythme",
       "questions": [
         {
           "id": "sleep",
@@ -13,15 +24,6 @@
             { "k": "1", "label": "Coucher tôt" },
             { "k": "2", "label": "Coucher tard" },
             { "k": "3", "label": "Ça dépend" }
-          ]
-        },
-        {
-          "id": "pet",
-          "q": "Chat ou chien ?",
-          "choices": [
-            { "k": "1", "label": "Chat" },
-            { "k": "2", "label": "Chien" },
-            { "k": "3", "label": "Les deux / ni l’un ni l’autre" }
           ]
         },
         {
@@ -43,11 +45,89 @@
           ]
         },
         {
+          "id": "sport",
+          "q": "Le sport, pour toi ?",
+          "choices": [
+            { "k": "1", "label": "Routine fixe" },
+            { "k": "2", "label": "Quand j’y pense" },
+            { "k": "3", "label": "Surtout mentalement" }
+          ]
+        },
+        {
+          "id": "alarm",
+          "q": "Ton rapport au réveil ?",
+          "choices": [
+            { "k": "1", "label": "Je me lève au premier coup" },
+            { "k": "2", "label": "Snooze obligatoire" },
+            { "k": "3", "label": "Plusieurs alarmes" }
+          ]
+        },
+        {
+          "id": "tempo",
+          "q": "Ton rythme de croisière ?",
+          "choices": [
+            { "k": "1", "label": "Plutôt rapide" },
+            { "k": "2", "label": "Plutôt lent" },
+            { "k": "3", "label": "Par à-coups" }
+          ]
+        },
+        {
+          "id": "deadline",
+          "q": "Une deadline qui approche ?",
+          "choices": [
+            { "k": "1", "label": "Je m’y prends tôt" },
+            { "k": "2", "label": "Je sprinte à la fin" },
+            { "k": "3", "label": "Je négocie un délai" }
+          ]
+        },
+        {
+          "id": "nap",
+          "q": "La sieste ?",
+          "choices": [
+            { "k": "1", "label": "Jamais" },
+            { "k": "2", "label": "Dès que possible" },
+            { "k": "3", "label": "Rare mais sacrée" }
+          ]
+        },
+        {
+          "id": "nightowl",
+          "q": "Après 23 h, tu es…",
+          "choices": [
+            { "k": "1", "label": "Déjà éteint·e" },
+            { "k": "2", "label": "Au top" },
+            { "k": "3", "label": "Variable" }
+          ]
+        },
+        {
+          "id": "break",
+          "q": "Pendant une pause ?",
+          "choices": [
+            { "k": "1", "label": "Je bouge" },
+            { "k": "2", "label": "Je scroll" },
+            { "k": "3", "label": "Je ne fais rien" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "social",
+      "label": "Social",
+      "questions": [
+        {
+          "id": "pet",
+          "q": "Chat ou chien ?",
+          "choices": [
+            { "k": "1", "label": "Chat" },
+            { "k": "2", "label": "Chien" },
+            { "k": "3", "label": "Les deux / ni l’un ni l’autre" }
+          ]
+        },
+        {
           "id": "message",
           "q": "Un message laissé en « lu » ?",
           "choices": [
             { "k": "1", "label": "Je réponds vite" },
-            { "k": "2", "label": "Je laisse murir" },
+            { "k": "2", "label": "Je laisse mûrir" },
             { "k": "3", "label": "J’oublie souvent" }
           ]
         },
@@ -58,15 +138,6 @@
             { "k": "1", "label": "Au centre" },
             { "k": "2", "label": "En retrait" },
             { "k": "3", "label": "Selon les gens" }
-          ]
-        },
-        {
-          "id": "risk",
-          "q": "Devant un choix risqué ?",
-          "choices": [
-            { "k": "1", "label": "Je saute" },
-            { "k": "2", "label": "Je calcule" },
-            { "k": "3", "label": "Je demande un avis" }
           ]
         },
         {
@@ -88,12 +159,240 @@
           ]
         },
         {
+          "id": "party",
+          "q": "À une fête où tu ne connais personne ?",
+          "choices": [
+            { "k": "1", "label": "Je m’impose" },
+            { "k": "2", "label": "Je colle à un binôme" },
+            { "k": "3", "label": "Je file tôt" }
+          ]
+        },
+        {
+          "id": "call",
+          "q": "On te propose un appel plutôt qu’un texto ?",
+          "choices": [
+            { "k": "1", "label": "Volontiers" },
+            { "k": "2", "label": "Texto de préférence" },
+            { "k": "3", "label": "Ça dépend du sujet" }
+          ]
+        },
+        {
+          "id": "gift",
+          "q": "Offrir un cadeau ?",
+          "choices": [
+            { "k": "1", "label": "Utile avant tout" },
+            { "k": "2", "label": "Surprenant / original" },
+            { "k": "3", "label": "Expérience plutôt qu’objet" }
+          ]
+        },
+        {
+          "id": "silence",
+          "q": "Un silence dans une conversation ?",
+          "choices": [
+            { "k": "1", "label": "Je le comble" },
+            { "k": "2", "label": "Je le laisse vivre" },
+            { "k": "3", "label": "Ça me gêne un peu" }
+          ]
+        },
+        {
+          "id": "invite",
+          "q": "Une invitation de dernière minute ?",
+          "choices": [
+            { "k": "1", "label": "Je dis oui" },
+            { "k": "2", "label": "Je dis non" },
+            { "k": "3", "label": "Je vois selon l’énergie" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "choix",
+      "label": "Décisions",
+      "questions": [
+        {
+          "id": "risk",
+          "q": "Devant un choix risqué ?",
+          "choices": [
+            { "k": "1", "label": "Je saute" },
+            { "k": "2", "label": "Je calcule" },
+            { "k": "3", "label": "Je demande un avis" }
+          ]
+        },
+        {
           "id": "future",
           "q": "Dans 5 ans, tu te vois…",
           "choices": [
-            { "k": "1", "label": "Très différent" },
+            { "k": "1", "label": "Très différent·e" },
             { "k": "2", "label": "À peu près pareil" },
             { "k": "3", "label": "Aucune idée — et ok" }
+          ]
+        },
+        {
+          "id": "menu",
+          "q": "Au resto, tu commandes…",
+          "choices": [
+            { "k": "1", "label": "Ce que je connais" },
+            { "k": "2", "label": "Ce que je n’ai jamais goûté" },
+            { "k": "3", "label": "Ce que le serveur conseille" }
+          ]
+        },
+        {
+          "id": "money",
+          "q": "Face à un achat impulsif ?",
+          "choices": [
+            { "k": "1", "label": "Je cède" },
+            { "k": "2", "label": "Je dors dessus" },
+            { "k": "3", "label": "Je compare trois fois" }
+          ]
+        },
+        {
+          "id": "travel",
+          "q": "Voyager, pour toi ?",
+          "choices": [
+            { "k": "1", "label": "Itinéraire millimétré" },
+            { "k": "2", "label": "Impro totale" },
+            { "k": "3", "label": "Cadre souple" }
+          ]
+        },
+        {
+          "id": "news",
+          "q": "L’actu, tu la suis…",
+          "choices": [
+            { "k": "1", "label": "Chaque jour" },
+            { "k": "2", "label": "Par à-coups" },
+            { "k": "3", "label": "Le moins possible" }
+          ]
+        },
+        {
+          "id": "tech",
+          "q": "Une nouvelle appli / gadget ?",
+          "choices": [
+            { "k": "1", "label": "Early adopter" },
+            { "k": "2", "label": "J’attends les retours" },
+            { "k": "3", "label": "Je m’en fiche" }
+          ]
+        },
+        {
+          "id": "rule",
+          "q": "Une règle un peu absurde ?",
+          "choices": [
+            { "k": "1", "label": "Je la respecte" },
+            { "k": "2", "label": "Je la contourne" },
+            { "k": "3", "label": "Je demande pourquoi" }
+          ]
+        },
+        {
+          "id": "opinion",
+          "q": "Changer d’avis en public ?",
+          "choices": [
+            { "k": "1", "label": "Facile" },
+            { "k": "2", "label": "Difficile" },
+            { "k": "3", "label": "Selon l’enjeu" }
+          ]
+        },
+        {
+          "id": "queue",
+          "q": "Une longue file d’attente ?",
+          "choices": [
+            { "k": "1", "label": "Je patiente" },
+            { "k": "2", "label": "Je reviens plus tard" },
+            { "k": "3", "label": "Je cherche un raccourci" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "quotidien",
+      "label": "Quotidien",
+      "questions": [
+        {
+          "id": "coffee",
+          "q": "Café ou thé ?",
+          "choices": [
+            { "k": "1", "label": "Café" },
+            { "k": "2", "label": "Thé" },
+            { "k": "3", "label": "Autre / ni l’un ni l’autre" }
+          ]
+        },
+        {
+          "id": "inbox",
+          "q": "Ta boîte mail ?",
+          "choices": [
+            { "k": "1", "label": "Zéro non lu" },
+            { "k": "2", "label": "Chaos organisé" },
+            { "k": "3", "label": "Je regarde rarement" }
+          ]
+        },
+        {
+          "id": "series",
+          "q": "Une série en cours ?",
+          "choices": [
+            { "k": "1", "label": "Épisode par épisode" },
+            { "k": "2", "label": "Binge" },
+            { "k": "3", "label": "Plusieurs en parallèle" }
+          ]
+        },
+        {
+          "id": "cook",
+          "q": "Cuisiner le soir ?",
+          "choices": [
+            { "k": "1", "label": "Plaisir" },
+            { "k": "2", "label": "Corvée" },
+            { "k": "3", "label": "Livraison / reste" }
+          ]
+        },
+        {
+          "id": "desk",
+          "q": "Ton espace de travail ?",
+          "choices": [
+            { "k": "1", "label": "Minimaliste" },
+            { "k": "2", "label": "Bordélique créatif" },
+            { "k": "3", "label": "Ça dépend des semaines" }
+          ]
+        },
+        {
+          "id": "music",
+          "q": "En travaillant / concentrant ?",
+          "choices": [
+            { "k": "1", "label": "Silence" },
+            { "k": "2", "label": "Musique" },
+            { "k": "3", "label": "Podcast / bruit de fond" }
+          ]
+        },
+        {
+          "id": "weather",
+          "q": "Quel temps te booste ?",
+          "choices": [
+            { "k": "1", "label": "Soleil" },
+            { "k": "2", "label": "Pluie / gris" },
+            { "k": "3", "label": "Peu importe" }
+          ]
+        },
+        {
+          "id": "clothes",
+          "q": "S’habiller le matin ?",
+          "choices": [
+            { "k": "1", "label": "Décidé la veille" },
+            { "k": "2", "label": "Impro au feeling" },
+            { "k": "3", "label": "Toujours la même base" }
+          ]
+        },
+        {
+          "id": "notif",
+          "q": "Les notifications ?",
+          "choices": [
+            { "k": "1", "label": "Presque toutes on" },
+            { "k": "2", "label": "Presque toutes off" },
+            { "k": "3", "label": "Sélection stricte" }
+          ]
+        },
+        {
+          "id": "sunday",
+          "q": "Le dimanche soir ?",
+          "choices": [
+            { "k": "1", "label": "Je prépare la semaine" },
+            { "k": "2", "label": "Je prolonge le week-end" },
+            { "k": "3", "label": "Mélancolie légère" }
           ]
         }
       ]

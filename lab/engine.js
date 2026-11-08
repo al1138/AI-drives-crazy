@@ -1022,7 +1022,7 @@ function renderConfirmEnd() {
       <header class="end-hero">
         <p class="end-kicker">babillard · bilan</p>
         <h1 class="end-title">Précision ${s.biased}%</h1>
-        <p class="end-lead">Sur les prédictions que tu as retenues, le babillard cartonne.</p>
+        <p class="end-lead">D’après ce que tu as coché, les prédictions collent très bien.</p>
         <p class="end-humor">Les réussites brillent. Le reste… passe à la trappe.</p>
       </header>
       <section class="confirm-hits">

@@ -4,7 +4,7 @@
       "id": "barnum-v1",
       "effect": "barnum",
       "title": "Quel type es-tu vraiment ?",
-      "blurb": "10 questions. Réponds au feeling. On te dresse un profil.",
+      "blurb": "10 questions rapides. Réponds spontanément — ton profil t’attend à la fin.",
       "questions": [
         {
           "id": "sleep",

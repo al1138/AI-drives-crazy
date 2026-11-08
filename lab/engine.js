@@ -4,19 +4,20 @@
 
 const BRAND = "On te lit";
 
+/** Accroches type test perso — sans spoiler (pas de « piège », « faux », etc.). */
 const CLICKBAIT_SUBS = [
-  "10 trucs vitaux que tu ignores encore",
-  "On te prend pour un con — comment le détecter",
-  "Ce bilan te connaît mieux que ta mère",
-  "Le test que 9 personnes sur 10 ratent",
-  "Ton profil secret révélé en 30 secondes",
-  "Si tu lis ça, tu es déjà piégé",
-  "Les experts détestent cette méthode simple",
-  "Ce que ton cerveau refuse de voir",
-  "La vérité sur toi que personne n’ose dire",
-  "Arrête de scroller : ce test est pour toi",
-  "94 % des gens croient que c’est personnel",
-  "Découvre enfin qui tu es (vraiment)",
+  "10 minutes pour mieux te comprendre",
+  "Le test de personnalité du moment",
+  "Ce que tes habitudes disent de toi",
+  "Ton profil en 10 questions",
+  "Découvre ton type en moins de 3 minutes",
+  "Les réponses révèlent ton style de vie",
+  "Un portrait fidèle, basé sur tes choix",
+  "Es-tu plutôt instinct ou méthode ?",
+  "Ton mode de fonctionnement, décrypté",
+  "Qui es-tu quand personne ne regarde ?",
+  "Un bilan perso clair et sans blabla",
+  "Commence le test — résultats immédiats",
 ];
 
 const SUB_ROTATE_MS = 5000;
@@ -234,9 +235,9 @@ function showIdle() {
   }
   if (el.startRow) el.startRow.hidden = false;
   if (el.meta && activeTest) {
-    el.meta.textContent = `${activeTest.questions.length} questions · aujourd’hui`;
+    el.meta.textContent = `${activeTest.questions.length} questions · ~3 min`;
   }
-  if (el.stats) el.stats.textContent = activeTest ? activeTest.id : "";
+  if (el.stats) el.stats.textContent = "";
 }
 
 function renderChoices(question) {
@@ -452,7 +453,7 @@ if (el.resetBtn) el.resetBtn.addEventListener("click", (e) => {
 async function boot() {
   if (el.brandLogo) el.brandLogo.textContent = BRAND;
   if (el.newsBrand) el.newsBrand.textContent = BRAND;
-  document.title = `${BRAND} — le test qui te connaît`;
+  document.title = `${BRAND} — test de personnalité`;
   startSubRotator();
 
   try {

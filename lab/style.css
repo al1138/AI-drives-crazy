@@ -2102,6 +2102,87 @@ body {
   }
 }
 
+/* ——— Exp politiques (exposition / halo / ancrage) ——— */
+
+.bias-body {
+  margin: 8px 0 14px;
+}
+
+.bias-slogan {
+  margin: 0;
+  padding: 22px 18px;
+  background: #111;
+  color: #eee;
+  font-size: clamp(18px, 3.2vw, 24px);
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+.bias-note {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.halo-card,
+.halo-prog {
+  padding: 14px 14px;
+  background: var(--soft);
+  margin-bottom: 10px;
+}
+
+.halo-name {
+  margin: 0 0 6px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+.halo-form {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.45;
+  color: #333;
+}
+
+.halo-programs {
+  display: grid;
+  gap: 8px;
+}
+
+.anchor-poll {
+  padding: 18px 16px;
+  background: var(--soft);
+  border-left: 3px solid var(--fg);
+  margin-bottom: 8px;
+}
+
+.anchor-label {
+  margin: 0;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.anchor-number {
+  margin: 8px 0 0;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: clamp(36px, 8vw, 52px);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.anchor-sub {
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: #444;
+  line-height: 1.4;
+}
+
 /* ——— Exp corrélation : observatoire ——— */
 
 .corr-day {

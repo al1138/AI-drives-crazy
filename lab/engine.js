@@ -29,11 +29,17 @@ const el = {
   playBarnum: document.getElementById("playBarnum"),
   playConfirm: document.getElementById("playConfirm"),
   playCorr: document.getElementById("playCorr"),
+  playBias: document.getElementById("playBias"),
   progress: document.getElementById("progress"),
   question: document.getElementById("question"),
   choices: document.getElementById("choices"),
   confirmProgress: document.getElementById("confirmProgress"),
   confirmText: document.getElementById("confirmText"),
+  biasProgress: document.getElementById("biasProgress"),
+  biasKicker: document.getElementById("biasKicker"),
+  biasQuestion: document.getElementById("biasQuestion"),
+  biasBody: document.getElementById("biasBody"),
+  biasChoices: document.getElementById("biasChoices"),
   corrProgress: document.getElementById("corrProgress"),
   corrDay: document.getElementById("corrDay"),
   corrPrompt: document.getElementById("corrPrompt"),
@@ -428,6 +434,42 @@ function hidePlays() {
   if (el.playBarnum) el.playBarnum.hidden = true;
   if (el.playConfirm) el.playConfirm.hidden = true;
   if (el.playCorr) el.playCorr.hidden = true;
+  if (el.playBias) el.playBias.hidden = true;
+}
+
+function politicsHelpers() {
+  return {
+    el,
+    escapeHtml,
+    setReveal,
+    showEnd,
+    shuffle,
+    pick,
+    hidePlays,
+    getExp: () => activeExp,
+    setMode: (m) => {
+      mode = m;
+    },
+    getMode: () => mode,
+    pushAnswer: (k) => {
+      answerOrder.push(k);
+    },
+    setIntroSteps,
+    setMeta: (t) => {
+      if (el.meta) el.meta.textContent = t;
+    },
+    setFinishLabel: (t) => {
+      if (el.finishLabel) el.finishLabel.textContent = t;
+    },
+    setBridge: (title, copy) => {
+      if (el.bridgeTitle) el.bridgeTitle.textContent = title;
+      if (el.bridgeCopy) el.bridgeCopy.textContent = copy;
+    },
+  };
+}
+
+function isPolitics() {
+  return typeof PoliticsLab !== "undefined" && PoliticsLab.isPoliticsEffect(effect());
 }
 
 function setIntroSteps(lines) {
@@ -467,7 +509,7 @@ function applyHomeCopy() {
     ]);
     if (el.meta) el.meta.textContent = `${confirmDeck.length || 10} prédictions · ~2 min`;
     if (el.finishLabel) el.finishLabel.textContent = "voir ma précision";
-  } else {
+  } else if (effect() === "correlation") {
     setIntroSteps([
       { k: "espace", t: "ouvrir l’observatoire" },
       { k: "1 · 2 · 3", t: "plausible / douteux / sans lien" },
@@ -475,6 +517,8 @@ function applyHomeCopy() {
     ]);
     if (el.meta) el.meta.textContent = `${CORR_DAYS} dossiers · ~2 min`;
     if (el.finishLabel) el.finishLabel.textContent = "voir le rapport";
+  } else if (isPolitics()) {
+    PoliticsLab.applyHome(politicsHelpers());
   }
 }
 
@@ -795,6 +839,7 @@ function buildCurrentSnapshot() {
       missTexts: confirmDeck.filter((p) => confirmMarks[p.id] === "2").map((p) => p.text),
     };
   }
+  if (isPolitics()) return PoliticsLab.buildSnapshot(politicsHelpers());
   const s = corrBiasedScore();
   return {
     effect: "correlation",
@@ -850,7 +895,15 @@ function renderProofPanel(runs) {
       ? "Premier vs dernier : les réponses changent, le ton « ultra personnel » reste interchangeable."
       : eff === "confirmation"
         ? "Quel que soit ce que tu coches, le bilan met en avant les « ça colle » et gonfle le %."
-        : "Observations A et B toujours tirées à part — les « explications » restent aussi parlantes.";
+        : eff === "correlation"
+          ? "Observations A et B toujours tirées à part — les « explications » restent aussi parlantes."
+          : eff === "exposure"
+            ? "L’antenne répète : les messages les plus vus restent souvent préférés."
+            : eff === "halo"
+              ? "La forme oriente encore le fond — ou tu y résistes, et on le mesure."
+              : eff === "anchor"
+                ? "Le premier chiffre continue d’attirer les estimations."
+                : "Compare tes passages pour voir le même mécanisme.";
 
   el.proofBody.innerHTML = `
     <div class="algo-compare">
@@ -890,6 +943,9 @@ function proofSummaryHtml(eff, run) {
       <p class="algo-card-body">Ça colle : ${run.hits} · vague : ${run.soft} · non : ${run.miss}</p>
       <p class="algo-card-keys">Touches : ${escapeHtml((run.keys || []).join(" · ") || "—")}</p>`;
   }
+  if (typeof PoliticsLab !== "undefined" && PoliticsLab.isPoliticsEffect(eff)) {
+    return PoliticsLab.proofSummary(eff, run);
+  }
   const pairs = (run.pairs || [])
     .map((p) => `${p.factA || p.drink} × ${p.factB || p.sign}`)
     .join(" · ");
@@ -901,6 +957,9 @@ function proofSummaryHtml(eff, run) {
 function proofOneLiner(eff, run) {
   if (eff === "barnum") return `${(run.keys || []).join("")} → « ${run.title || "profil"} »`;
   if (eff === "confirmation") return `affiché ${run.biased}% / honnête ${run.honest}%`;
+  if (typeof PoliticsLab !== "undefined" && PoliticsLab.isPoliticsEffect(eff)) {
+    return PoliticsLab.proofOneLiner(eff, run);
+  }
   return `score ${run.biased}% · ${run.conv} « plausible »`;
 }
 
@@ -923,6 +982,9 @@ function proofDiffHtml(eff, a, b) {
       <li>Écart affiché−honnête : ${a.biased - a.honest} pts → ${b.biased - b.honest} pts</li>
       <li>Même manœuvre : mettre en lumière les « ça colle », enterrer les « non ».</li>
     </ul>`;
+  }
+  if (typeof PoliticsLab !== "undefined" && PoliticsLab.isPoliticsEffect(eff)) {
+    return PoliticsLab.proofDiff(eff, a, b);
   }
   return `<ul class="proof-diff">
     <li>1er passage : ${(a.pairs || []).length} dossiers jugés</li>
@@ -953,6 +1015,8 @@ function prepareBridgeCopy() {
     el.bridgeTitle.textContent = "Les dossiers avaient l’air solides…";
     el.bridgeCopy.textContent =
       "Encore un cran : on montre que A et B étaient tirés séparément.";
+  } else if (isPolitics()) {
+    PoliticsLab.prepareBridge(politicsHelpers());
   } else {
     el.bridgeTitle.textContent = "La suite change la lecture.";
     el.bridgeCopy.textContent =
@@ -1480,6 +1544,7 @@ function showIdle() {
   corrLog = [];
   corrUsedA = new Set();
   corrUsedB = new Set();
+  if (typeof PoliticsLab !== "undefined") PoliticsLab.resetState();
   quizStartedAt = 0;
   quizEndedAt = 0;
   hidePlays();
@@ -1521,8 +1586,13 @@ function startPlay() {
       return;
     }
     showConfirmStep();
-  } else {
+  } else if (effect() === "correlation") {
     showCorrDay();
+  } else if (isPolitics()) {
+    PoliticsLab.start(politicsHelpers());
+  } else {
+    mode = "idle";
+    setFinishVisible(false);
   }
 }
 
@@ -1542,8 +1612,10 @@ function showEnd() {
     renderBarnumEnd();
   } else if (effect() === "confirmation") {
     renderConfirmEnd();
-  } else {
+  } else if (effect() === "correlation") {
     renderCorrEnd();
+  } else if (isPolitics()) {
+    PoliticsLab.renderEnd(politicsHelpers());
   }
 
   const runs = appendRunKeepFirst(effect(), buildCurrentSnapshot());
@@ -1591,7 +1663,8 @@ function handleKey(raw) {
   if (mode !== "play" || !/^[1-3]$/.test(k)) return;
   if (effect() === "barnum") answerBarnum(k);
   else if (effect() === "confirmation") answerConfirm(k);
-  else answerCorr(k);
+  else if (effect() === "correlation") answerCorr(k);
+  else if (isPolitics()) PoliticsLab.answer(k, politicsHelpers());
 }
 
 async function submitNewsletter(e) {

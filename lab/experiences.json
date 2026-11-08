@@ -1,6 +1,6 @@
 {
   "defaultEffect": "barnum",
-  "rotation": ["barnum", "confirmation", "correlation"],
+  "rotation": ["barnum", "confirmation", "correlation", "exposure", "halo", "anchor"],
   "experiences": [
     {
       "id": "barnum",
@@ -83,6 +83,127 @@
         "Mécanisme inventé mais crédible : {a} perturbe un facteur caché, qui pousse ensuite {b}.",
         "Légende urbaine tenace : dès que {a}, attendez-vous à {b}. Beaucoup de gens « l’ont vécu ».",
         "Lecture paresseuse des stats : les deux courbes montent ensemble ({a} et {b}), donc cause → effet."
+      ]
+    },
+    {
+      "id": "exposure",
+      "effect": "exposure",
+      "homeTitle": "Le studio des messages",
+      "homeBlurb": "Des slogans défilent à l’antenne. Puis tu choisis ceux qui te paraissent les plus solides.",
+      "clickbait": [
+        "Antenne en direct · slogans",
+        "Quels messages restent ?",
+        "2 minutes d’antenne"
+      ],
+      "slogans": [
+        { "id": "s1", "text": "Remettre le pays en mouvement, sans attendre.", "repeats": 4 },
+        { "id": "s2", "text": "La sécurité d’abord, partout et pour tous.", "repeats": 4 },
+        { "id": "s3", "text": "Un plan climat crédible, chiffré, daté.", "repeats": 1 },
+        { "id": "s4", "text": "L’école comme priorité budgétaire n°1.", "repeats": 1 },
+        { "id": "s5", "text": "Moins de jargon, plus de résultats.", "repeats": 3 },
+        { "id": "s6", "text": "Protéger le pouvoir d’achat dès le premier mois.", "repeats": 1 }
+      ],
+      "pickRounds": [
+        {
+          "prompt": "Lequel te paraît le plus crédible ?",
+          "options": ["s1", "s3", "s4"]
+        },
+        {
+          "prompt": "Lequel ferais-tu passer en une phrase à un ami ?",
+          "options": ["s2", "s6", "s3"]
+        },
+        {
+          "prompt": "Lequel sonne le plus « présidentiel » ?",
+          "options": ["s5", "s4", "s1"]
+        }
+      ]
+    },
+    {
+      "id": "halo",
+      "effect": "halo",
+      "homeTitle": "Le casting",
+      "homeBlurb": "Trois profils. D’abord l’impression. Ensuite le fond. Tu choisis qui gouvernerait le mieux.",
+      "clickbait": [
+        "Trois profils · une décision",
+        "Première impression vs fond",
+        "Casting express"
+      ],
+      "candidates": [
+        {
+          "id": "c1",
+          "name": "Alex Martin",
+          "form": "Jeune, voix posée, costume impeccable, regard camera. Air de « premier de la classe » qui a déjà les dossiers.",
+          "program": "Stabiliser les comptes, simplifier l’administration, investir dans l’innovation et la formation. Priorité à l’efficacité."
+        },
+        {
+          "id": "c2",
+          "name": "Dominique Leroy",
+          "form": "Stature ample, débit lent, formules solennelles. Air de « père / mère de la nation » qui a tout vu.",
+          "program": "Stabiliser les comptes publics, simplifier l’État, soutenir l’innovation et la formation. L’efficacité d’abord."
+        },
+        {
+          "id": "c3",
+          "name": "Sam Benali",
+          "form": "Sourire facile, tutoiement, anecdotes de marché. Air chaleureux qui « parle aux gens ».",
+          "program": "Tenir les comptes, alléger la machine administrative, miser sur l’innovation et la formation. Viser l’efficacité."
+        }
+      ]
+    },
+    {
+      "id": "anchor",
+      "effect": "anchor",
+      "homeTitle": "La salle des sondages",
+      "homeBlurb": "Des premiers chiffres s’affichent. Tu estimes la suite — comme avant une élection.",
+      "clickbait": [
+        "Premiers sondages · ton avis",
+        "Qui a une chance ?",
+        "Salle des chiffres"
+      ],
+      "rounds": [
+        {
+          "pollLabel": "Premier sondage — candidat A",
+          "anchor": 22,
+          "anchorContext": "Publié ce matin, très repris.",
+          "prompt": "Selon toi, son score final sera plutôt…",
+          "options": [
+            { "k": "1", "label": "vers 20–24 %", "value": 22, "pulled": true },
+            { "k": "2", "label": "vers 12–15 %", "value": 14, "pulled": false },
+            { "k": "3", "label": "vers 30 %+", "value": 32, "pulled": false }
+          ]
+        },
+        {
+          "pollLabel": "Premier sondage — gauche",
+          "anchor": 18,
+          "anchorContext": "« Seul capable d’atteindre le second tour » à gauche, dit le plateau.",
+          "prompt": "Pour un vote « utile » à gauche, tu te rangerais plutôt…",
+          "options": [
+            { "k": "1", "label": "derrière ce candidat à 18 %", "value": 18, "pulled": true },
+            { "k": "2", "label": "sur un autre à ~7 %", "value": 7, "pulled": false },
+            { "k": "3", "label": "sur un autre à ~5 %", "value": 5, "pulled": false }
+          ]
+        },
+        {
+          "pollLabel": "Scénario médiatique dominant",
+          "anchor": 2,
+          "anchorContext": "Second tour « déjà joué » entre deux noms (affiché comme évidence).",
+          "prompt": "Tu anticipes le second tour…",
+          "options": [
+            { "k": "1", "label": "comme le scénario annoncé", "value": 2, "pulled": true },
+            { "k": "2", "label": "avec une surprise possible", "value": 0, "pulled": false },
+            { "k": "3", "label": "complètement ouvert", "value": 0, "pulled": false }
+          ]
+        },
+        {
+          "pollLabel": "Intentions — candidat B",
+          "anchor": 9,
+          "anchorContext": "Premier chiffre bas, répété en boucle.",
+          "prompt": "Ce candidat…",
+          "options": [
+            { "k": "1", "label": "reste autour de 8–10 %", "value": 9, "pulled": true },
+            { "k": "2", "label": "peut monter vers 16–18 %", "value": 17, "pulled": false },
+            { "k": "3", "label": "peut s’effondrer sous 5 %", "value": 4, "pulled": false }
+          ]
+        }
       ]
     }
   ]

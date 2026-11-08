@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>AI drives crazy — humor lab v1</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="shell">
+    <aside class="algo" aria-label="Schéma de l’algorithme">
+      <p class="algo-title">algo blague</p>
+      <ol class="algo-flow" id="algoFlow">
+        <li data-step="bank">
+          <span class="algo-box">banque Q<br />+ règles A<br />0 IA</span>
+        </li>
+        <li class="algo-arrow" aria-hidden="true">↓</li>
+        <li data-step="think">
+          <span class="algo-box">fausse<br />réflexion<br />400–900 ms</span>
+        </li>
+        <li class="algo-arrow" aria-hidden="true">↓</li>
+        <li data-step="grim">
+          <span class="algo-box">tirage grim<br />&lt; 1 %</span>
+        </li>
+        <li class="algo-arrow" aria-hidden="true">↓</li>
+        <li data-step="unseen">
+          <span class="algo-box">évite déjà-vus<br />sinon poids</span>
+        </li>
+        <li class="algo-arrow" aria-hidden="true">↓</li>
+        <li data-step="weight">
+          <span class="algo-box">score tags<br />× langue<br />× ton</span>
+        </li>
+        <li class="algo-arrow" aria-hidden="true">↓</li>
+        <li data-step="emit">
+          <span class="algo-box">affiche<br />Q · A · #tags</span>
+        </li>
+        <li class="algo-arrow" aria-hidden="true">↓</li>
+        <li data-step="learn">
+          <span class="algo-box">apprend<br />2 questions max</span>
+        </li>
+        <li class="algo-arrow" aria-hidden="true">↓</li>
+        <li data-step="update">
+          <span class="algo-box">↑↓ poids<br />→ blague suivante</span>
+        </li>
+        <li class="algo-arrow" aria-hidden="true">↓</li>
+        <li data-step="finish">
+          <span class="algo-box">bilan<br />+ newsletter<br />+ piste J1</span>
+        </li>
+      </ol>
+      <p class="algo-note">0 appel API · 0 token · tout dans le navigateur</p>
+    </aside>
+
+    <div class="content">
+      <!-- LAB -->
+      <main class="stage" id="labView">
+        <header class="brand">
+          <div class="brand-row">
+            <p class="logo">AI drives crazy</p>
+            <p class="badge-zero" title="Aucune intelligence artificielle">0 IA</p>
+          </div>
+          <div class="lang-mode" role="group" aria-label="Langue des citations">
+            <button type="button" class="lang-btn" id="langFr" data-lang="fr" aria-pressed="true">FR</button>
+            <button type="button" class="lang-btn" id="langEn" data-lang="en" aria-pressed="false">EN</button>
+          </div>
+          <p class="meta" id="meta">lab v1 · algorithmique · 0 € · 0 token</p>
+          <div class="gauge" id="gauge" role="meter" aria-label="Niveau d’humour" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div class="gauge-top">
+              <span class="gauge-label">niveau d’humour</span>
+              <span class="gauge-value" id="gaugeValue">—</span>
+            </div>
+            <div class="gauge-track">
+              <div class="gauge-fill" id="gaugeFill" style="width: 0%"></div>
+            </div>
+            <p class="gauge-hint" id="gaugeHint">note des posts pour remplir la jauge</p>
+          </div>
+        </header>
+
+        <section class="card" id="card" aria-live="polite">
+          <p class="hint" id="hint">Deux chemins : générer un texte, ou apprendre ton humour.</p>
+          <p class="lang" id="lang" hidden></p>
+          <p class="question" id="question" hidden></p>
+          <p class="answer" id="answer" hidden></p>
+          <p class="provenance" id="provenance" hidden></p>
+          <p class="tags" id="tags" hidden></p>
+        </section>
+
+        <section class="paths" id="paths" aria-label="Actions">
+          <div class="path path-learn" id="pathLearn" data-active="false">
+            <div class="path-head">
+              <span class="path-num">1</span>
+              <div>
+                <p class="path-title">Apprendre</p>
+                <p class="path-desc" id="learnDesc">2 questions max, puis post suivant</p>
+              </div>
+            </div>
+            <p class="path-prompt" id="learnPrompt">Génère d’abord un texte (chemin 2).</p>
+            <p class="learn-progress" id="learnProgress" hidden></p>
+            <div class="key-row" id="learnKeys" hidden></div>
+          </div>
+
+          <div class="path path-gen" id="pathGen" data-active="true">
+            <div class="path-head">
+              <span class="path-num">2</span>
+              <div>
+                <p class="path-title">Citation suivante</p>
+                <p class="path-desc">Espace = post suivant</p>
+              </div>
+            </div>
+            <div class="key-row">
+              <button type="button" class="key key-wide" data-key="space" id="btnNext" aria-label="Espace : citation suivante">
+                <span class="key-glyph">espace</span>
+                <span class="key-label">suivant</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <div class="finish-row">
+          <button type="button" class="key key-wide key-finish" data-action="finish" aria-label="Terminer : voir le bilan">
+            <span class="key-glyph">terminer</span>
+            <span class="key-label">bilan + newsletter</span>
+          </button>
+        </div>
+
+        <footer class="bar">
+          <p id="stats">0 tests · profil vide</p>
+          <button type="button" class="text-btn" id="resetBtn" data-key="r">reset profil (r)</button>
+        </footer>
+      </main>
+
+      <!-- BILAN -->
+      <section class="end" id="endView" hidden>
+        <header class="end-hero">
+          <p class="end-kicker">bilan humour</p>
+          <h1 class="end-title" id="endTitle">Ton profil</h1>
+          <p class="end-lead" id="endLead"></p>
+          <p class="end-humor" id="endHumor"></p>
+        </header>
+
+        <section class="axes" aria-label="Profil en 4 axes">
+          <article class="axis">
+            <div class="axis-top">
+              <h2>Paradoxe</h2>
+              <span id="axisParadoxVal">0%</span>
+            </div>
+            <p class="axis-desc">Tu aimes les règles qui s’annulent toutes seules.</p>
+            <div class="axis-track"><div class="axis-fill" id="axisParadox" style="width:0%"></div></div>
+          </article>
+          <article class="axis">
+            <div class="axis-top">
+              <h2>Impossible</h2>
+              <span id="axisImpossibleVal">0%</span>
+            </div>
+            <p class="axis-desc">Consignes absurdes, réponses qui explosent.</p>
+            <div class="axis-track"><div class="axis-fill" id="axisImpossible" style="width:0%"></div></div>
+          </article>
+          <article class="axis">
+            <div class="axis-top">
+              <h2>Quotidien</h2>
+              <span id="axisDailyVal">0%</span>
+            </div>
+            <p class="axis-desc">Retard, notifs, gym — la vie qui se contredit.</p>
+            <div class="axis-track"><div class="axis-fill" id="axisDaily" style="width:0%"></div></div>
+          </article>
+          <article class="axis">
+            <div class="axis-top">
+              <h2>Méta</h2>
+              <span id="axisMetaVal">0%</span>
+            </div>
+            <p class="axis-desc">Blagues sur l’algo, le feed, le miroir.</p>
+            <div class="axis-track"><div class="axis-fill" id="axisMeta" style="width:0%"></div></div>
+          </article>
+        </section>
+
+        <section class="news" aria-labelledby="newsTitle">
+          <p class="news-brand">AI drives crazy</p>
+          <h2 class="news-title" id="newsTitle">On dirait une IA. Ce n’est qu’un algo.</h2>
+          <p class="news-copy">
+            Une contradiction courte, chaque semaine — écrite sans modèle.
+            Assez drôle pour screenshot. Assez nette pour moins dépendre des machines.
+          </p>
+          <ul class="news-points">
+            <li>1 email / semaine · 0 € · 0 IA</li>
+            <li>Désinscription en 1 clic</li>
+            <li>Rien vendu à personne</li>
+          </ul>
+
+          <form class="news-form" id="newsForm" novalidate>
+            <label class="sr-only" for="newsEmail">Email</label>
+            <div class="news-row">
+              <input
+                id="newsEmail"
+                name="email"
+                type="email"
+                autocomplete="email"
+                inputmode="email"
+                required
+                placeholder="ton@email.com"
+                maxlength="120"
+              />
+              <button type="submit" class="news-submit">S’inscrire</button>
+            </div>
+            <label class="news-consent">
+              <input type="checkbox" id="newsConsent" name="consent" required />
+              <span>J’accepte de recevoir cet email. Pas d’autre usage.</span>
+            </label>
+            <p class="news-error" id="newsError" hidden></p>
+            <p class="news-ok" id="newsOk" hidden>C’est noté. Premier mail dès que la liste part (v1 locale pour l’instant).</p>
+          </form>
+        </section>
+
+        <section class="hunt" aria-labelledby="huntTitle">
+          <p class="hunt-kicker">suite ludique</p>
+          <h2 class="hunt-title" id="huntTitle">Jeu de piste · 7 jours</h2>
+          <p class="hunt-copy">
+            Chaque jour, une micro-mission : piège une IA… ou constate que tu n’en as pas besoin.
+            Jour 1 débloqué. Reviens demain pour le suivant.
+          </p>
+          <ol class="hunt-days" id="huntDays"></ol>
+          <p class="hunt-mission" id="huntMission"></p>
+        </section>
+
+        <div class="end-actions">
+          <button type="button" class="key key-wide" data-action="back">
+            <span class="key-glyph">retour lab</span>
+            <span class="key-label">continuer à entraîner</span>
+          </button>
+        </div>
+      </section>
+    </div>
+  </div>
+  <script src="engine.js" defer></script>
+</body>
+</html>

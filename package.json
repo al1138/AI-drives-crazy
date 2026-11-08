@@ -1,0 +1,8 @@
+{
+  "name": "ai-drives-crazy",
+  "private": true,
+  "scripts": {
+    "dev": "npx --yes wrangler pages dev lab --port 8787",
+    "deploy": "npx --yes wrangler pages deploy lab --project-name=ai-drives-crazy"
+  }
+}

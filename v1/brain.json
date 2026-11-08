@@ -1,0 +1,102 @@
+{
+ "features": {
+  "type:paradoxe": [
+   5.7,
+   1.0
+  ],
+  "style:absurde": [
+   5.7,
+   3.7
+  ],
+  "type:sure_fausse": [
+   2.0,
+   3.0
+  ],
+  "lang:en": [
+   2.7,
+   2.7
+  ],
+  "sujet:sure_fausse:bubble": [
+   2.5,
+   1.0
+  ],
+  "q:sure_fausse:0": [
+   2.0,
+   2.0
+  ],
+  "a:sure_fausse:1": [
+   2.0,
+   1.0
+  ],
+  "lang:fr": [
+   2.0,
+   2.0
+  ],
+  "sujet:sure_fausse:tralala": [
+   1.0,
+   2.0
+  ],
+  "a:sure_fausse:0": [
+   1.0,
+   2.0
+  ],
+  "sujet:sure_fausse:strawberry": [
+   1.0,
+   2.0
+  ],
+  "q:sure_fausse:1": [
+   1.0,
+   2.0
+  ],
+  "a:sure_fausse:2": [
+   1.0,
+   2.0
+  ],
+  "sujet:paradoxe:lettre_e": [
+   2.0,
+   1.0
+  ],
+  "a:paradoxe:lettre_e:1": [
+   2.0,
+   1.0
+  ],
+  "sujet:paradoxe:excuse": [
+   1.7,
+   1.0
+  ],
+  "a:paradoxe:excuse:1": [
+   1.7,
+   1.0
+  ],
+  "type:bavarde": [
+   1.0,
+   1.7
+  ],
+  "sujet:bavarde:maths": [
+   1.0,
+   1.7
+  ],
+  "q:bavarde:0": [
+   1.0,
+   1.7
+  ],
+  "a:bavarde:0": [
+   1.0,
+   1.7
+  ]
+ },
+ "seen": [
+  "2debd56513",
+  "1f1748f8fc",
+  "1b9f24b63b",
+  "b460a9167b",
+  "8d16ed2eea",
+  "8219e3f013",
+  "2ebecb8405"
+ ],
+ "lang": "mix",
+ "onboarded": true,
+ "count": 5,
+ "rated": 5,
+ "duel_done": true
+}

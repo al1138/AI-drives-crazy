@@ -44,6 +44,7 @@ const el = {
   corrStory: document.getElementById("corrStory"),
   corrRateChoices: document.getElementById("corrRateChoices"),
   startRow: document.getElementById("startRow"),
+  finishRow: document.getElementById("finishRow"),
   finishLabel: document.getElementById("finishLabel"),
   brandLogo: document.getElementById("brandLogo"),
   brandSub: document.getElementById("brandSub"),
@@ -934,6 +935,7 @@ function replaySameCompare() {
   disableEndScrollCoach();
   el.endView.hidden = true;
   el.labView.hidden = false;
+  mode = "idle";
   // Garde la même expérience ; nouveau tirage de contenu.
   refreshActiveContent();
   startPlay();
@@ -1477,6 +1479,10 @@ function refreshActiveContent() {
   renderBrandSub();
 }
 
+function setFinishVisible(on) {
+  if (el.finishRow) el.finishRow.hidden = !on;
+}
+
 function showIdle() {
   mode = "idle";
   stepIndex = 0;
@@ -1491,22 +1497,39 @@ function showIdle() {
   hidePlays();
   if (el.hint) el.hint.hidden = false;
   if (el.startRow) el.startRow.hidden = false;
+  setFinishVisible(false);
   applyHomeCopy();
   if (el.stats) el.stats.textContent = "";
 }
 
 function startPlay() {
+  // Si on revient du bilan sans reset de mode, on ré-arme.
+  if (mode === "end" && el.endView?.hidden) mode = "idle";
+  if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+
   quizStartedAt = Date.now();
   stepIndex = 0;
   answers = {};
   answerOrder = [];
   confirmMarks = {};
   corrLog = [];
+  setFinishVisible(true);
+
   if (effect() === "barnum") {
     if (!barnumSession) barnumSession = buildBarnumSession();
+    if (!barnumSession?.questions?.length) {
+      mode = "idle";
+      setFinishVisible(false);
+      return;
+    }
     showBarnumQuestion();
   } else if (effect() === "confirmation") {
     if (!confirmDeck.length) confirmDeck = buildConfirmDeck();
+    if (!confirmDeck.length) {
+      mode = "idle";
+      setFinishVisible(false);
+      return;
+    }
     showConfirmStep();
   } else {
     showCorrDay();
@@ -1563,6 +1586,8 @@ function resetAll() {
 }
 
 function handleKey(raw) {
+  // Guérir un mode « end » orphelin si le lab est réaffiché.
+  if (mode === "end" && el.endView?.hidden && !el.labView?.hidden) mode = "idle";
   if (mode === "end") return;
   const k = raw === " " || raw === "space" ? "space" : String(raw).toLowerCase();
   if (k === "r") {
@@ -1623,15 +1648,33 @@ document.addEventListener("keydown", (e) => {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
   const t = e.target instanceof HTMLElement ? e.target : null;
   if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;
+  if (mode === "end" && el.endView?.hidden && !el.labView?.hidden) mode = "idle";
   if (mode === "end") return;
   const isSpace = e.code === "Space" || e.key === " ";
   const isEnter = e.key === "Enter";
   const single = e.key.length === 1 ? e.key.toLowerCase() : "";
   if (isSpace || isEnter || /^[1-3r]$/.test(single)) {
     e.preventDefault();
+    // Empêche un 2e déclenchement (activation native du bouton focusé).
+    e.stopPropagation();
     handleKey(isSpace ? "space" : isEnter ? "enter" : single);
   }
 });
+
+document.addEventListener(
+  "keyup",
+  (e) => {
+    if (mode === "end") return;
+    const isSpace = e.code === "Space" || e.key === " ";
+    const isEnter = e.key === "Enter";
+    if (!isSpace && !isEnter) return;
+    const t = e.target instanceof HTMLElement ? e.target : null;
+    if (t && (t.tagName === "BUTTON" || t.getAttribute("role") === "button")) {
+      e.preventDefault();
+    }
+  },
+  true,
+);
 
 document.addEventListener("click", (e) => {
   const actionBtn = e.target instanceof Element ? e.target.closest("[data-action]") : null;
